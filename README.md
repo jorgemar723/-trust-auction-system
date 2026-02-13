@@ -17,7 +17,7 @@
 
 
 ## General Information
-- 
+
 - What problem does this application solve?
 	- Reduced fraud and increased security when compared to alternatives (like ebay)
 - Why did you undertake it?
