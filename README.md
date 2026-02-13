@@ -1,5 +1,5 @@
 # TRUST — Transparent Register for Unbiased Sales & Trades
-> Online auction house that uses blockchain to regulate rules and payment, AI analytics, built using python, C++, SQL, and Solidity. We are developing this for security-minded individuals, as an alternative to auction houses that don't offer comprehensive fraud protection and security. This project will impact users by offering a safe place to shop and auction their personal items. Built by Nathan Carlson, Jorge Martinez-Lopez, Joseph Krabe, Kristian Parra, and Robert Krause.
+> Online auction house that uses blockchain to regulate rules and payment, AI analytics, built using Python, C++, SQL, and Solidity. We are developing this for security-minded individuals, as an alternative to auction houses that don't offer comprehensive fraud protection and security. This project will impact users by offering a safe place to shop and auction their personal items. Built by Nathan Carlson, Jorge Martinez-Lopez, Joseph Krabe, Kristian Parra, and Robert Krause.
 > Live demo [_here_](https://www.example.com). <!-- If you have the project hosted somewhere, include the link here. -->
 
 ## Table of Contents
@@ -21,7 +21,7 @@
 - What problem does this application solve?
 	- Reduced fraud and increased security when compared to alternatives (like ebay)
 - Why did you undertake it?
-	- 
+	- We wanted to explore blockchain-based system design and demonstrate how smart contracts can increase trust in digital marketplaces
 <!-- You don't have to answer all the questions - just the ones relevant to your project. -->
 
 
@@ -43,7 +43,7 @@
 
 
 ## Screenshots
-![Example screenshot](./img/screenshot.png)
+![Example screenshot](./img/Trust logo with shield and checkmark.png)
 <!-- If you have screenshots you'd like to share, include them here. -->
 
 
