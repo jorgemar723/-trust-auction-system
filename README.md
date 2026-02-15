@@ -37,7 +37,9 @@
 - [User interface] Python application provides a command-line or simple web interface for users to interact with the system. 
 	- User Story: As a **Bidder**, I want a **clear and responsive interface** so that I can easily view the current highest bid and submit my own without writing raw code.
 - [Etherium VM] Blockchain-based auction system running on a local Hardhat network
-	- As a **Developer**, I want to run the auction on a **local Hardhat network** so that I can test transactions instantly and for free before deploying to a mainnet.
+	- As a **Developer**, I want to run the auction on a **local Hardhat network** so that I can test transactions instantly and for free before deploying to a testnet
+-• [Testnet Integration] Deploy and run auctions on a public Ethereum testnet (e.g., Sepolia) using real wallets and testnet ETH
+◦ 	User Story: As a Bidder, I want to interact with auctions on a public Ethereum testnet using a realcrypto wallet so that I can 			experience a realistic decentralized auction without risking real money.
 - [Smart Contract] A Solidity smart contract that enforces the auction rules, such as requiring higher bids and respecting time limits
 	- As an **Auction Participant**, I want the **Solidity contract to automatically enforce rules** so that the process is fair and I don't have to trust a third party.
 - [AI Fraud Detection] An AI analytics engine that flags suspicious bidding patterns
