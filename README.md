@@ -45,6 +45,24 @@
 - [Real Time UI Updates] Real time bidding updates shown to user in python UI
 	- As a **Bidder**, I want the Python-based UI to **provide real-time updates** from the SQL database so that I never miss a bid due to lag or synchronization issues.
 
+**Auction State Transparency**
+
+  - User Story: As a Bidder, I want to retrieve the full state of an auction so that I can make informed bidding decisions.
+  - Acceptance Criteria:
+    1. The smart contract must provide a function to retrieve auction details by auction ID.
+    2. The Python application must display the current highest bid and highest bidder address.
+    3. The system must correctly indicate whether the auction is open or closed.
+    4. The application must handle invalid auction IDs with a clear error message.
+
+**Multi-Auction Support**
+
+  - User Story: As a Seller, I would like to create and manage multiple auctions simultaneously so that I can list and sell more than one item at a time without conflicts between auctions.
+  - Acceptance Criteria:
+    1. The smart contract must assign a unique auction ID to each newly created auction.
+    2. The system must allow multiple auctions to exist simultaneously without overwriting or corrupting existing auction data.
+    3. Bids must be associated with the correct auction ID and must not affect other auctions.
+    4. The Python application must allow users to view a list of active auctions and select an auction by ID.
+
 
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
