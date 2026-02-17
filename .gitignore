@@ -58,7 +58,8 @@ __pycache__/
 *.pyc
 
 # Environment files
-.env
+venv/
+
 
 # NPM cache lock 
 package-lock.json
