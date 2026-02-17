@@ -4,12 +4,12 @@ from web3 import Web3
 w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
 print("Connected:", w3.is_connected())
 
-# Load ABI
-with open("/home/biggie/TRUST/trust/Hardhat testing Node/artifacts/SimpleAuction.json") as f:
+# Load ABI copy SimpleAuction.json path
+with open("") as f:
     contract_json = json.load(f)
     abi = contract_json["abi"]
-
-contract_address = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+#copy from remix
+contract_address = ""
 
 contract = w3.eth.contract(
     address=contract_address,
