@@ -1,0 +1,68 @@
+# Hardhat Local Dev Setup
+
+## 1. Install Node.js
+
+Requires Node 20+
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+
+Check version:
+node -v
+
+---
+
+## 2. Install dependencies
+
+npm install
+
+---
+
+## 3. Start local blockchain
+
+npx hardhat node
+
+Leave this running.
+
+---
+
+## 4. Open second terminal
+
+Run:
+
+npx hardhat console --network localhost
+
+---
+
+## 5. Connect to blockchain
+
+Inside console:
+
+const { ethers } = await import("ethers")
+const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545")
+
+Get accounts:
+await provider.send("eth_accounts", [])
+
+##Install Python + tools
+sudo apt install -y python3 python3-pip python3-venv
+python3 --version
+pip3 --version
+
+
+
+# create virtual environment
+python3 -m venv venv
+
+# activate it
+source venv/bin/activate
+
+# install deps
+pip install web3
+
+# run the app
+python auction.py
+
+
+
+
