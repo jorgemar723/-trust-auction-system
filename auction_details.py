@@ -38,6 +38,11 @@ def load_registry(path: str | Path) -> Dict[int, AuctionRecord]:
 
 
 def get_auction_record(registry: Dict[int, AuctionRecord], auction_id: int) -> AuctionRecord:
+    """
+    PROJ-56: Retrieve an AuctionRecord by auction_id from the loaded registry.
+    Raises AuctionNotFoundError when the ID is not present.
+    """
+
     try:
         return registry[int(auction_id)]
     except Exception as e:
