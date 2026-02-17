@@ -50,6 +50,11 @@
 	- As a **Bidder**, I want to **retrieve the full state of an auction** so that I can make informed bidding decisions.
 - [Multi-Auction Support] Unique auction ID system enabling simultaneous independent auctions without data conflicts
 	- As a **Seller**, I want to **create and manage multiple auctions simultaneously** so that I can list and sell more than one item at a time without conflicts between auctions.
+- [User Registration] System allows new users to create an account to participate in auctions.  
+	- User Story: As a **new user**, I would like to **create an account** so that I can securely participate in auctions on the TRUST platform.
+- [View Auction Details] System displays detailed information about a selected auction.  
+	- User Story: As a **user**, I would like to **view the details of an auction** so that I can understand what item is being sold before placing a bid.
+
 
 
 ## Screenshots
