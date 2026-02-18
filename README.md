@@ -44,8 +44,8 @@
 	- As an **Auction Participant**, I want the **Solidity contract to automatically enforce rules** so that the process is fair and I don't have to trust a third party.
 - [AI Fraud Detection] An AI analytics engine that flags suspicious bidding patterns
 	- As a **Seller**, I want the AI analytics engine to **flag suspicious bidding patterns** so that I can avoid "shill bidding" or bot manipulation on my items.
-- [Real Time UI Updates] Real time bidding updates shown to user in python UI
-	- As a **Bidder**, I want the Python-based UI to **provide real-time updates** from the SQL database so that I never miss a bid due to lag or synchronization issues.
+- [Flask web app] Web app that allows users to browse auctions
+	- **As a buyer**, I want to **browse a clean, professional web gallery** of active auctions.
 - [Auction State Transparency] Smart contract getter function and Python display logic for retrieving auction information by ID
 	- As a **Bidder**, I want to **retrieve the full state of an auction** so that I can make informed bidding decisions.
 - [Multi-Auction Support] Unique auction ID system enabling simultaneous independent auctions without data conflicts
