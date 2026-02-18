@@ -48,3 +48,20 @@ Thumbs.db
 *.mov
 *.wmv
 
+# Hardhat / Blockchain generated files
+artifacts/
+cache/
+.states/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment files
+venv/
+
+
+# NPM cache lock 
+package-lock.json
+
+
