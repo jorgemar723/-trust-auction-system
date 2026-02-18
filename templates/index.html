@@ -5,14 +5,18 @@
 <div class="row row-cols-1 row-cols-md-3 g-4">
     {% for auction in auctions %}
     <div class="col">
-        <div class="card h-100 shadow-sm">
-            <img src="{{ auction.image }}" class="card-img-top" alt="{{ auction.title }}">
+        <div class="card h-100 shadow-sm border-0">
+            <img src="{{ url_for('static', filename='images/' + auction.image) }}" 
+                 class="card-img-top" 
+                 alt="{{ auction.title }}"
+                 style="height: 200px; object-fit: cover;">
+            
             <div class="card-body">
                 <h5 class="card-title">{{ auction.title }}</h5>
                 <p class="card-text text-muted small">{{ auction.description }}</p>
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-success">{{ auction.current_bid }}</span>
-                    <a href="/auction/{{ auction.id }}" class="btn btn-sm btn-primary">View Auction</a>
+                    <span class="badge bg-dark text-cyan">{{ auction.current_bid }}</span>
+                    <a href="/auction/{{ auction.id }}" class="btn btn-sm btn-outline-primary">View Auction</a>
                 </div>
             </div>
         </div>
