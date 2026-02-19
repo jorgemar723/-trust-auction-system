@@ -3,45 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRUST | Blockchain Auctions</title>
+    <title>TRUST | Secure Blockchain Auctions</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .navbar { background-color: #1a1a1a; }
-        .trust-logo { font-weight: bold; letter-spacing: 2px; color: #00d4ff !important; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
     <div class="container">
-        <a class="navbar-brand trust-logo" href="/">TRUST</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <a class="navbar-brand fw-bold" href="/" style="letter-spacing: 1.5px; color: #00d4ff;">TRUST</a>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="/">Live Auctions</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">My Bids</a></li>
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Marketplace</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Security</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Search</a></li>
+                <li class="nav-item ms-lg-3">
+                    <button class="btn btn-outline-info btn-sm">Connect Wallet</button>
+                </li>
             </ul>
-            <form class="d-flex me-2">
-                <input class="form-control me-2" type="search" placeholder="Find items...">
-            </form>
-            <button class="btn btn-outline-info" id="connectWallet">Connect Wallet</button>
         </div>
     </div>
 </nav>
 
-<div class="container mt-4" style="min-height: 80vh;">
+<main class="container my-5">
     {% block content %}{% endblock %}
-</div>
+</main>
 
-<footer class="bg-dark text-light py-4 mt-5">
-    <div class="container text-center">
-        <p>&copy; 2026 TRUST — Transparent Register for Unbiased Sales & Trades</p>
-        <small class="text-muted">Built by Carlson, Martinez-Lopez, Krabe, Parra, and Krause</small>
-    </div>
+<footer class="text-center py-4 border-top mt-5 bg-white text-muted">
+    <small>&copy; 2026 TRUST</small>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
