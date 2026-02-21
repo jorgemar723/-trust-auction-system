@@ -61,8 +61,8 @@ source venv/bin/activate
 pip install web3
 
 # run the app
-python auction.py
- vvvvv
+python "insert file.py"
+
 
 
 

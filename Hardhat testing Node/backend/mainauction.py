@@ -3,7 +3,7 @@ from .bidding import connect_web3, load_contract, place_bid
 w3 = connect_web3()
 contract = load_contract(
     w3,
-    abi_path="artifacts/contracts/Auction.sol/SimpleAuction.json",
+    abi_path="artifacts/contracts/SimplAuction.sol/SimpleAuction.json",
     contract_address="0x5FbDB2315678afecb367f032d93F642f64180aa3"
 )
 
