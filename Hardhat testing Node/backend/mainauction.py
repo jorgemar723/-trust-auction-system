@@ -11,3 +11,5 @@ account = w3.eth.accounts[0]
 
 def submit_bid(user_bid):
     return place_bid(w3, contract, account, user_bid)
+def get_state() -> dict:
+    return get_auction_state(w3, contract)
