@@ -1,4 +1,3 @@
-# test_mainauction.py
 from backend.mainauction import submit_bid
 
 result = submit_bid(1)
