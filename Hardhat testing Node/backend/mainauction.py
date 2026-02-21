@@ -1,4 +1,5 @@
 from .bidding import connect_web3, load_contract, place_bid
+from .state import get_auction_state
 
 w3 = connect_web3()
 contract = load_contract(
