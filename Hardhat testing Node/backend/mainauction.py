@@ -1,4 +1,5 @@
 from .bidding import connect_web3, load_contract, place_bid
+from .state import get_auction_state
 
 w3 = connect_web3()
 contract = load_contract(
@@ -11,3 +12,5 @@ account = w3.eth.accounts[0]
 
 def submit_bid(user_bid):
     return place_bid(w3, contract, account, user_bid)
+def get_state() -> dict:
+    return get_auction_state(w3, contract)
