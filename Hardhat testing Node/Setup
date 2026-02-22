@@ -1,40 +1,74 @@
-# Hardhat Local Dev Setup
+# Hardhat + Local Auction Backend Setup
 
-## 1. Install Node.js
+This guide explains how to:
 
-Requires Node 20+
+- Run a local Ethereum blockchain (Hardhat)
+- Deploy and interact with the contract
+- Set up the Python backend environment
+- Test the auction backend locally
+
+------------------------------------------------------------
+1Install Node.js (Required for Hardhat)
+------------------------------------------------------------
+
+Hardhat requires Node.js 20+.
+
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
-
-Check version:
+Verify installation:
 node -v
 
----
 
-## 2. Install dependencies
+------------------------------------------------------------
+ Install Project Dependencies
+------------------------------------------------------------
+
+From the project root (where package.json exists):
 
 npm install
 
----
 
-## 3. Start local blockchain
-
-npx hardhat node
-
-Leave this running.
-
----
-
-## 4. Open second terminal
+------------------------------------------------------------
+3Start Local Blockchain
+------------------------------------------------------------
 
 Run:
 
+npx hardhat node
+
+This will:
+- Start a JSON-RPC server at http://127.0.0.1:8545
+- Generate 20 unlocked test accounts
+- Fund each account with 10,000 ETH
+
+IMPORTANT:
+Leave this terminal running.
+
+
+------------------------------------------------------------
+ Deploy Contract to Local Node
+------------------------------------------------------------
+
+In a second terminal:
+
+npx hardhat compile
+npx hardhat run scripts/deploy.js --network localhost
+
+This will output:
+
+Contract deployed to: 0x...
+
+Copy this address and update it in:
+
+backend/mainauction.py
+
+
+------------------------------------------------------------
+ (Optional) Use Hardhat Console
+------------------------------------------------------------
+
 npx hardhat console --network localhost
-
----
-
-## 5. Connect to blockchain
 
 Inside console:
 
@@ -44,25 +78,96 @@ const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545")
 Get accounts:
 await provider.send("eth_accounts", [])
 
-##Install Python + tools
+
+============================================================
+PYTHON BACKEND SETUP
+============================================================
+
+------------------------------------------------------------
+ Install Python & Tools
+------------------------------------------------------------
+
 sudo apt install -y python3 python3-pip python3-venv
+
 python3 --version
 pip3 --version
 
 
+------------------------------------------------------------
+ Create Virtual Environment
+------------------------------------------------------------
 
-# create virtual environment
+From project root:
+
 python3 -m venv venv
 
-# activate it
+Activate it:
+
 source venv/bin/activate
 
-# install deps
+
+------------------------------------------------------------
+ Install Python Dependencies
+------------------------------------------------------------
+
 pip install web3
+pip install flask
 
-# run the app
-python auction.py
 
+------------------------------------------------------------
+ Run Backend / Test Script
+------------------------------------------------------------
+
+Example test:
+
+python test_mainauction.py
+
+Or run Flask app:
+
+python FLASKTEST.py
+
+
+============================================================
+DEVELOPMENT WORKFLOW
+============================================================
+
+Terminal 1:
+npx hardhat node
+
+Terminal 2:
+npx hardhat compile
+npx hardhat run scripts/deploy.js --network localhost
+
+Terminal 3:
+source venv/bin/activate
+python test_mainauction.py
+
+
+============================================================
+IMPORTANT NOTES
+============================================================
+
+- Restarting "npx hardhat node" resets the blockchain state.
+- You must redeploy the contract after restarting.
+- Update the contract address in backend/mainauction.py after redeploy.
+- Python backend assumes unlocked Hardhat accounts (default in Hardhat).
+- Flask layer is optional for backend testing.
+
+
+============================================================
+SYSTEM ARCHITECTURE OVERVIEW
+============================================================
+
+Flask (HTTP Layer)
+        ↓
+mainauction.py (Controller Layer)
+        ↓
+bidding.py (Write Remote)
+state.py   (Read Remote)
+        ↓
+Hardhat Local Blockchain (Ethereum Node)
+
+Each layer can be tested independently.
 
 
 
