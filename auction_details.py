@@ -62,7 +62,28 @@ def fetch_onchain_details(contract: Any) -> Dict[str, Any]:
         "endTime": end_time_unix,
     }
 
+def fetch_trustauction_state(contract: Any, auction_id: int) -> Dict[str, Any]:
+    """
+    PROJ-38: Fetch on-chain auction state via TRUSTAuction.getAuctionState(auctionId).
 
+    Expects contract to be a Web3.py contract instance for TRUSTAuction.sol.
+    Returns a Python-friendly dict.
+    """
+    # Solidity returns: (seller, itemDescription, highestBid, highestBidder, endTime, isOpen)
+    (seller, item_desc, highest_bid, highest_bidder, end_time, is_open) = (
+        contract.functions.getAuctionState(int(auction_id)).call()
+    )
+
+    return {
+        "seller": seller,
+        "itemDescription": item_desc,
+        "highestBid": int(highest_bid),
+        "highestBidder": highest_bidder,
+        "endTime": int(end_time),
+        "isOpen": bool(is_open),
+        "status": "OPEN" if is_open else "CLOSED",
+    }
+    
 def format_auction_details(
     auction: AuctionRecord,
     onchain: Dict[str, Any],
