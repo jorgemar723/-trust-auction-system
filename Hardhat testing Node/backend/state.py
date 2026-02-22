@@ -115,10 +115,12 @@ def get_auction_state(w3: Web3, contract) -> dict:
     # --- Time remaining calculation ---
     time_remaining = None
     ended = None
-
+    status = None
+    
     if auction_end_time is not None:
         time_remaining = max(0, auction_end_time - now)
         ended = (time_remaining == 0)
+        status = "CLOSED" if ended else "OPEN"
 
     return {
         "chain_time": now,
@@ -128,4 +130,8 @@ def get_auction_state(w3: Web3, contract) -> dict:
         "auction_end_time": auction_end_time,
         "time_remaining_seconds": time_remaining,
         "ended": ended,
+        "status": status,
+
     }
+    
+    

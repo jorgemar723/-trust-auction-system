@@ -53,7 +53,7 @@ w3 = connect_web3()
 # Load deployed contract instance
 contract = load_contract(
     w3,
-    abi_path="artifacts/contracts/SimpleAuction.sol/SimpleAuction.json",
+    abi_path="Hardhat testing Node/artifacts/contracts/SimpleAuction.sol/SimpleAuction.json",
     contract_address="0x5FbDB2315678afecb367f032d93F642f64180aa3"
 )
 
