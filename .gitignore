@@ -52,6 +52,8 @@ Thumbs.db
 artifacts/
 cache/
 .states/
+Hardhat testing Node/cache/
+Hardhat testing Node/artifacts/
 
 # Python cache
 __pycache__/
