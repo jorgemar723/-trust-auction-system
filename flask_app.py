@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 app = Flask(__name__)
+app.secret_key = 'trust_secret_key'
+
 
 # Mock Data: Simulating a database of active auctions
 AUCTIONS = [

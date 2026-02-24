@@ -1,6 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Marketplace</a></li>
@@ -53,26 +64,27 @@
         <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 100px;">
             <div class="text-center mb-4">
                 <p class="text-muted mb-1">Current Highest Bid</p>
-                <h2 class="display-5 fw-bold text-dark">{{ auction.current_bid }}</h2>
+                <h2 class="display-5 fw-bold text-dark">{{ auction.current_bid }} ETH</h2>
             </div>
 
             <hr>
 
-            <form class="mt-4">
+            <form method="POST" class="mt-4">
                 <label class="form-label fw-bold small text-uppercase text-muted">Place Your Bid (ETH)</label>
                 <div class="input-group mb-3">
                     <span class="input-group-text bg-white border-end-0">Ξ</span>
-                    <input type="number" class="form-control border-start-0 py-3" 
-                           placeholder="Enter amount" step="0.01">
+                    <input type="number" name="bid_amount" class="form-control border-start-0 py-3" 
+                           placeholder="Enter amount" step="0.01" required>
                 </div>
                 
-                <button type="button" class="btn btn-dark w-100 py-3 fw-bold rounded-3 shadow-sm mb-2" 
-                        onclick="alert('In a real scenario, this would trigger a MetaMask transaction!')">
+                <button type="submit" class="btn btn-dark w-100 py-3 fw-bold rounded-3 shadow-sm mb-2">
                     Confirm Bid
                 </button>
-                <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-bold rounded-3 border-0">
-                    Add to Watchlist
-                </button>
+                
+                <a href="{{ url_for('toggle_watchlist', auction_id=auction.id) }}" 
+                   class="btn btn-{{ 'outline-danger' if is_watched else 'outline-secondary' }} w-100 py-2 fw-bold rounded-3 border-0">
+                   {{ 'Remove from Watchlist' if is_watched else 'Add to Watchlist' }}
+                </a>
             </form>
 
             <div class="mt-5 p-3 bg-light rounded-3">

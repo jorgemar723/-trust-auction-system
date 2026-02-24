@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">My Watchlist</h2>
+
+{% if not auctions %}
+    <div class="text-center py-5">
+        <p class="text-muted">Your watchlist is empty. Go find some items!</p>
+        <a href="/" class="btn btn-primary">Browse Marketplace</a>
+    </div>
+{% else %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for auction in auctions %}
+            {% include 'includes/_auction_card.html' %} 
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
