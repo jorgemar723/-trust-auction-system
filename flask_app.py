@@ -33,12 +33,6 @@ def index():
 
 @app.route('/auction/<int:auction_id>')
 def detail(auction_id):
-    # Find the auction by ID or return 404
-    auction = next((a for a in AUCTIONS if a['id'] == auction_id), None)
-    return render_template('detail.html', auction=auction)
-
-@app.route('/auction/<int:auction_id>')
-def detail(auction_id):
     # Find the specific auction from our mock data list
     auction = next((a for a in AUCTIONS if a['id'] == auction_id), None)
     
