@@ -37,5 +37,21 @@ def detail(auction_id):
     auction = next((a for a in AUCTIONS if a['id'] == auction_id), None)
     return render_template('detail.html', auction=auction)
 
+@app.route('/auction/<int:auction_id>')
+def detail(auction_id):
+    # Find the specific auction from our mock data list
+    auction = next((a for a in AUCTIONS if a['id'] == auction_id), None)
+    
+    # Mock bid history for the table
+    history = [
+        {"user": "0x71C...a2E", "amount": "4.1 ETH", "time": "2 hours ago", "status": "Verified"},
+        {"user": "0x32B...f11", "amount": "3.8 ETH", "time": "5 hours ago", "status": "Verified"},
+        {"user": "0x99A...c43", "amount": "3.5 ETH", "time": "1 day ago", "status": "Verified"},
+    ]
+    
+    if auction:
+        return render_template('detail.html', auction=auction, history=history)
+    return "Auction not found", 404
+
 if __name__ == '__main__':
     app.run(debug=True)
