@@ -61,10 +61,10 @@
     </div>
 
     <div class="col-lg-4">
-        <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 100px;">
+        <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 100px; z-index: 1000;">
             <div class="text-center mb-4">
                 <p class="text-muted mb-1">Current Highest Bid</p>
-                <h2 class="display-5 fw-bold text-dark">{{ auction.current_bid }} ETH</h2>
+                <h2 class="display-5 fw-bold text-dark">{{ auction.current_bid }}</h2>
             </div>
 
             <hr>
@@ -74,7 +74,9 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text bg-white border-end-0">Ξ</span>
                     <input type="number" name="bid_amount" class="form-control border-start-0 py-3" 
-                           placeholder="Enter amount" step="0.01" required>
+                           placeholder="{{ auction.current_bid }}" 
+                           min="{{ auction.current_bid }}" 
+                           step="0.01" required>
                 </div>
                 
                 <button type="submit" class="btn btn-dark w-100 py-3 fw-bold rounded-3 shadow-sm mb-2">
