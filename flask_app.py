@@ -8,21 +8,21 @@ AUCTIONS = [
     {
         "id": 1,
         "title": "Vintage Rolex Submariner",
-        "current_bid": "4.2 ETH",
+        "current_bid": 4.0,
         "image": "Rolex.jpg",
         "description": "Certified authentic 1970s diving watch."
     },
     {
         "id": 2,
         "title": "Unopened 1st Ed. Charizard",
-        "current_bid": "12.5 ETH",
+        "current_bid": 12.5,
         "image": "Charizard.jpg",
         "description": "Mint condition, PSA 10 candidate."
     },
     {
         "id": 3,
         "title": "Bored Ape Yacht Club #772",
-        "current_bid": "65.0 ETH",
+        "current_bid": 65.0,
         "image": "NFT.jpg",
         "description": "Rare gold fur trait. Smart contract verified."
     }
@@ -61,7 +61,7 @@ def detail(auction_id):
         return redirect(url_for('detail', auction_id=auction_id))
 
     is_watched = auction_id in WATCHLIST
-    return render_template('detail.html', auction=auction, is_watched=is_watched)
+    return render_template('detail.html', auction=auction, is_watched=is_watched, history=history)
 
 @app.route('/watchlist')
 def view_watchlist():
