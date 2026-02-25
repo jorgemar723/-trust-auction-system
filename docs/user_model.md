@@ -1,143 +1,207 @@
 # TRUST Project – User Database Model
 
-Author: Kristian Parra  
-Branch: PROJ-49-user-database-structure  
+Author: Kristian Parra
+Branch: feature/PROJ-52-password-hashing
 
 ---
 
 # Overview
 
-This document describes the structure and usage of the user database for the TRUST application.
+The TRUST project uses a SQLite database (`db/trust.db`) to store user account information.
+User data is stored in the `users` table defined in `db/schema.sql`.
 
-The database is implemented using SQLite and stored locally as:
+The system supports:
 
+* User registration
+* Email validation
+* Duplicate email prevention
+* Password hashing (secure storage)
+
+---
+
+# Database Location
+
+Database file:
+
+```
 db/trust.db
+```
 
-The structure of the database is defined in:
+Schema file:
 
+```
 db/schema.sql
+```
 
-The schema acts as a blueprint, and the trust.db file stores the actual user data.
+Registration code:
+
+```
+src/database/register_user.py
+```
+
+Test script:
+
+```
+src/database/test_register.py
+```
 
 ---
 
 # Users Table Structure
 
-The users table stores account information for each registered user.
-
-Fields:
-
-user_id
-- INTEGER
-- Primary Key
-- Automatically increments
-- Unique identifier for each user
-
-email
-- TEXT
-- Required
-- Must be UNIQUE
-- Used for login
-
-password_hash
-- TEXT
-- Required
-- Stores encrypted password
-
-created_at
-- TEXT
-- Automatically generated timestamp
-
-updated_at
-- TEXT
-- Automatically generated timestamp
-
-is_active
-- INTEGER
-- Default: 1
-- 1 = active
-- 0 = disabled
+| Field         | Type    | Description                     |
+| ------------- | ------- | ------------------------------- |
+| id            | INTEGER | Unique user ID (Primary Key)    |
+| email         | TEXT    | User email (must be unique)     |
+| password_hash | TEXT    | Hashed password (NOT plaintext) |
+| created_at    | TEXT    | Timestamp when account created  |
+| updated_at    | TEXT    | Timestamp when last updated     |
+| is_active     | INTEGER | 1 = active, 0 = disabled        |
 
 ---
 
-# Creating the Database
+# Features Implemented
 
-Run this command in the terminal:
+## User Registration
 
-sqlite3 db/trust.db < db/schema.sql
+Users can register using:
 
-This creates the trust.db file and users table.
+```
+python3 src/database/test_register.py
+```
+
+Example:
+
+```
+Email: test@email.com
+Password: MyPassword123
+SUCCESS: User registered
+```
 
 ---
 
-# Viewing the Database
+## Email Validation
 
-Open the database:
+The system validates:
 
+* Proper email format
+* Duplicate emails not allowed
+
+Example duplicate:
+
+```
+ERROR: Email already exists
+```
+
+---
+
+## Password Hashing (PROJ-52)
+
+Passwords are NOT stored in plaintext.
+
+Passwords are hashed using bcrypt before being stored.
+
+Example database entry:
+
+```
+$2b$12$KIXQExampleHashValueHere
+```
+
+This improves security and protects user credentials.
+
+---
+
+# How Registration Works
+
+Flow:
+
+1. User enters email and password
+2. Email format is validated
+3. Password is hashed
+4. Data is inserted into SQLite database
+5. Database saves user permanently
+
+---
+
+# How to Test Registration
+
+Run:
+
+```
+python3 src/database/test_register.py
+```
+
+Enter:
+
+```
+Email: your@email.com
+Password: yourpassword
+```
+
+---
+
+# How to View Users in Database
+
+Open SQLite:
+
+```
 sqlite3 db/trust.db
+```
 
----
+Show tables:
 
-# Show all tables
-
+```
 .tables
+```
 
-Expected output:
+Show all users:
 
-users
-
----
-
-# View table structure
-
-.schema users
-
----
-
-# View all users
-
+```
 SELECT * FROM users;
+```
 
----
+Exit:
 
-# Add a test user
-
-INSERT INTO users (email, password_hash)
-VALUES ('test@email.com', 'hashedpassword');
-
----
-
-# View users again
-
-SELECT * FROM users;
-
-Example output:
-
-1|test@email.com|hashedpassword|2026-02-20|2026-02-20|1
-
----
-
-# Exit database
-
+```
 .exit
+```
 
 ---
 
-# Future Use
+# Example Database Output
 
-Python will connect to trust.db to:
+Example:
 
-- Register users
-- Authenticate users
-- Retrieve user data
-- Connect users to blockchain wallet addresses
+```
+1 | test@email.com | $2b$12$hashedpassword | 2026-02-25 | 2026-02-25 | 1
+```
+
+---
+
+# Security Notes
+
+Passwords are stored as hashes only.
+
+Plaintext passwords are never saved.
+
+This protects users if the database is compromised.
 
 ---
 
 # Summary
 
-schema.sql → defines structure
+The user database supports:
 
-trust.db → stores actual data
+* Secure registration
+* Email validation
+* Duplicate prevention
+* Password hashing
+* Persistent storage
 
-Python → interacts with database
+This completes:
+
+PROJ-48 – User Registration
+PROJ-51 – Email Validation
+PROJ-52 – Password Hashing
+
+---
