@@ -1,15 +1,31 @@
+from __future__ import annotations
+
 from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
-#Tries to use real blockchain-backed state pipeline (backend.mainauction)
-# In case it fails, (not deployed or missing dependencies)
+get_state = None
+_backend_import_error = None
 
+
+#Tries to use real blockchain-backed state pipeline (backend.mainauction)
+# In case it fails, /api/state will return a structured error response.
+    
 try:
-    from backend.mainauction import get_state  # Flask -> mainauction -> state.py -> Hardhat
+    from backend.mainauction import get_state as _get_state  # Flask -> mainauction -> state.py -> Hardhat     
+    get_state = _get_state
 except Exception as e:
-    get_state = None
     _backend_import_error = str(e)
+
+
+def error_json(code: str, message: str, details: str | None = None, http_status: int = 500):
+    payload = {
+        "ok": False,
+        "error": {"code": code, "message": message},
+    }
+    if details:
+        payload["details"] = details
+    return jsonify(payload), http_status
 
 # Mock Data: Simulating a database of active auctions
 AUCTIONS = [
@@ -42,7 +58,6 @@ def index():
 
 @app.route('/auction/<int:auction_id>')
 def detail(auction_id):
-    # Find the auction by ID or return 404
     auction = next((a for a in AUCTIONS if a['id'] == auction_id), None)
     return render_template('detail.html', auction=auction)
 
@@ -55,19 +70,24 @@ def api_state():
     Flask -> backend.mainauction -> backend.state -> Hardhat
     """
     if get_state is None:
-        return jsonify({
-            "error": "backend.mainauction import failed",
-            "details": _backend_import_error
-        }), 500
+        return error_json(
+            "BACKEND_IMPORT_FAILED",
+            "Backend import failed.",
+            _backend_import_error,
+            500,
+        )
 
     try:
         state = get_state()
+        # keep success shape simple for now (you can wrap later if you want)
         return jsonify(state)
     except Exception as e:
-        return jsonify({
-            "error": "failed to fetch on-chain state",
-            "details": str(e)
-        }), 500
+        return error_json(
+            "CHAIN_CALL_FAILED",
+            "Failed to fetch on-chain state.",
+            str(e),
+            500,
+        )
     
 
 if __name__ == '__main__':

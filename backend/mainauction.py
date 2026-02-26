@@ -48,6 +48,14 @@ from pathlib import Path
 from .bidding import connect_web3, load_contract, place_bid
 from .state import get_auction_state
 
+class BackendConfigError(Exception):
+    pass
+
+class ChainUnavailableError(Exception):
+    pass
+
+class ContractCallError(Exception):
+    pass
 
 # Repo root: trust/ (backend/ is inside it)
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -55,23 +63,15 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 # Defaults (can be overridden with env vars)
 _RPC_URL = os.getenv("HARDHAT_RPC_URL", "http://127.0.0.1:8545")
 _DEFAULT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-
-
-
-# --- Initialize blockchain connection (runs once on module import) ---
-
-# Connect to local Hardhat node
-w3 = connect_web3()
-
-# Load deployed contract instance
-contract = load_contract(
-    w3,
-    abi_path="Hardhat testing Node/artifacts/contracts/SimpleAuction.sol/SimpleAuction.json",
-    contract_address="0x5FbDB2315678afecb367f032d93F642f64180aa3"
+_DEFAULT_ABI_PATH = (
+    _REPO_ROOT
+    / "Hardhat testing Node"
+    / "artifacts"
+    / "contracts"
+    / "SimpleAuction.sol"
+    / "SimpleAuction.json"
 )
 
-# ABI path in the repo (note make sure the "Hardhat testing Node" folder is accounted for)
-_DEFAULT_ABI_PATH = _REPO_ROOT / "Hardhat testing Node" / "artifacts" / "contracts" / "SimpleAuction.sol" / "SimpleAuction.json"
 
 def _get_config() -> tuple[str, Path, str]:
     rpc_url = os.getenv("HARDHAT_RPC_URL", _RPC_URL)
@@ -85,27 +85,55 @@ def _init_chain():
     if not abi_path.exists():
         raise FileNotFoundError(f"ABI not found at: {abi_path}")
 
-    w3 = connect_web3(rpc_url)
-
-    contract = load_contract(
-        w3,
-        abi_path=str(abi_path),
-        contract_address=address,
-    )
+    try:
+        w3 = connect_web3(rpc_url)
+    except Exception as e:
+        raise ChainUnavailableError(f"Hardhat node not reachable at {rpc_url}") from e
     
+    try:
+        contract = load_contract(
+            w3,
+            abi_path=str(abi_path),
+            contract_address=address,
+        )
+    except Exception as e:
+        raise BackendConfigError(
+            f"Failed to load contract (ABI/address). Address={address}, ABI={abi_path}"
+        ) from e
+        
+    # Verify code exists at address (deployed)
+    
+    try:
+        code = w3.eth.get_code(address)
+        if code is None or len(code) == 0:
+            raise ContractCallError(
+                f"Contract not deployed at {address}. Run deploy script against this node."
+            )
+    except ContractCallError:
+        raise
+    except Exception as e:
+        raise ContractCallError(f"Could not verify contract deployment at {address}") from e
+
     if not w3.eth.accounts:
-        raise RuntimeError("No unlocked accounts available from this RPC")
+        raise ChainUnavailableError("No unlocked accounts available from this RPC")
 
     account = w3.eth.accounts[0]
     return w3, contract, account
 
 def submit_bid(user_bid: float) -> dict:
+    if user_bid <= 0:
+        raise ContractCallError("Bid amount must be positive.")
+
     w3, contract, account = _init_chain()
-    return place_bid(w3, contract, account, user_bid)
-
-
+    try:
+        return place_bid(w3, contract, account, user_bid)
+    except Exception as e:
+        raise ContractCallError(f"Bid transaction failed: {e}") from e
+    
 def get_state() -> dict:
     w3, contract, _account = _init_chain()
-    return get_auction_state(w3, contract)
-    
-    
+    try:
+        return get_auction_state(w3, contract)
+    except Exception as e:
+        raise ContractCallError(f"Failed to fetch on-chain state: {e}") from e 
+
