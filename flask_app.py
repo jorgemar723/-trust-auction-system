@@ -5,15 +5,23 @@ from flask import Flask, render_template, jsonify
 app = Flask(__name__)
 
 get_state = None
+submit_bid = None
 _backend_import_error = None
-
+_BackendAPIError = None
 
 #Tries to use real blockchain-backed state pipeline (backend.mainauction)
 # In case it fails, /api/state will return a structured error response.
     
 try:
-    from backend.mainauction import get_state as _get_state  # Flask -> mainauction -> state.py -> Hardhat     
+    from backend.mainauction import (
+        get_state as _get_state,
+        submit_bid as _submit_bid,
+        BackendAPIError as _BackendAPIError,
+    )
+
     get_state = _get_state
+    submit_bid = _submit_bid
+    _BackendAPIError = _BackendAPIError
 except Exception as e:
     _backend_import_error = str(e)
 
@@ -61,7 +69,7 @@ def detail(auction_id):
     auction = next((a for a in AUCTIONS if a['id'] == auction_id), None)
     return render_template('detail.html', auction=auction)
 
-# PROJ-38: Real Auction state endpoint
+# PROJ-38 and 39: Real Auction state endpoint
 
 @app.route("/api/state")
 def api_state():
@@ -79,16 +87,16 @@ def api_state():
 
     try:
         state = get_state()
-        # keep success shape simple for now (you can wrap later if you want)
-        return jsonify(state)
+        return jsonify({"ok": True, "data": state}), 200
     except Exception as e:
+        if _BackendAPIError is not None and isinstance(e, _BackendAPIError):
+            return error_json(e.code, e.message, e.details, e.http_status)
         return error_json(
-            "CHAIN_CALL_FAILED",
-            "Failed to fetch on-chain state.",
+            "UNEXPECTED_ERROR",
+            "Unexpected server error.",
             str(e),
             500,
         )
-    
 
 if __name__ == '__main__':
     app.run(debug=True)
