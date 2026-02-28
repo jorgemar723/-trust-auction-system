@@ -1,6 +1,6 @@
 # Hardhat Local Dev Setup
 
-## 1. Install Node.js
+##1. Install Node.js
 
 Requires Node 20+
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
