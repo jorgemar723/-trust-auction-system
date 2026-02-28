@@ -1,70 +1,126 @@
-# TRUST Project – User Database Model
+# TRUST User Model
 
-Author: Kristian Parra
-Branch: feature/PROJ-52-password-hashing
+## Overview
 
----
+The TRUST platform supports secure user registration using SQLite. This module ensures:
 
-# Overview
+* Valid email format
+* No duplicate registrations
+* Secure password hashing
+* Automated unit test verification
 
-The TRUST project uses a SQLite database (`db/trust.db`) to store user account information.
-User data is stored in the `users` table defined in `db/schema.sql`.
-
-The system supports:
-
-* User registration
-* Email validation
-* Duplicate email prevention
-* Password hashing (secure storage)
-
----
-
-# Database Location
-
-Database file:
+User data is stored in:
 
 ```
 db/trust.db
 ```
 
-Schema file:
+Using schema:
 
 ```
 db/schema.sql
 ```
 
-Registration code:
-
-```
-src/database/register_user.py
-```
-
-Test script:
-
-```
-src/database/test_register.py
-```
-
----
-
-# Users Table Structure
-
-| Field         | Type    | Description                     |
-| ------------- | ------- | ------------------------------- |
-| id            | INTEGER | Unique user ID (Primary Key)    |
-| email         | TEXT    | User email (must be unique)     |
-| password_hash | TEXT    | Hashed password (NOT plaintext) |
-| created_at    | TEXT    | Timestamp when account created  |
-| updated_at    | TEXT    | Timestamp when last updated     |
-| is_active     | INTEGER | 1 = active, 0 = disabled        |
-
 ---
 
 # Features Implemented
 
-## User Registration
+## 1. User Registration (PROJ-48)
 
-Users can register using:
+Registers a new user with email and password.
+
+Function:
+
+```
+register_user(email, password)
+```
+
+Behavior:
+
+* Inserts new user into database
+* Returns success message
+* Prevents duplicate email registration
+
+---
+
+## 2. Email Validation (PROJ-51)
+
+Registration validates email format before insertion.
+
+Validation includes:
+
+* Contains "@"
+* Contains domain name
+* Rejects invalid format
+
+Example:
+
+Valid:
+
+```
+user@email.com
+```
+
+Invalid:
+
+```
+useremail.com
+```
+
+Returns:
+
+```
+ERROR: Invalid email format
+```
+
+---
+
+## 3. Password Hashing (PROJ-52)
+
+Passwords are NEVER stored as plaintext.
+
+Passwords are hashed using:
+
+```
+bcrypt
+```
+
+Example stored value:
+
+```
+$2b$12$KIXQ4...
+```
+
+Security benefits:
+
+* Protects against database leaks
+* Industry standard security
+* Salt automatically included
+
+Verification uses:
+
+```
+bcrypt.checkpw()
+```
+
+---
+
+## 4. Unit Testing (PROJ-53)
+
+Automated tests verify system works correctly.
+
+Test cases include:
+
+* Successful registration
+* Invalid email rejection
+* Duplicate email rejection
+* Password stored as hash (not plaintext)
+
+---
+
+# How to Run Registration Manually
+
+From project root:
 
 ```
 python3 src/database/test_register.py
@@ -74,134 +130,86 @@ Example:
 
 ```
 Email: test@email.com
-Password: MyPassword123
+Password: password123
 SUCCESS: User registered
 ```
 
 ---
 
-## Email Validation
+# How to Run Unit Tests
 
-The system validates:
-
-* Proper email format
-* Duplicate emails not allowed
-
-Example duplicate:
+From project root:
 
 ```
-ERROR: Email already exists
+python3 -m pytest
 ```
 
----
-
-## Password Hashing (PROJ-52)
-
-Passwords are NOT stored in plaintext.
-
-Passwords are hashed using bcrypt before being stored.
-
-Example database entry:
+Expected result:
 
 ```
-$2b$12$KIXQExampleHashValueHere
-```
-
-This improves security and protects user credentials.
-
----
-
-# How Registration Works
-
-Flow:
-
-1. User enters email and password
-2. Email format is validated
-3. Password is hashed
-4. Data is inserted into SQLite database
-5. Database saves user permanently
-
----
-
-# How to Test Registration
-
-Run:
-
-```
-python3 src/database/test_register.py
-```
-
-Enter:
-
-```
-Email: your@email.com
-Password: yourpassword
+4 passed in X.XXs
 ```
 
 ---
 
-# How to View Users in Database
-
-Open SQLite:
+# Database Location
 
 ```
-sqlite3 db/trust.db
+db/trust.db
 ```
 
-Show tables:
+Table:
 
 ```
-.tables
+users
 ```
 
-Show all users:
+Columns:
+
+| Column        | Description     |
+| ------------- | --------------- |
+| id            | User ID         |
+| email         | User email      |
+| password_hash | Hashed password |
+
+---
+
+# File Structure
 
 ```
-SELECT * FROM users;
-```
-
-Exit:
-
-```
-.exit
+trust/
+│
+├── db/
+│   ├── trust.db
+│   ├── schema.sql
+│
+├── src/database/
+│   ├── register_user.py
+│   ├── test_register.py
+│
+├── tests/
+│   ├── test_registration.py
+│
+├── docs/
+│   ├── user_model.md
 ```
 
 ---
 
-# Example Database Output
+# Summary of Security Features
 
-Example:
-
-```
-1 | test@email.com | $2b$12$hashedpassword | 2026-02-25 | 2026-02-25 | 1
-```
-
----
-
-# Security Notes
-
-Passwords are stored as hashes only.
-
-Plaintext passwords are never saved.
-
-This protects users if the database is compromised.
+| Feature              | Status   |
+| -------------------- | -------- |
+| Email Validation     | Complete |
+| Duplicate Prevention | Complete |
+| Password Hashing     | Complete |
+| Unit Testing         | Complete |
 
 ---
 
-# Summary
+# Author
 
-The user database supports:
-
-* Secure registration
-* Email validation
-* Duplicate prevention
-* Password hashing
-* Persistent storage
-
-This completes:
-
-PROJ-48 – User Registration
-PROJ-51 – Email Validation
-PROJ-52 – Password Hashing
-
----
+Kristian Parra
+Texas State University
+CS3398 Software Engineering
+TRUST Project
