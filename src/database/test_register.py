@@ -1,6 +1,13 @@
-from register_user import register_user
+from src.database.register_user import register_user
 
-email = input("Email: ")
-password = input("Password: ")
 
-print(register_user(email, password))
+def main():
+    email = input("Email: ").strip()
+    password = input("Password: ").strip()
+
+    result = register_user(email, password)
+    print(result)
+
+
+if __name__ == "__main__":
+    main()
