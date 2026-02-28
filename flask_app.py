@@ -1,6 +1,39 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from __future__ import annotations
+
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+
 app = Flask(__name__)
-app.secret_key = 'trust_secret_key'
+app.secret_key = "trust_secret_key"
+
+
+# Backend wiring (PROJ-38/39): Flask -> backend.mainauction -> state.py -> Hardhat
+get_state = None
+submit_bid = None
+_backend_import_error = None
+_BackendAPIError = None
+
+try:
+    from backend.mainauction import (
+        get_state as _get_state,
+        submit_bid as _submit_bid,
+        BackendAPIError as _BackendAPIError,
+    )
+
+    get_state = _get_state
+    submit_bid = _submit_bid
+    _BackendAPIError = _BackendAPIError
+except Exception as e:
+    _backend_import_error = str(e)
+
+
+def error_json(code: str, message: str, details: str | None = None, http_status: int = 500):
+    payload = {
+        "ok": False,
+        "error": {"code": code, "message": message},
+    }
+    if details:
+        payload["details"] = details
+    return jsonify(payload), http_status
 
 
 # Mock Data: Simulating a database of active auctions
@@ -10,66 +43,68 @@ AUCTIONS = [
         "title": "Vintage Rolex Submariner",
         "current_bid": 4.0,
         "image": "Rolex.jpg",
-        "description": "Certified authentic 1970s diving watch."
+        "description": "Certified authentic 1970s diving watch.",
     },
     {
         "id": 2,
         "title": "Unopened 1st Ed. Charizard",
         "current_bid": 12.5,
         "image": "Charizard.jpg",
-        "description": "Mint condition, PSA 10 candidate."
+        "description": "Mint condition, PSA 10 candidate.",
     },
     {
         "id": 3,
         "title": "Bored Ape Yacht Club #772",
         "current_bid": 65.0,
         "image": "NFT.jpg",
-        "description": "Rare gold fur trait. Smart contract verified."
-    }
+        "description": "Rare gold fur trait. Smart contract verified.",
+    },
 ]
 
 WATCHLIST = []
 
-@app.route('/')
-def index():
-    return render_template('index.html', auctions=AUCTIONS)
 
-@app.route('/auction/<int:auction_id>', methods=['GET', 'POST'])
+@app.route("/")
+def index():
+    return render_template("index.html", auctions=AUCTIONS)
+
+
+@app.route("/auction/<int:auction_id>", methods=["GET", "POST"])
 def detail(auction_id):
-    # Find the specific auction from our mock data list
-    auction = next((a for a in AUCTIONS if a['id'] == auction_id), None)
+    auction = next((a for a in AUCTIONS if a["id"] == auction_id), None)
     if not auction:
         return "Auction not found", 404
-    
+
     # Mock bid history for the table
     history = [
         {"user": "0x71C...a2E", "amount": "4.1 ETH", "time": "2 hours ago", "status": "Verified"},
         {"user": "0x32B...f11", "amount": "3.8 ETH", "time": "5 hours ago", "status": "Verified"},
         {"user": "0x99A...c43", "amount": "3.5 ETH", "time": "1 day ago", "status": "Verified"},
     ]
-    
-    if request.method == 'POST':
-        new_bid = float(request.form.get('bid_amount', 0))
-        
+
+    if request.method == "POST":
+        new_bid = float(request.form.get("bid_amount", 0))
+
         # Validation: Is the bid high enough?
-        if new_bid > auction['current_bid']:
-            auction['current_bid'] = new_bid
+        if new_bid > auction["current_bid"]:
+            auction["current_bid"] = new_bid
             flash(f"Success! Your bid of {new_bid} ETH has been placed.", "success")
         else:
             flash(f"Bid failed. You must bid higher than {auction['current_bid']} ETH.", "danger")
-        
-        return redirect(url_for('detail', auction_id=auction_id))
+
+        return redirect(url_for("detail", auction_id=auction_id))
 
     is_watched = auction_id in WATCHLIST
-    return render_template('detail.html', auction=auction, is_watched=is_watched, history=history)
+    return render_template("detail.html", auction=auction, is_watched=is_watched, history=history)
 
-@app.route('/watchlist')
+
+@app.route("/watchlist")
 def view_watchlist():
-    # Filter AUCTIONS to only show those whose ID is in WATCHLIST
-    watched_items = [a for a in AUCTIONS if a['id'] in WATCHLIST]
-    return render_template('watchlist.html', auctions=watched_items)
+    watched_items = [a for a in AUCTIONS if a["id"] in WATCHLIST]
+    return render_template("watchlist.html", auctions=watched_items)
 
-@app.route('/toggle-watchlist/<int:auction_id>')
+
+@app.route("/toggle-watchlist/<int:auction_id>")
 def toggle_watchlist(auction_id):
     if auction_id in WATCHLIST:
         WATCHLIST.remove(auction_id)
@@ -77,7 +112,38 @@ def toggle_watchlist(auction_id):
     else:
         WATCHLIST.append(auction_id)
         flash("Added to watchlist.", "success")
-    return redirect(request.referrer or url_for('index'))
+    return redirect(request.referrer or url_for("index"))
 
-if __name__ == '__main__':
+
+# PROJ-38/39: Real Auction state endpoint
+@app.route("/api/state")
+def api_state():
+    """
+    Returns live auction state from the backend wiring:
+    Flask -> backend.mainauction -> backend.state -> Hardhat
+    """
+    if get_state is None:
+        return error_json(
+            "BACKEND_IMPORT_FAILED",
+            "Backend import failed.",
+            _backend_import_error,
+            500,
+        )
+
+    try:
+        state = get_state()
+        return jsonify({"ok": True, "data": state}), 200
+    except Exception as e:
+        if _BackendAPIError is not None and isinstance(e, _BackendAPIError):
+            return error_json(e.code, e.message, e.details, e.http_status)
+
+        return error_json(
+            "UNEXPECTED_ERROR",
+            "Unexpected server error.",
+            str(e),
+            500,
+        )
+
+
+if __name__ == "__main__":
     app.run(port=8000, debug=True)
