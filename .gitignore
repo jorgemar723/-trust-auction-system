@@ -68,3 +68,4 @@ venv/
 package-lock.json
 
 # DB FILE
+.db
