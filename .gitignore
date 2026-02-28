@@ -67,4 +67,5 @@ venv/
 # NPM cache lock 
 package-lock.json
 
-
+# DB FILE
+.db
