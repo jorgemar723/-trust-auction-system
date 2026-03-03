@@ -53,7 +53,31 @@ Jorge: “designed initial auction contract structure and implemented blockchain
 - Jira Task: Structured Backend Error Handling
 	- PROJ-39, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/03e84149e38c17482358bb7d64f31036a41f5300/?at=feature%2FPROJ-39-backend-error-handling)
 
+Kristian Parra: "Implemented user registration functionality including database schema, password hashing, email validation, and unit testing."
 
+Jira Task: PROJ-49 – Design user database structure
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-49-user-database-structure
+
+Jira Task: PROJ-50 – Implement user registration function
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-50-user-registration)
+
+Jira Task: PROJ-51 – Validate email input
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-51-validate-email-input)
+
+Jira Task: PROJ-52 – Implement password hashing
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-52-password-hashing)
+
+Jira Task: PROJ-53 – Write unit tests for registration
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-53-write-unit-tests-for-registration)
+
+Report
+
+Next Steps
+
+Kristian Parra
+- Connect backend registration system to Jorge’s frontend interface
+- Test full user registration flow from UI to database
+- Fix any integration bugs between frontend and backend
 
 - [User interface] Python application provides a command-line or simple web interface for users to interact with the system. 
 	- User Story: As a **Bidder**, I want a **clear and responsive interface** so that I can easily view the current highest bid and submit my own without writing raw code.
