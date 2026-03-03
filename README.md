@@ -33,7 +33,28 @@
 - JSON/JSON RPC → data format for communication
 
 
-## Features
+# Features
+
+## Sprint 1
+
+### Contributions
+
+Jorge: “designed initial auction contract structure and implemented blockchain integration layer with structured backend error handling”
+
+- Jira Task: Auction State Design (initial multi-auction architecture groundwork, architectural groundwork for next sprint)
+	- PROJ-36 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/a44a2c7c1cfb36409e09086acf594c58e20fddc5/?at=Tasks%2FPROJ-36-auction-state-design)
+
+- Jira Task: Auction Controller Integration Planning (architectural groundwork for next sprint)
+	- PROJ-37, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/91e8af3c4d478af2b2f1bf94d7be3752af8a5c0d/?at=Tasks%2FPROJ-37-implement-solidity-getter-for-au)
+
+- Jira Task: Flask to Smart Contract Integration
+	- PROJ-38, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/d8ed5e963daf9e4c95d9a929763ca81311262a19/?at=feature%2FPROJ-38-update-python-client-json-rpc)
+
+- Jira Task: Structured Backend Error Handling
+	- PROJ-39, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/03e84149e38c17482358bb7d64f31036a41f5300/?at=feature%2FPROJ-39-backend-error-handling)
+
+
+
 - [User interface] Python application provides a command-line or simple web interface for users to interact with the system. 
 	- User Story: As a **Bidder**, I want a **clear and responsive interface** so that I can easily view the current highest bid and submit my own without writing raw code.
 - [Etherium VM] Blockchain-based auction system running on a local Hardhat network
@@ -46,16 +67,19 @@
 	- As a **Seller**, I want the AI analytics engine to **flag suspicious bidding patterns** so that I can avoid "shill bidding" or bot manipulation on my items.
 - [Flask web app] Web app that allows users to browse auctions
 	- **As a buyer**, I want to **browse a clean, professional web gallery** of active auctions.
-- [Auction State Transparency] Smart contract getter function and Python display logic for retrieving auction information by ID
-	- As a **Bidder**, I want to **retrieve the full state of an auction** so that I can make informed bidding decisions.
-- [Multi-Auction Support] Unique auction ID system enabling simultaneous independent auctions without data conflicts
-	- As a **Seller**, I want to **create and manage multiple auctions simultaneously** so that I can list and sell more than one item at a time without conflicts between auctions.
 - [User Registration] System allows new users to create an account to participate in auctions.  
 	- User Story: As a **new user**, I would like to **create an account** so that I can securely participate in auctions on the TRUST platform.
 - [View Auction Details] System displays detailed information about a selected auction.  
 	- User Story: As a **user**, I would like to **view the details of an auction** so that I can understand what item is being sold before placing a bid.
 
 
+# Next Steps
+
+#### Jorge
+
+- Refactor smart contract to support multiple simultaneous auctions
+- Implement bid submission endpoint connecting Flask to on-chain placeBid
+- Add integration tests validating full blockchain transaction flow
 
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
@@ -76,8 +100,7 @@ Provide various use cases and code examples here.
 
 
 ## Project Status
-Project is: _in progress_ / _complete_ / _no longer being worked on_. If you are no longer working on it, provide reasons why.
-
+Project is: In Progress
 
 ## Room for Improvement
 Include areas you believe need improvement / could be improved. Also add TODOs for future development.
