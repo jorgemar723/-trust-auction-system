@@ -72,12 +72,6 @@ Jira Task: PROJ-53 – Write unit tests for registration
 
 Report
 
-Next Steps
-
-Kristian Parra
-- Connect backend registration system to Jorge’s frontend interface
-- Test full user registration flow from UI to database
-- Fix any integration bugs between frontend and backend
 
 - [User interface] Python application provides a command-line or simple web interface for users to interact with the system. 
 	- User Story: As a **Bidder**, I want a **clear and responsive interface** so that I can easily view the current highest bid and submit my own without writing raw code.
@@ -105,6 +99,10 @@ Kristian Parra
 - Implement bid submission endpoint connecting Flask to on-chain placeBid
 - Add integration tests validating full blockchain transaction flow
 
+### Kristian Parra
+- Connect backend registration system to Jorge’s frontend interface
+- Test full user registration flow from UI to database
+- Fix any integration bugs between frontend and backend
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
 <!-- If you have screenshots you'd like to share, include them here. -->
