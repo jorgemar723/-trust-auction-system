@@ -69,7 +69,19 @@ Jira Task: PROJ-52 – Implement password hashing
 
 Jira Task: PROJ-53 – Write unit tests for registration
 - Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-53-write-unit-tests-for-registration)
-
+Robert Krause : "Created Hard local blockhain node, Created in chain auction logic, created remotes to interact with contract live on the blockchain from python layer"
+Jira task: PROJ-5 Set up local Hardhat node
+Bitbucket: https://bitbucket.org/cs3398-bith-s26/trust/commits/843606e2b5b2703a6e505369f4c67feb97162de6 
+Jira task: PROJ-6 Create base Solidity contract
+Bitbucket: https://bitbucket.org/cs3398-bith-s26/trust/commits/9a3b941f96afc07ffc9fa440e0674346301fb8cc
+Jira task: PROJ-7 Design Auction data structure
+Bitbucket- https://bitbucket.org/cs3398-bith-s26/trust/commits/9a3b941f96afc07ffc9fa440e0674346301fb8cc
+Jira task: PROJ-63 Export ABI for Pythonh
+Bitbucket: https://bitbucket.org/cs3398-bith-s26/trust/commits/5c78482f52bd5d161ec3e4988968ec94924f70a0
+Jira task: PROJ-61 Create bidding.py
+Bitbucket-https://bitbucket.org/cs3398-bith-s26/trust/commits/5c78482f52bd5d161ec3e4988968ec94924f70a0
+Jira task: PROJ-69 Create state.py
+Bitbucket- https://bitbucket.org/cs3398-bith-s26/trust/commits/3460b36afa493b661a9caf395a47da5ec76ea0e6
 Report
 
 
