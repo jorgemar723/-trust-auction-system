@@ -56,19 +56,19 @@ Jorge: “designed initial auction contract structure and implemented blockchain
 Kristian Parra: "Implemented user registration functionality including database schema, password hashing, email validation, and unit testing."
 
 - Jira Task: User Database Structure  
-  - PROJ-49, [Bitbucket] (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-49-user-database-structure)
+  - PROJ-49, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-49-user-database-structure)
 
 - Jira Task: User Registration Function  
-  - PROJ-50, [Bitbucket] (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-50-user-registration)
+  - PROJ-50, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-50-user-registration)
 
 - Jira Task: Email Input Validation  
-  - PROJ-51, Bitbucket (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-51-validate-email-input)
+  - PROJ-51, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-51-validate-email-input)
 
 - Jira Task: Password Hashing Implementation  
-  - PROJ-52, [Bitbucket] (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-52-password-hashing)
+  - PROJ-52, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-52-password-hashing)
 
 - Jira Task: User Registration Unit Tests  
-  - PROJ-53, [Bitbucket] (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-53-write-tests)
+  - PROJ-53, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-53-write-tests)
 
 Jira Task: PROJ-53 – Write unit tests for registration
 - Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-53-write-unit-tests-for-registration)
