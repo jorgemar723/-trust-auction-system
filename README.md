@@ -55,20 +55,17 @@ Jorge: “designed initial auction contract structure and implemented blockchain
 
 Kristian Parra: "Implemented user registration functionality including database schema, password hashing, email validation, and unit testing."
 
-- Jira Task: User Database Structure  
-	- PROJ-49, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-49-user-database-structure)
+Jira Task: PROJ-49 – Design user database structure
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-49-user-database-structure
 
-- Jira Task: User Registration Function  
-	- PROJ-50, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-50-user-registration)
+Jira Task: PROJ-50 – Implement user registration function
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-50-user-registration)
 
-- Jira Task: Email Input Validation  
-	- PROJ-51, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-51-validate-email-input)
+Jira Task: PROJ-51 – Validate email input
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/PROJ-51-validate-email-input)
 
-- Jira Task: Password Hashing Implementation  
-	- PROJ-52, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-52-password-hashing)
-
-- Jira Task: User Registration Unit Tests  
-	- PROJ-53, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-53-write-tests)
+Jira Task: PROJ-52 – Implement password hashing
+- Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-52-password-hashing)
 
 Jira Task: PROJ-53 – Write unit tests for registration
 - Bitbucket: (https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-53-write-unit-tests-for-registration)
@@ -86,6 +83,21 @@ Bitbucket-https://bitbucket.org/cs3398-bith-s26/trust/commits/5c78482f52bd5d161e
 Jira task: PROJ-69 Create state.py
 Bitbucket- https://bitbucket.org/cs3398-bith-s26/trust/commits/3460b36afa493b661a9caf395a47da5ec76ea0e6
 Report
+
+Nathan: “Created local flask-powered web app that allows users to interact with active auctions”
+
+- Jira Task: Foundational Architecture & Layout
+	- [PROJ-71](https://cs3398-bith-s26new.atlassian.net/browse/PROJ-71)
+	- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/feature/PROJ-71-foundational-architecture-layout)
+
+- Jira Task: Advanced Auction Gallery & Card Components
+	- [PROJ-72](https://cs3398-bith-s26new.atlassian.net/browse/PROJ-72)
+	- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/feature/PROJ-72-advanced-auction-gallery-card-components)
+
+- Jira Task: Auction Detail Page & Bidding Interface
+	- [PROJ-73](https://cs3398-bith-s26new.atlassian.net/browse/PROJ-73)
+	- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/feature/PROJ-73-auction-detail-page-bidding-inte)
+
 
 
 - [User interface] Python application provides a command-line or simple web interface for users to interact with the system. 
@@ -114,10 +126,17 @@ Report
 - Implement bid submission endpoint connecting Flask to on-chain placeBid
 - Add integration tests validating full blockchain transaction flow
 
-### Kristian Parra
+#### Kristian Parra
 - Connect backend registration system to Jorge’s frontend interface
 - Test full user registration flow from UI to database
 - Fix any integration bugs between frontend and backend
+
+#### Nathan Carlson
+- Finish UI pages and polish
+- Implement auction db
+- Connect auction db to flask app
+- Test database connections
+
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
 <!-- If you have screenshots you'd like to share, include them here. -->
