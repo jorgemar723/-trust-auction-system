@@ -31,6 +31,10 @@ System Position:
 from web3 import Web3
 
 
+def wei_to_eth(w3: Web3, wei_value: int) -> float:
+    """Converts Wei value to Ether."""
+    return float(w3.from_wei(wei_value, "ether"))
+
 def get_chain_time(w3: Web3) -> int:
     """
     Retrieve the latest block timestamp from the blockchain.
@@ -125,7 +129,7 @@ def get_auction_state(w3: Web3, contract) -> dict:
     return {
         "chain_time": now,
         "highest_bid_wei": int(highest_bid_wei),
-        "highest_bid_eth": float(w3.from_wei(highest_bid_wei, "ether")),
+        "highest_bid_eth": wei_to_eth(w3, highest_bid_wei),
         "highest_bidder": highest_bidder,
         "auction_end_time": auction_end_time,
         "time_remaining_seconds": time_remaining,
