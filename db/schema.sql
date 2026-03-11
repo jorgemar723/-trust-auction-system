@@ -12,7 +12,10 @@ We are using SQLite for the MVP because:
 ===========================================================
 */
 
-CREATE TABLE users (
+-- Extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE IF NOT EXISTS users (
 
     /*
     user_id:
@@ -23,7 +26,7 @@ CREATE TABLE users (
         • Cannot be NULL
         • Used internally to identify users
     */
-    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
 
     /*
@@ -74,3 +77,26 @@ CREATE TABLE users (
     is_active INTEGER NOT NULL DEFAULT 1
 
 );
+
+CREATE TABLE IF NOT EXISTS auctions (
+    auction_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    seller_id UUID NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    images JSONB DEFAULT '[]'::jsonb,
+    is_verified BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS bidding_history (
+    bid_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    auction_id UUID NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE,
+    user_id UUID NOT NULL,
+    bid_amount DECIMAL(12, 2) NOT NULL,
+    is_verified BOOLEAN DEFAULT FALSE,
+    bid_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_bidding_auction_id ON bidding_history(auction_id);

@@ -117,21 +117,14 @@ def submit_bid(auction_address: str, user_bid: float) -> dict:
             http_status=500,
             details=str(e),
         ) from e
-
-
-def get_state(auction_address: str) -> dict:
-    """
-    Retrieve current state of a specific auction contract.
-    """
-
-    w3, contract, _account = load_auction_contract(
-        auction_address,
-        str(_DEFAULT_ABI_PATH)
-    )
+    
+def get_state() -> dict:
+    w3, contract, _account = _init_chain()
+    _rpc_url, _abi_path, address = _get_config()
 
     try:
-        return get_auction_state(w3, contract)
-
+        return get_auction_state(w3, contract, address)
+    
     except Exception as e:
         raise BackendAPIError(
             code="CHAIN_CALL_FAILED",

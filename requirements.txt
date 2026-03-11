@@ -1,0 +1,7 @@
+.env file with the following contents:
+    DATABASE_URL='database_url'
+
+libraries (install using pip):
+    - psycopg2-binary
+    - python-dotenv
+    
