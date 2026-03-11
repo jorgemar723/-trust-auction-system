@@ -1,0 +1,21 @@
+***testing steps****
+
+open terminal on Hardhat testing node
+rm -rf artifacts cache - clears old ABI's
+npx hardhat compile - compile contracts
+npx hardhat node - boot up node
+
+***in new terminal cd to Hardhat testing node folder"
+npx hardhat run scripts/deploy_factory.js --network localhost - deploy factory.sol
+
+***in new terminal in Hardhat testing node folder***
+source venv/bin/activate
+cd .. up on folder to "trust"
+python -m backend.test_mainauction- tests bidding/ state/ factory.py outputs results to the terminal
+
+
+
+
+
+
+
