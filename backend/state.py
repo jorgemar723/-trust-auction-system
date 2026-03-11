@@ -48,9 +48,9 @@ def get_chain_time(w3: Web3) -> int:
     latest_block = w3.eth.get_block("latest")
     return int(latest_block["timestamp"])
 
-def get_auction_state(w3: Web3, contract, auction_id: int | None = None) -> dict:
+def get_auction_state(w3: Web3, contract, contract_address: str) -> dict:   
     """
-    Read current auction state from the smart contract.
+    Read current auction state from a specific auction smart contract.
 
     This function performs only .call() operations
     (no transactions are sent).
@@ -66,14 +66,15 @@ def get_auction_state(w3: Web3, contract, auction_id: int | None = None) -> dict
 
     Parameters:
         w3 (Web3): Active Web3 connection
-        contract: Web3 contract instance
-        auction_id (int | None): Optional identifier used by the backend
-        to track which auction this state belongs to.
+        contract: Web3 contract instance representing a specific auction
+        contract_address (str): Address of the auction smart contract.
+            This uniquely identifies the auction instance and is used by
+            the backend and UI to reference specific auctions.
 
     Returns:
         dict:
             {
-                "auction_id": int | None,
+                "contract_address": str | None,
                 "chain_time": int,
                 "highest_bid_wei": int,
                 "highest_bid_eth": float,
@@ -89,7 +90,6 @@ def get_auction_state(w3: Web3, contract, auction_id: int | None = None) -> dict
     highest_bid_wei = contract.functions.highestBid().call()
 
     # --- Highest bidder ---
-    # Different contracts use different naming conventions.
     bidder_fn_candidates = [
         "highestBidder",
         "highestBidderAddress",
@@ -130,7 +130,7 @@ def get_auction_state(w3: Web3, contract, auction_id: int | None = None) -> dict
         status = "CLOSED" if ended else "OPEN"
 
     return {
-        "auction_id": auction_id,
+        "contract_address": contract_address,
         "chain_time": now,
         "highest_bid_wei": int(highest_bid_wei),
         "highest_bid_eth": wei_to_eth(w3, highest_bid_wei),
