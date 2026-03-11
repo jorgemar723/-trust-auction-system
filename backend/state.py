@@ -48,8 +48,7 @@ def get_chain_time(w3: Web3) -> int:
     latest_block = w3.eth.get_block("latest")
     return int(latest_block["timestamp"])
 
-
-def get_auction_state(w3: Web3, contract) -> dict:
+def get_auction_state(w3: Web3, contract, auction_id: int | None = None) -> dict:
     """
     Read current auction state from the smart contract.
 
@@ -68,17 +67,21 @@ def get_auction_state(w3: Web3, contract) -> dict:
     Parameters:
         w3 (Web3): Active Web3 connection
         contract: Web3 contract instance
+        auction_id (int | None): Optional identifier used by the backend
+        to track which auction this state belongs to.
 
     Returns:
         dict:
             {
+                "auction_id": int | None,
                 "chain_time": int,
                 "highest_bid_wei": int,
                 "highest_bid_eth": float,
                 "highest_bidder": str | None,
                 "auction_end_time": int | None,
                 "time_remaining_seconds": int | None,
-                "ended": bool | None
+                "ended": bool | None,
+                "status": str | None
             }
     """
 
@@ -127,6 +130,7 @@ def get_auction_state(w3: Web3, contract) -> dict:
         status = "CLOSED" if ended else "OPEN"
 
     return {
+        "auction_id": auction_id,
         "chain_time": now,
         "highest_bid_wei": int(highest_bid_wei),
         "highest_bid_eth": wei_to_eth(w3, highest_bid_wei),
