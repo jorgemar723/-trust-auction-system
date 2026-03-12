@@ -27,9 +27,10 @@ System Position:
         ↓
     Hardhat / Ethereum node
 """
-
+from __future__ import annotations
 from web3 import Web3
-
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 def wei_to_eth(w3: Web3, wei_value: int) -> float:
     """Converts Wei value to Ether."""
@@ -47,6 +48,28 @@ def get_chain_time(w3: Web3) -> int:
     """
     latest_block = w3.eth.get_block("latest")
     return int(latest_block["timestamp"])
+
+
+def format_unix_timestamp(timestamp: int | None) -> str | None:
+    """Convert a Unix timestamp to a readable Central Time string."""
+    if timestamp is None:
+        return None
+    return datetime.fromtimestamp(
+        timestamp,
+        tz=ZoneInfo("America/Chicago")
+    ).strftime("%Y-%m-%d %I:%M:%S %p %Z")
+
+
+def format_duration(seconds: int | None) -> str | None:
+    """Convert seconds into a human-readable countdown string."""
+    if seconds is None:
+        return None
+
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    remaining_seconds = seconds % 60
+
+    return f"{hours:02d}:{minutes:02d}:{remaining_seconds:02d}"
 
 def get_auction_state(w3: Web3, contract, contract_address: str) -> dict:   
     """
@@ -76,11 +99,14 @@ def get_auction_state(w3: Web3, contract, contract_address: str) -> dict:
             {
                 "contract_address": str | None,
                 "chain_time": int,
+                "chain_time_readable": str,
                 "highest_bid_wei": int,
                 "highest_bid_eth": float,
                 "highest_bidder": str | None,
                 "auction_end_time": int | None,
+                "auction_end_time_readable": str | None,
                 "time_remaining_seconds": int | None,
+                "time_reamaining_display": str | None,
                 "ended": bool | None,
                 "status": str | None
             }
@@ -128,15 +154,22 @@ def get_auction_state(w3: Web3, contract, contract_address: str) -> dict:
         time_remaining = max(0, auction_end_time - now)
         ended = (time_remaining == 0)
         status = "CLOSED" if ended else "OPEN"
+        
+    chain_time_readable = format_unix_timestamp(now)
+    auction_end_time_readable = format_unix_timestamp(auction_end_time)
+    time_remaining_display = format_duration(time_remaining)
 
     return {
         "contract_address": contract_address,
         "chain_time": now,
+        "chain_time_readable": chain_time_readable,
         "highest_bid_wei": int(highest_bid_wei),
         "highest_bid_eth": wei_to_eth(w3, highest_bid_wei),
         "highest_bidder": highest_bidder,
         "auction_end_time": auction_end_time,
+        "auction_end_time_readable": auction_end_time_readable,
         "time_remaining_seconds": time_remaining,
+        "time_remaining_display": time_remaining_display,
         "ended": ended,
         "status": status,
 

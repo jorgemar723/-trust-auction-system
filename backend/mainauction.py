@@ -180,9 +180,11 @@ def submit_bid(user_bid: float) -> dict:
     
 def get_state() -> dict:
     w3, contract, _account = _init_chain()
-    
+    _rpc_url, _abi_path, address = _get_config()
+
     try:
-        return get_auction_state(w3, contract)
+        return get_auction_state(w3, contract, address)
+    
     except Exception as e:
         raise BackendAPIError(
             code="CHAIN_CALL_FAILED",
