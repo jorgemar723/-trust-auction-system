@@ -106,8 +106,7 @@ def get_auction_state(w3: Web3, contract, contract_address: str) -> dict:
                 "auction_end_time": int | None,
                 "auction_end_time_readable": str | None,
                 "time_remaining_seconds": int | None,
-                "time_reamaining_display": str | None,
-                "ended": bool | None,
+                "time_remaining_display": str | None,
                 "status": str | None
             }
     """
@@ -147,13 +146,11 @@ def get_auction_state(w3: Web3, contract, contract_address: str) -> dict:
 
     # --- Time remaining calculation ---
     time_remaining = None
-    ended = None
     status = None
     
     if auction_end_time is not None:
         time_remaining = max(0, auction_end_time - now)
-        ended = (time_remaining == 0)
-        status = "CLOSED" if ended else "OPEN"
+        status = "CLOSED" if time_remaining == 0 else "OPEN"
         
     chain_time_readable = format_unix_timestamp(now)
     auction_end_time_readable = format_unix_timestamp(auction_end_time)
@@ -170,7 +167,6 @@ def get_auction_state(w3: Web3, contract, contract_address: str) -> dict:
         "auction_end_time_readable": auction_end_time_readable,
         "time_remaining_seconds": time_remaining,
         "time_remaining_display": time_remaining_display,
-        "ended": ended,
         "status": status,
 
     }
