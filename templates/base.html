@@ -18,8 +18,13 @@
                 <li class="nav-item"><a class="nav-link" href="#">Security</a></li>
                 <li class="nav-item"><a class="nav-link" href="/watchlist">Watchlist</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Search</a></li>
+
                 <li class="nav-item ms-lg-3">
-                    <button class="btn btn-outline-info btn-sm">Log in</button>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-info btn-sm">Log in</a>
+                </li>
+
+                <li class="nav-item ms-2">
+                    <a href="{{ url_for('register') }}" class="btn btn-info btn-sm">Register</a>
                 </li>
             </ul>
         </div>
