@@ -20,11 +20,6 @@ CREATE TABLE IF NOT EXISTS users (
     /*
     user_id:
     - Unique identifier for each user
-    - INTEGER PRIMARY KEY AUTOINCREMENT means:
-        • Automatically assigns a unique number
-        • Increases by 1 for each new user
-        • Cannot be NULL
-        • Used internally to identify users
     */
     user_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 
@@ -86,7 +81,8 @@ CREATE TABLE IF NOT EXISTS auctions (
     images JSONB DEFAULT '[]'::jsonb,
     is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    highest_bid DECIMAL(12, 2) DEFAULT 0.00
 );
 
 CREATE TABLE IF NOT EXISTS bidding_history (
@@ -96,6 +92,13 @@ CREATE TABLE IF NOT EXISTS bidding_history (
     bid_amount DECIMAL(12, 2) NOT NULL,
     is_verified BOOLEAN DEFAULT FALSE,
     bid_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS watchlist (
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    auction_id UUID NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, auction_id)
 );
 
 -- Indexes

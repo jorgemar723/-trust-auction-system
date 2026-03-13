@@ -35,6 +35,9 @@ class PostgresDB:
     def get_bids_for_auction(self, auction_id):
         return
     
+    def get_highest_bid_for_auction(self, auction_id):
+        return
+
     def submit_bid(self, auction_id, user_id, bid_amount):
         return
     
@@ -43,4 +46,26 @@ class PostgresDB:
     
     def create_user(self, username, email, wallet_address):
         return
+    
+    def delete_auction(self, auction_id):
+        return
+    
+    def delete_user(self, user_id):
+        return
+    
+    def update_auction(self, auction_id, title, description, starting_bid, image_urls):
+        return
+    
+    def update_user(self, user_id, username, email, wallet_address):
+        return
+    
+    def get_user_watchlist(self, user_id):
+        return
+    
+    def add_to_watchlist(self, user_id, auction_id):
+        return
+    
+    def remove_from_watchlist(self, user_id, auction_id):
+        return
+    
     
