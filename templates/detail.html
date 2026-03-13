@@ -67,7 +67,22 @@
                 <h2 class="display-5 fw-bold text-dark">{{ auction.current_bid }}</h2>
             </div>
 
-            <hr>
+    <div class="bg-light rounded-3 p-3 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold text-uppercase small text-muted">Auction Status</span>
+            <span id="auction-status" class="badge bg-secondary">Loading...</span>
+        </div>
+        <div class="mb-2">
+            <div class="small text-muted">Time Remaining</div>
+            <div id="auction-countdown" class="fs-4 fw-bold text-dark font-monospace">--:--:--</div>
+        </div>
+        <div class="small text-muted">Chain Time</div>
+        <div id="chain-time-readable" class="small mb-2">Loading...</div>
+        <div class="small text-muted">Auction Ends</div>
+        <div id="auction-end-time-readable" class="small">Loading...</div>
+    </div>
+
+    <hr>
 
             <form method="POST" class="mt-4">
                 <label class="form-label fw-bold small text-uppercase text-muted">Place Your Bid (ETH)</label>
@@ -99,4 +114,121 @@
         </div>
     </div>
 </div>
+
+<script>
+(() => {
+    const countdownEl = document.getElementById("auction-countdown");
+    const statusEl = document.getElementById("auction-status");
+    const chainTimeEl = document.getElementById("chain-time-readable");
+    const endTimeEl = document.getElementById("auction-end-time-readable");
+
+    if (!countdownEl || !statusEl || !chainTimeEl || !endTimeEl) {
+        return;
+    }
+
+    const stateUrl = "{{ url_for('api_state') }}";
+    let remainingSeconds = 0;
+    let countdownTimer = null;
+    let resyncTimer = null;
+
+    function formatDuration(totalSeconds) {
+        const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
+        const hours = Math.floor(safeSeconds / 3600);
+        const minutes = Math.floor((safeSeconds % 3600) / 60);
+        const seconds = safeSeconds % 60;
+
+        return [hours, minutes, seconds]
+            .map((value) => String(value).padStart(2, "0"))
+            .join(":");
+    }
+
+    function setStatus(status) {
+        const normalizedStatus = (status || "UNKNOWN").toUpperCase();
+        statusEl.textContent = normalizedStatus;
+
+        statusEl.classList.remove("bg-success", "bg-secondary", "bg-danger");
+
+        if (normalizedStatus === "OPEN") {
+            statusEl.classList.add("bg-success");
+        } else if (normalizedStatus === "CLOSED") {
+            statusEl.classList.add("bg-secondary");
+        } else {
+            statusEl.classList.add("bg-danger");
+        }
+    }
+
+    function renderCountdown() {
+        if (remainingSeconds <= 0) {
+            remainingSeconds = 0;
+            countdownEl.textContent = "00:00:00";
+            setStatus("CLOSED");
+
+            if (countdownTimer) {
+                window.clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+            return;
+        }
+
+        countdownEl.textContent = formatDuration(remainingSeconds);
+        remainingSeconds -= 1;
+    }
+
+    function startCountdown(seconds, status) {
+        remainingSeconds = Math.max(0, Number(seconds) || 0);
+        setStatus(remainingSeconds > 0 ? (status || "OPEN") : "CLOSED");
+
+        if (countdownTimer) {
+            window.clearInterval(countdownTimer);
+            countdownTimer = null;
+        }
+
+        renderCountdown();
+
+        if (remainingSeconds > 0) {
+            countdownTimer = window.setInterval(renderCountdown, 1000);
+        }
+    }
+
+    async function loadAuctionState() {
+        try {
+            const response = await fetch(stateUrl, {
+                headers: { "Accept": "application/json" }
+            });
+
+            const payload = await response.json();
+
+            if (!response.ok || !payload.ok || !payload.data) {
+                throw new Error("Auction state request failed.");
+            }
+
+            const state = payload.data;
+
+            chainTimeEl.textContent = state.chain_time_readable || "Unavailable";
+            endTimeEl.textContent = state.auction_end_time_readable || "Unavailable";
+
+            startCountdown(state.time_remaining_seconds, state.status);
+        } catch (error) {
+            console.error("Failed to load auction state:", error);
+            countdownEl.textContent = "Unavailable";
+            chainTimeEl.textContent = "Unavailable";
+            endTimeEl.textContent = "Unavailable";
+            setStatus("UNKNOWN");
+        }
+    }
+
+    loadAuctionState();
+    resyncTimer = window.setInterval(loadAuctionState, 30000);
+
+    window.addEventListener("beforeunload", () => {
+        if (countdownTimer) {
+            window.clearInterval(countdownTimer);
+        }
+
+        if (resyncTimer) {
+            window.clearInterval(resyncTimer);
+        }
+    });
+})();
+</script>
 {% endblock %}
