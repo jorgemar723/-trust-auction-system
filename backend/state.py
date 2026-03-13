@@ -31,6 +31,10 @@ System Position:
 from web3 import Web3
 
 
+def wei_to_eth(w3: Web3, wei_value: int) -> float:
+    """Converts Wei value to Ether."""
+    return float(w3.from_wei(wei_value, "ether"))
+
 def get_chain_time(w3: Web3) -> int:
     """
     Retrieve the latest block timestamp from the blockchain.
@@ -44,10 +48,9 @@ def get_chain_time(w3: Web3) -> int:
     latest_block = w3.eth.get_block("latest")
     return int(latest_block["timestamp"])
 
-
-def get_auction_state(w3: Web3, contract) -> dict:
+def get_auction_state(w3: Web3, contract, contract_address: str) -> dict:   
     """
-    Read current auction state from the smart contract.
+    Read current auction state from a specific auction smart contract.
 
     This function performs only .call() operations
     (no transactions are sent).
@@ -63,18 +66,23 @@ def get_auction_state(w3: Web3, contract) -> dict:
 
     Parameters:
         w3 (Web3): Active Web3 connection
-        contract: Web3 contract instance
+        contract: Web3 contract instance representing a specific auction
+        contract_address (str): Address of the auction smart contract.
+            This uniquely identifies the auction instance and is used by
+            the backend and UI to reference specific auctions.
 
     Returns:
         dict:
             {
+                "contract_address": str | None,
                 "chain_time": int,
                 "highest_bid_wei": int,
                 "highest_bid_eth": float,
                 "highest_bidder": str | None,
                 "auction_end_time": int | None,
                 "time_remaining_seconds": int | None,
-                "ended": bool | None
+                "ended": bool | None,
+                "status": str | None
             }
     """
 
@@ -82,7 +90,6 @@ def get_auction_state(w3: Web3, contract) -> dict:
     highest_bid_wei = contract.functions.highestBid().call()
 
     # --- Highest bidder ---
-    # Different contracts use different naming conventions.
     bidder_fn_candidates = [
         "highestBidder",
         "highestBidderAddress",
@@ -123,9 +130,10 @@ def get_auction_state(w3: Web3, contract) -> dict:
         status = "CLOSED" if ended else "OPEN"
 
     return {
+        "contract_address": contract_address,
         "chain_time": now,
         "highest_bid_wei": int(highest_bid_wei),
-        "highest_bid_eth": float(w3.from_wei(highest_bid_wei, "ether")),
+        "highest_bid_eth": wei_to_eth(w3, highest_bid_wei),
         "highest_bidder": highest_bidder,
         "auction_end_time": auction_end_time,
         "time_remaining_seconds": time_remaining,
