@@ -127,7 +127,7 @@
     }
 
     const stateUrl = "{{ url_for('api_state') }}";
-    let remainingSeconds = 0;
+    let auctionEndTime = null;
     let countdownTimer = null;
     let resyncTimer = null;
 
@@ -158,37 +158,27 @@
     }
 
     function renderCountdown() {
-        if (remainingSeconds <= 0) {
-            remainingSeconds = 0;
-            countdownEl.textContent = "00:00:00";
-            setStatus("CLOSED");
-
-            if (countdownTimer) {
-                window.clearInterval(countdownTimer);
-                countdownTimer = null;
-            }
-            return;
-        }
-
-        countdownEl.textContent = formatDuration(remainingSeconds);
-        remainingSeconds -= 1;
+    if (!auctionEndTime) {
+        countdownEl.textContent = "Unavailable";
+        return;
     }
 
-    function startCountdown(seconds, status) {
-        remainingSeconds = Math.max(0, Number(seconds) || 0);
-        setStatus(remainingSeconds > 0 ? (status || "OPEN") : "CLOSED");
+    const now = Math.floor(Date.now() / 1000);
+    const remainingSeconds = Math.max(0, auctionEndTime - now);
+
+    countdownEl.textContent = formatDuration(remainingSeconds);
+
+    if (remainingSeconds <= 0) {
+        setStatus("CLOSED");
 
         if (countdownTimer) {
             window.clearInterval(countdownTimer);
             countdownTimer = null;
         }
-
-        renderCountdown();
-
-        if (remainingSeconds > 0) {
-            countdownTimer = window.setInterval(renderCountdown, 1000);
-        }
     }
+}
+
+    
 
     async function loadAuctionState() {
         try {
@@ -207,7 +197,14 @@
             chainTimeEl.textContent = state.chain_time_readable || "Unavailable";
             endTimeEl.textContent = state.auction_end_time_readable || "Unavailable";
 
-            startCountdown(state.time_remaining_seconds, state.status);
+            auctionEndTime = state.auction_end_time;
+            setStatus(state.status || "UNKNOWN");
+
+            renderCountdown();
+
+            if (!countdownTimer) {
+                countdownTimer = window.setInterval(renderCountdown, 1000);
+            }
         } catch (error) {
             console.error("Failed to load auction state:", error);
             countdownEl.textContent = "Unavailable";
