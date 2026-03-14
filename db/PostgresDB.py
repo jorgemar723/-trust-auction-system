@@ -21,51 +21,233 @@ class PostgresDB:
             print("Connection closed.")
 
     def get_auctions(self):
-        return
+        auctions = []
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM auctions")
+            rows = cur.fetchall()
+            for row in rows:
+                auctions.append(row)
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching auctions: {error}")
+        return auctions
+    
 
     def get_auction_by_id(self, auction_id):
-        return
+        auction = None
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM auctions WHERE auction_id = %s", (auction_id,))
+            auction = cur.fetchone()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching auction by ID: {error}")
+        return auction
 
     def get_users(self):
-        return
+        users = []
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM users")
+            rows = cur.fetchall()
+            for row in rows:
+                users.append(row)
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching users: {error}")
+        return users
 
     def get_user_by_id(self, user_id):
-        return
-    
+        user = None
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
+            user = cur.fetchone()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching user by ID: {error}")
+        return user
+
     def get_bids_for_auction(self, auction_id):
-        return
-    
+        bids = []
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM bidding_history WHERE auction_id = %s", (auction_id,))
+            rows = cur.fetchall()
+            for row in rows:
+                bids.append(row)
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching bids for auction: {error}")
+        return bids
+
     def get_highest_bid_for_auction(self, auction_id):
-        return
+        highest_bid = None
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT highest_bid FROM auctions WHERE auction_id = %s", (auction_id,))
+            highest_bid = cur.fetchone()[0]
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching highest bid for auction: {error}")
+        return highest_bid
+    
+    def get_starting_bid_for_auction(self, auction_id):
+        starting_bid = None
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT starting_bid FROM auctions WHERE auction_id = %s", (auction_id,))
+            starting_bid = cur.fetchone()[0]
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching starting bid for auction: {error}")
+        return starting_bid
 
     def submit_bid(self, auction_id, user_id, bid_amount):
-        return
+        # check if bid is higher than current highest bid and higher than starting bid
+        current_highest_bid = self.get_highest_bid_for_auction(auction_id)
+        starting_bid = self.get_starting_bid_for_auction(auction_id)
+        if current_highest_bid is None or bid_amount <= current_highest_bid:
+            print(f"Bid of {bid_amount} is not higher than current highest bid of {current_highest_bid}.")
+            return False
+        if bid_amount <= starting_bid:
+            print(f"Bid of {bid_amount} is not higher than the starting bid of {starting_bid}.")
+            return False
+
+        try:
+            cur = self.conn.cursor()
+            # get users wallet address
+            cur.execute("SELECT wallet_address FROM users WHERE user_id = %s", (user_id,))
+            wallet_address = cur.fetchone()[0]
+            # insert bid into history
+            cur.execute("INSERT INTO bidding_history (auction_id, user_id, bid_amount, wallet_address) VALUES (%s, %s, %s, %s)", (auction_id, user_id, bid_amount, wallet_address))
+            # update highest bid
+            cur.execute("UPDATE auctions SET highest_bid = %s WHERE auction_id = %s", (bid_amount, auction_id))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error submitting bid: {error}")
+            self.conn.rollback()
+            return False
+        return True
     
-    def create_auction(self, title, description, starting_bid, image_urls):
-        return
+    def create_auction(
+            self, 
+            title, 
+            description, 
+            starting_bid, 
+            image_urls, 
+            created_at, 
+            expires_at, 
+            seller_id,
+            ):
+        try:
+            cur = self.conn.cursor()
+            cur.execute("INSERT INTO auctions (title, description, starting_bid, images, created_at, expires_at, seller_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", (title, description, starting_bid, image_urls, created_at, expires_at, seller_id))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error creating auction: {error}")
+            self.conn.rollback()
+            return False
+        return True
     
-    def create_user(self, username, email, wallet_address):
-        return
+    def create_user(self, email, wallet_address, password_hash):
+        try:
+            cur = self.conn.cursor()
+            cur.execute("INSERT INTO users (email, wallet_address, password_hash) VALUES (%s, %s, %s)", (email, wallet_address, password_hash))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error creating user: {error}")
+            self.conn.rollback()
+            return False
+        return True
     
     def delete_auction(self, auction_id):
-        return
+        try:
+            cur = self.conn.cursor()
+            cur.execute("DELETE FROM auctions WHERE auction_id = %s", (auction_id,))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error deleting auction: {error}")
+            self.conn.rollback()
+            return False
+        return True
     
     def delete_user(self, user_id):
-        return
+        try:
+            cur = self.conn.cursor()
+            cur.execute("DELETE FROM users WHERE user_id = %s", (user_id,))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error deleting user: {error}")
+            self.conn.rollback()
+            return False
+        return True
     
     def update_auction(self, auction_id, title, description, starting_bid, image_urls):
-        return
+        try:
+            cur = self.conn.cursor()
+            cur.execute("UPDATE auctions SET title = %s, description = %s, starting_bid = %s, images = %s WHERE auction_id = %s", (title, description, starting_bid, image_urls, auction_id))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error updating auction: {error}")
+            self.conn.rollback()
+            return False
+        return True
     
-    def update_user(self, user_id, username, email, wallet_address):
-        return
+    def update_user(self, user_id, email, wallet_address):
+        try:
+            cur = self.conn.cursor()
+            cur.execute("UPDATE users SET email = %s, wallet_address = %s WHERE user_id = %s", (email, wallet_address, user_id))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error updating user: {error}")
+            self.conn.rollback()
+            return False
+        return True
     
     def get_user_watchlist(self, user_id):
-        return
+        watchlist = []
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT auction_id FROM watchlist WHERE user_id = %s", (user_id,))
+            rows = cur.fetchall()
+            for row in rows:
+                watchlist.append(row[0])
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching user watchlist: {error}")
+        return watchlist
     
     def add_to_watchlist(self, user_id, auction_id):
-        return
-    
+        try:
+            cur = self.conn.cursor()
+            cur.execute("INSERT INTO watchlist (user_id, auction_id) VALUES (%s, %s)", (user_id, auction_id))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error adding to watchlist: {error}")
+            self.conn.rollback()
+            return False
+        return True
+
     def remove_from_watchlist(self, user_id, auction_id):
-        return
+        try:
+            cur = self.conn.cursor()
+            cur.execute("DELETE FROM watchlist WHERE user_id = %s AND auction_id = %s", (user_id, auction_id))
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error removing from watchlist: {error}")
+            self.conn.rollback()
+            return False
+        return True
     
     
