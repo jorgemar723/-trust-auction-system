@@ -1,4 +1,10 @@
-bcrypt==5.0.0
+.env file with the following contents:
+    DATABASE_URL='database_url'
+
+libraries (install using pip):
+    - psycopg2-binary
+    - python-dotenv
+    bcrypt==5.0.0
 certifi==2026.1.4
 charset-normalizer==3.4.4
 idna==3.11

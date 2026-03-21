@@ -15,7 +15,7 @@ Features:
 ===========================================================
 */
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
 
     /*
     user_id:
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
     - SERIAL automatically generates incrementing IDs
     - Primary key ensures uniqueness
     */
-    user_id SERIAL PRIMARY KEY,
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
 
     /*
