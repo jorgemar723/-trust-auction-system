@@ -70,6 +70,11 @@ class PostgresDB:
 
             return {"success": True, "user_id": user_id}
 
+        except psycopg2.errors.UniqueViolation:
+            if self.conn:
+                self.conn.rollback()
+            return {"success": False, "error": "An account with that email already exists."}
+
         except Exception as error:
             if self.conn:
                 self.conn.rollback()
@@ -95,5 +100,5 @@ class PostgresDB:
 
             return user
 
-        except Exception as error:
+        except Exception:
             return None

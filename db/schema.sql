@@ -15,7 +15,7 @@ Features:
 ===========================================================
 */
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
 
     /*
     user_id:
@@ -23,8 +23,7 @@ CREATE TABLE users (
     - SERIAL automatically generates incrementing IDs
     - Primary key ensures uniqueness
     */
-    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
-
+    user_id SERIAL PRIMARY KEY,
 
     /*
     email:
@@ -35,7 +34,6 @@ CREATE TABLE users (
     */
     email TEXT NOT NULL UNIQUE,
 
-
     /*
     password_hash:
     - Stores the encrypted password
@@ -44,7 +42,6 @@ CREATE TABLE users (
     */
     password_hash TEXT NOT NULL,
 
-
     /*
     created_at:
     - Stores when the account was created
@@ -52,14 +49,12 @@ CREATE TABLE users (
     */
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-
     /*
     updated_at:
     - Stores last time user data was updated
     - Initially same as created_at
     */
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
 
     /*
     is_active:

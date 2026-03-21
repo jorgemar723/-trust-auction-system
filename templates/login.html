@@ -1,33 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5" style="max-width: 500px;">
-    <h2 class="mb-4">Login</h2>
+<section class="auth-section">
+    <div class="mb-4">
+        <h1 class="fw-bold display-5">Log In</h1>
+        <p class="text-muted fs-5">Access your TRUST account and continue bidding.</p>
+    </div>
 
-    <form method="POST" action="{{ url_for('login') }}">
-        <div class="mb-3">
-            <label for="email" class="form-label">Email address</label>
-            <input
-                type="email"
-                class="form-control"
-                id="email"
-                name="email"
-                required
-            >
+    <div class="card shadow-sm border-0 rounded-4 auth-card">
+        <div class="card-body p-4 p-md-5">
+            <form method="POST" action="{{ url_for('login') }}">
+                <div class="mb-4">
+                    <label for="email" class="form-label fw-semibold">Email address</label>
+                    <input
+                        type="email"
+                        class="form-control form-control-lg rounded-3"
+                        id="email"
+                        name="email"
+                        required
+                    >
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="form-label fw-semibold">Password</label>
+                    <input
+                        type="password"
+                        class="form-control form-control-lg rounded-3"
+                        id="password"
+                        name="password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-info btn-lg w-100 rounded-3 fw-semibold">
+                    Log In
+                </button>
+            </form>
         </div>
-
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input
-                type="password"
-                class="form-control"
-                id="password"
-                name="password"
-                required
-            >
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100">Login</button>
-    </form>
-</div>
+    </div>
+</section>
 {% endblock %}
