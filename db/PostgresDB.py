@@ -74,3 +74,26 @@ class PostgresDB:
             if self.conn:
                 self.conn.rollback()
             return {"success": False, "error": str(error)}
+
+    def get_user_by_email(self, email):
+        try:
+            if not self.conn:
+                self.connect()
+
+            if not self.conn:
+                return None
+
+            cur = self.conn.cursor()
+            query = """
+                SELECT user_id, email, password_hash
+                FROM users
+                WHERE email = %s;
+            """
+            cur.execute(query, (email,))
+            user = cur.fetchone()
+            cur.close()
+
+            return user
+
+        except Exception as error:
+            return None

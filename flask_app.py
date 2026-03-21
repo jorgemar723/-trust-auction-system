@@ -158,6 +158,7 @@ def register():
             return redirect(url_for("register"))
 
         db = PostgresDB()
+        db.connect()
         result = db.create_user(email, password)
         db.close()
 
@@ -169,6 +170,35 @@ def register():
             return redirect(url_for("register"))
 
     return render_template("register.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if not email or not password:
+            flash("Email and password are required.", "danger")
+            return redirect(url_for("login"))
+
+        db = PostgresDB()
+        user = db.get_user_by_email(email)
+        db.close()
+
+        if not user:
+            flash("No account found with that email.", "danger")
+            return redirect(url_for("login"))
+
+        user_id, user_email, password_hash = user
+
+        if bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8")):
+            flash("Login successful!", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Incorrect password.", "danger")
+            return redirect(url_for("login"))
+
+    return render_template("login.html")
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
