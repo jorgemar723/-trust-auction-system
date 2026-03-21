@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from db.PostgresDB import PostgresDB
+import bcrypt
+
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 
 app = Flask(__name__)
@@ -144,6 +147,28 @@ def api_state():
             500,
         )
 
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if not email or not password:
+            flash("Email and password are required.", "danger")
+            return redirect(url_for("register"))
+
+        db = PostgresDB()
+        result = db.create_user(email, password)
+        db.close()
+
+        if result["success"]:
+            flash("Account created successfully.", "success")
+            return redirect(url_for("index"))
+        else:
+            flash(f"Registration failed: {result['error']}", "danger")
+            return redirect(url_for("register"))
+
+    return render_template("register.html")
 
 if __name__ == "__main__":
     app.run(port=8000, debug=True)
