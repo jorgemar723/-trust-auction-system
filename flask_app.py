@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.secret_key = "trust_secret_key"
 
 
-# Backend wiring (PROJ-38/39): Flask -> backend.mainauction -> state.py -> Hardhat
+# Backend wiring: Flask -> backend.mainauction -> remote_controls -> Hardhat
 get_state = None
 submit_bid = None
 _backend_import_error = None
@@ -36,7 +36,8 @@ def error_json(code: str, message: str, details: str | None = None, http_status:
     return jsonify(payload), http_status
 
 
-# Mock Data: Simulating a database of active auctions
+# Mock catalog data for page content only
+# These IDs must match real backend auction IDs in _AUCTION_REGISTRY
 AUCTIONS = [
     {
         "id": 1,
@@ -63,10 +64,25 @@ AUCTIONS = [
 
 WATCHLIST = []
 
-
 @app.route("/")
 def index():
-    return render_template("index.html", auctions=AUCTIONS)
+    hydrated_auctions = []
+
+    for auction in AUCTIONS:
+        auction_copy = auction.copy()  # avoid mutating original list
+
+        if get_state is not None:
+            try:
+                state = get_state(auction["id"])
+                auction_copy["current_bid"] = state["highest_bid_eth"]
+                auction_copy["status"] = state["status"]
+            except Exception:
+                # If something fails, fallback to existing value
+                pass
+
+        hydrated_auctions.append(auction_copy)
+
+    return render_template("index.html", auctions=hydrated_auctions)
 
 
 @app.route("/auction/<int:auction_id>", methods=["GET", "POST"])
@@ -75,27 +91,63 @@ def detail(auction_id):
     if not auction:
         return "Auction not found", 404
 
-    # Mock bid history for the table
     history = [
         {"user": "0x71C...a2E", "amount": "4.1 ETH", "time": "2 hours ago", "status": "Verified"},
         {"user": "0x32B...f11", "amount": "3.8 ETH", "time": "5 hours ago", "status": "Verified"},
         {"user": "0x99A...c43", "amount": "3.5 ETH", "time": "1 day ago", "status": "Verified"},
     ]
 
-    if request.method == "POST":
-        new_bid = float(request.form.get("bid_amount", 0))
+    live_state = None
+    state_error = None
 
-        # Validation: Is the bid high enough?
-        if new_bid > auction["current_bid"]:
-            auction["current_bid"] = new_bid
-            flash(f"Success! Your bid of {new_bid} ETH has been placed.", "success")
-        else:
-            flash(f"Bid failed. You must bid higher than {auction['current_bid']} ETH.", "danger")
+    # Load live blockchain state for display
+    if get_state is not None:
+        try:
+            live_state = get_state(auction_id)
+            auction["current_bid"] = live_state["highest_bid_eth"]
+        except Exception as e:
+            if _BackendAPIError is not None and isinstance(e, _BackendAPIError):
+                state_error = f"{e.code}: {e.message}"
+            else:
+                state_error = str(e)
+
+    if request.method == "POST":
+        bid_raw = request.form.get("bid_amount", "0")
+
+        try:
+            new_bid = float(bid_raw)
+        except ValueError:
+            flash("Bid amount must be a valid number.", "danger")
+            return redirect(url_for("detail", auction_id=auction_id))
+
+        if submit_bid is None:
+            flash("Backend bid function is unavailable.", "danger")
+            return redirect(url_for("detail", auction_id=auction_id))
+
+        try:
+            result = submit_bid(auction_id, new_bid)
+            flash(
+                f"Success! Your bid of {new_bid} ETH has been placed. Tx: {result['tx_hash']}",
+                "success",
+            )
+        except Exception as e:
+            if _BackendAPIError is not None and isinstance(e, _BackendAPIError):
+                details = f" ({e.details})" if getattr(e, "details", None) else ""
+                flash(f"Bid failed: {e.message}{details}", "danger")
+            else:
+                flash(f"Bid failed: {str(e)}", "danger")
 
         return redirect(url_for("detail", auction_id=auction_id))
 
     is_watched = auction_id in WATCHLIST
-    return render_template("detail.html", auction=auction, is_watched=is_watched, history=history)
+    return render_template(
+        "detail.html",
+        auction=auction,
+        is_watched=is_watched,
+        history=history,
+        live_state=live_state,
+        state_error=state_error,
+    )
 
 
 @app.route("/watchlist")
@@ -115,7 +167,6 @@ def toggle_watchlist(auction_id):
     return redirect(request.referrer or url_for("index"))
 
 
-# PROJ-38/39: Real Auction state endpoint
 @app.route("/api/state/<int:auction_id>")
 def api_state(auction_id):
     """
