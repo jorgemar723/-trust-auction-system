@@ -47,6 +47,7 @@ from pathlib import Path
 
 from .bidding import connect_web3, load_contract, place_bid
 from .state import get_auction_state
+from .errors import BackendAPIError
 
 # Temporary mapping for PROJ-97
 # Maps auction_id → contract_address
@@ -54,23 +55,6 @@ from .state import get_auction_state
 _AUCTION_REGISTRY = {
     1: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
 }
-
-class BackendAPIError(Exception):
-    """
-    API-safe error that Flask can return without leaking stack traces.
-    """
-    def __init__(
-        self,
-        code: str,
-        message: str,
-        http_status: int = 500,
-        details: str | None = None,
-    ):
-        super().__init__(message)
-        self.code = code
-        self.message = message
-        self.http_status = http_status
-        self.details = details
 
 # Repo root: trust/ (backend/ is inside it)
 _REPO_ROOT = Path(__file__).resolve().parents[1]
