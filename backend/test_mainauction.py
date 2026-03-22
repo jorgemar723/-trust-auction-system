@@ -1,43 +1,24 @@
-"""
-Standalone backend test script.
-
-Tests full pipeline:
-
-create auction
-↓
-read state
-↓
-place bid
-↓
-read updated state
-"""
-
 from backend.mainauction import (
-    create_new_auction,
+    create_and_register_auction,
     submit_bid,
-    get_state
+    get_state,
 )
 
-# --- Create auction ---
 print("=== Creating Auction ===")
-auction = create_new_auction(3600)
+auction = create_and_register_auction(3600)
 
+auction_id = auction["auction_id"]
 auction_address = auction["auction_address"]
 
+print("Auction ID:", auction_id)
 print("Auction address:", auction_address)
 
-
-# --- Read state before mutation ---
 print("\n=== State before ===")
-print(get_state(auction_address))
+print(get_state(auction_id))
 
-
-# --- Place a bid ---
 print("\n=== Placing bid ===")
-result = submit_bid(auction_address, 1)
+result = submit_bid(auction_id, 1)
 print("Bid result:", result)
 
-
-# --- Read updated state ---
 print("\n=== State after ===")
-print(get_state(auction_address))
+print(get_state(auction_id))

@@ -2,7 +2,7 @@ import json
 from web3 import Web3
 from pathlib import Path
 
-from .bidding import connect_web3
+from .auction_loader import connect_web3
 from .errors import BackendAPIError
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
