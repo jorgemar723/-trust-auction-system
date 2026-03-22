@@ -56,6 +56,7 @@ from .auction_loader import load_auction_contract
 # TODO: Replace with database lookup when auctions are stored in SQL
 _AUCTION_REGISTRY = {
     1: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    2: "0xCafac3dD18aC6c6e92c921884f9E4176737C052c",
 }
 
 _NEXT_AUCTION_ID = max(_AUCTION_REGISTRY.keys(), default=0) + 1
