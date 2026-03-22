@@ -97,9 +97,6 @@ def _get_config() -> tuple[str, Path, str]:
 def _init_chain_for_address(address: str):
     rpc_url, abi_path, _default_address = _get_config()
 
-def _init_chain():
-    rpc_url, abi_path, address = _get_config()
-
     # 1. ABI existence (fast fail)
     if not abi_path.exists():
         raise BackendAPIError(
