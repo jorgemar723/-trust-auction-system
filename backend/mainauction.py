@@ -97,6 +97,9 @@ def _get_config() -> tuple[str, Path, str]:
 def _init_chain_for_address(address: str):
     rpc_url, abi_path, _default_address = _get_config()
 
+def _init_chain():
+    rpc_url, abi_path, address = _get_config()
+
     # 1. ABI existence (fast fail)
     if not abi_path.exists():
         raise BackendAPIError(
@@ -164,6 +167,11 @@ def _init_chain_for_address(address: str):
     account = w3.eth.accounts[0]
     return w3, contract, account
 
+def _init_chain():
+    _rpc_url, _abi_path, address = _get_config()
+    return _init_chain_for_address(address)
+
+
 def submit_bid(user_bid: float) -> dict:
     if user_bid <= 0:
         raise BackendAPIError(
@@ -194,8 +202,9 @@ def get_state(auction_id: int) -> dict:
             http_status=404,
             details=f"No contract address found for auction_id={auction_id}",
         )
-
+        
     w3, contract, _account = _init_chain_for_address(address)
+
     
     try:
         return get_auction_state(w3, contract, address)
