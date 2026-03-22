@@ -48,6 +48,8 @@ from pathlib import Path
 from .bidding import connect_web3, load_contract, place_bid
 from .state import get_auction_state
 from .errors import BackendAPIError
+from .factory import create_auction
+from .auction_loader import load_auction_contract
 
 # Temporary mapping for PROJ-97
 # Maps auction_id → contract_address
@@ -55,6 +57,24 @@ from .errors import BackendAPIError
 _AUCTION_REGISTRY = {
     1: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
 }
+
+_NEXT_AUCTION_ID = max(_AUCTION_REGISTRY.keys(), default=0) + 1
+
+def create_and_register_auction(duration_seconds: int) -> dict:
+    global _NEXT_AUCTION_ID
+
+    result = create_auction(duration_seconds)
+    auction_address = result["auction_address"]
+
+    auction_id = _NEXT_AUCTION_ID
+    _AUCTION_REGISTRY[auction_id] = auction_address
+    _NEXT_AUCTION_ID += 1
+
+    return {
+        "auction_id": auction_id,
+        "auction_address": auction_address,
+        "tx_hash": result["tx_hash"],
+    }
 
 # Repo root: trust/ (backend/ is inside it)
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -183,8 +203,13 @@ def get_state(auction_id: int) -> dict:
             http_status=404,
             details=f"No contract address found for auction_id={auction_id}",
         )
+    
+    _rpc_url, abi_path, _default_address = _get_config()
         
-    w3, contract, _account = _init_chain_for_address(address)
+    w3, contract, _account = load_auction_contract(
+        auction_address=address,
+        abi_path=str(abi_path),
+    )
 
     
     try:
