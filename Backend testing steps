@@ -7,6 +7,8 @@ npx hardhat node - boot up node
 
 ***in new terminal cd to Hardhat testing node folder"
 npx hardhat run scripts/deploy_factory.js --network localhost - deploy factory.sol
+npx hardhat run scripts/create_auction.js --network localhost - deploy contracts.sol
+
 
 ***in new terminal in Hardhat testing node folder***
 source venv/bin/activate
