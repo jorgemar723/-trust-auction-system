@@ -126,7 +126,7 @@
         return;
     }
 
-    const stateUrl = "{{ url_for('api_state') }}";
+    const stateUrl = "{{ url_for('api_state', auction_id=auction.id) }}";
     let auctionEndTime = null;
     let countdownTimer = null;
     let resyncTimer = null;
