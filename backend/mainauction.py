@@ -178,10 +178,10 @@ def submit_bid(user_bid: float) -> dict:
             details=str(e),
         ) from e
     
-def get_state() -> dict:
+def get_state(auction_id: int) -> dict:
     w3, contract, _account = _init_chain()
     _rpc_url, _abi_path, address = _get_config()
-
+# TODO (PROJ-97): Replace with auction_id → contract_address lookup
     try:
         return get_auction_state(w3, contract, address)
     
