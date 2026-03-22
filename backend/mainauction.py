@@ -48,6 +48,13 @@ from pathlib import Path
 from .bidding import connect_web3, load_contract, place_bid
 from .state import get_auction_state
 
+# Temporary mapping for PROJ-97
+# Maps auction_id → contract_address
+# TODO: Replace with database lookup when auctions are stored in SQL
+_AUCTION_REGISTRY = {
+    1: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+}
+
 class BackendAPIError(Exception):
     """
     API-safe error that Flask can return without leaking stack traces.
@@ -87,8 +94,8 @@ def _get_config() -> tuple[str, Path, str]:
     address = os.getenv("SIMPLE_AUCTION_ADDRESS", _DEFAULT_ADDRESS)
     return rpc_url, abi_path, address
 
-def _init_chain():
-    rpc_url, abi_path, address = _get_config()
+def _init_chain_for_address(address: str):
+    rpc_url, abi_path, _default_address = _get_config()
 
     # 1. ABI existence (fast fail)
     if not abi_path.exists():
@@ -179,12 +186,19 @@ def submit_bid(user_bid: float) -> dict:
         ) from e
     
 def get_state(auction_id: int) -> dict:
-    w3, contract, _account = _init_chain()
-    _rpc_url, _abi_path, address = _get_config()
-# TODO (PROJ-97): Replace with auction_id → contract_address lookup
+    address = _AUCTION_REGISTRY.get(auction_id)
+    if not address:
+        raise BackendAPIError(
+            code="AUCTION_NOT_FOUND",
+            message="Auction not found.",
+            http_status=404,
+            details=f"No contract address found for auction_id={auction_id}",
+        )
+
+    w3, contract, _account = _init_chain_for_address(address)
+    
     try:
         return get_auction_state(w3, contract, address)
-    
     except Exception as e:
         raise BackendAPIError(
             code="CHAIN_CALL_FAILED",
