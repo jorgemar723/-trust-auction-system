@@ -158,9 +158,28 @@ class PostgresDB:
     def delete_auction(self, auction_id):
         try:
             cur = self.conn.cursor()
+            
+            # 1. Fetch the associated image URLs before deleting the record
+            cur.execute("SELECT images FROM auctions WHERE auction_id = %s", (auction_id,))
+            row = cur.fetchone()
+            image_urls = row[0] if row and row[0] else []
+
+            # 2. Delete the record from the database
             cur.execute("DELETE FROM auctions WHERE auction_id = %s", (auction_id,))
             self.conn.commit()
             cur.close()
+
+            # 3. Delete the physical image files from the static/uploads folder
+            app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            for url in image_urls:
+                if url.startswith("uploads/"):
+                    file_path = os.path.join(app_root, "static", url)
+                    try:
+                        if os.path.exists(file_path):
+                            os.remove(file_path)
+                    except Exception as e:
+                        print(f"Warning: Failed to delete image file {file_path}: {e}")
+                        
         except (psycopg2.DatabaseError, Exception) as error:
             print(f"Error deleting auction: {error}")
             self.conn.rollback()
