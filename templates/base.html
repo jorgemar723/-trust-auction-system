@@ -21,18 +21,13 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Security</a>
-                </li>
-
-                <li class="nav-item">
                     <a class="nav-link" href="/watchlist">Watchlist</a>
                 </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Search</a>
-                </li>
-
                 {% if session.get("user_email") %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_auction') }}">Create Auction</a>
+                    </li>
                     <li class="nav-item ms-lg-3">
                         <span class="navbar-text text-light me-2">
                             {{ session.get("user_email") }}

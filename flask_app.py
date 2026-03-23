@@ -1,13 +1,20 @@
 from __future__ import annotations
 
+import os
+from datetime import datetime
 from db.run_sql_schema import run_sql_schema
 from db.PostgresDB import PostgresDB
 import bcrypt
+from werkzeug.utils import secure_filename
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 
 app = Flask(__name__)
 app.secret_key = "trust_secret_key"
+
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # Backend wiring (PROJ-38/39): Flask -> backend.mainauction -> state.py -> Hardhat
@@ -86,6 +93,11 @@ def detail(auction_id):
     ]
 
     if request.method == "POST":
+        if "user_id" not in session:
+            flash("You must be logged in to place a bid.", "warning")
+            db.close()
+            return redirect(url_for("login"))
+            
         new_bid = float(request.form.get("bid_amount", 0))
 
         if new_bid > auction["current_bid"]:
@@ -145,6 +157,54 @@ def api_state(auction_id):
             str(e),
             500,
         )
+
+
+# ================= CREATE AUCTION =================
+@app.route("/auction/create", methods=["GET", "POST"])
+def create_auction():
+    if "user_id" not in session:
+        flash("You must be logged in to create an auction.", "warning")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        description = request.form.get("description")
+        starting_bid = request.form.get("starting_bid")
+        expires_at = request.form.get("expires_at")
+        
+        images = request.files.getlist("images")
+        image_urls = []
+        
+        for image in images:
+            if image and image.filename:
+                filename = secure_filename(image.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(image_path)
+                image_urls.append(f"uploads/{filename}")
+            
+        created_at = datetime.utcnow()
+        seller_id = session["user_id"]
+        
+        db = PostgresDB()
+        db.connect()
+        success = db.create_auction(
+            title=title,
+            description=description,
+            starting_bid=starting_bid,
+            image_urls=image_urls,
+            created_at=created_at,
+            expires_at=expires_at,
+            seller_id=seller_id
+        )
+        db.close()
+        
+        if success:
+            flash("Auction created successfully!", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Failed to create auction. Please try again.", "danger")
+            
+    return render_template("create_auction.html")
 
 
 # ================= REGISTER =================
@@ -219,5 +279,4 @@ def logout():
 
 # ================= START APP =================
 if __name__ == "__main__":
-    run_sql_schema("db/schema.sql")
     app.run(port=8000, debug=True)
