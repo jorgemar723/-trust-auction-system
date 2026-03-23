@@ -1,14 +1,29 @@
 from __future__ import annotations
 
-from db.run_sql_schema import run_sql_schema
-from db.PostgresDB import PostgresDB
-import bcrypt
-
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+# import bcrypt
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+# from flask import session
 
 app = Flask(__name__)
 app.secret_key = "trust_secret_key"
 
+# ==========================================================
+# TEMPORARILY DISABLED DB/AUTH WIRING
+# Keep this off for now so auction + blockchain features work
+# without requiring Postgres/auth setup.
+# ==========================================================
+
+# run_sql_schema = None
+# PostgresDB = None
+# _db_import_error = None
+
+# try:
+#     from db.run_sql_schema import run_sql_schema as _run_sql_schema
+#     from db.PostgresDB import PostgresDB as _PostgresDB
+#     run_sql_schema = _run_sql_schema
+#     PostgresDB = _PostgresDB
+# except Exception as e:
+#     _db_import_error = str(e)
 
 # Backend wiring: Flask -> backend.mainauction -> remote_controls -> Hardhat
 get_state = None
@@ -68,12 +83,13 @@ AUCTIONS = [
 
 WATCHLIST = []
 
+
 @app.route("/")
 def index():
     hydrated_auctions = []
 
     for auction in AUCTIONS:
-        auction_copy = auction.copy()  # avoid mutating original list
+        auction_copy = auction.copy()
 
         if get_state is not None:
             try:
@@ -81,7 +97,6 @@ def index():
                 auction_copy["current_bid"] = state["highest_bid_eth"]
                 auction_copy["status"] = state["status"]
             except Exception:
-                # If something fails, fallback to existing value
                 pass
 
         hydrated_auctions.append(auction_copy)
@@ -104,7 +119,6 @@ def detail(auction_id):
     live_state = None
     state_error = None
 
-    # Load live blockchain state for display
     if get_state is not None:
         try:
             live_state = get_state(auction_id)
@@ -118,11 +132,11 @@ def detail(auction_id):
     if request.method == "POST":
         bid_raw = request.form.get("bid_amount", "0")
 
-        if new_bid > auction["current_bid"]:
-            auction["current_bid"] = new_bid
-            flash(f"Success! Your bid of {new_bid} ETH has been placed.", "success")
-        else:
-            flash(f"Bid failed. You must bid higher than {auction['current_bid']} ETH.", "danger")
+        try:
+            new_bid = float(bid_raw)
+        except ValueError:
+            flash("Bid amount must be a valid number.", "danger")
+            return redirect(url_for("detail", auction_id=auction_id))
 
         if submit_bid is None:
             flash("Backend bid function is unavailable.", "danger")
@@ -171,8 +185,8 @@ def toggle_watchlist(auction_id):
     return redirect(request.referrer or url_for("index"))
 
 
-@app.route("/api/state")
-def api_state():
+@app.route("/api/state/<int:auction_id>")
+def api_state(auction_id):
     if get_state is None:
         return error_json(
             "BACKEND_IMPORT_FAILED",
@@ -196,77 +210,92 @@ def api_state():
         )
 
 
-# ================= REGISTER =================
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        email = request.form.get("email", "").strip()
-        password = request.form.get("password", "").strip()
+# ==========================================================
+# TEMPORARILY DISABLED AUTH ROUTES
+# Re-enable after DB/auth is fully wired and tested.
+# ==========================================================
 
-        if not email or not password:
-            flash("Email and password are required.", "danger")
-            return redirect(url_for("register"))
-
-        db = PostgresDB()
-        db.connect()
-        result = db.create_user(email, password)
-        db.close()
-
-        if result["success"]:
-            session["user_id"] = result["user_id"]
-            session["user_email"] = email
-            flash("Account created successfully.", "success")
-            return redirect(url_for("index"))
-        else:
-            flash(f"Registration failed: {result['error']}", "danger")
-            return redirect(url_for("register"))
-
-    return render_template("register.html")
-
-
-# ================= LOGIN =================
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        email = request.form.get("email", "").strip()
-        password = request.form.get("password", "").strip()
-
-        if not email or not password:
-            flash("Email and password are required.", "danger")
-            return redirect(url_for("login"))
-
-        db = PostgresDB()
-        db.connect()
-        user = db.get_user_by_email(email)
-        db.close()
-
-        if not user:
-            flash("No account found with that email.", "danger")
-            return redirect(url_for("login"))
-
-        user_id, user_email, password_hash = user
-
-        if bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8")):
-            session["user_id"] = user_id
-            session["user_email"] = user_email
-            flash("Login successful!", "success")
-            return redirect(url_for("index"))
-        else:
-            flash("Incorrect password.", "danger")
-            return redirect(url_for("login"))
-
-    return render_template("login.html")
+# @app.route("/register", methods=["GET", "POST"])
+# def register():
+#     if PostgresDB is None:
+#         flash(f"Registration unavailable: {_db_import_error}", "danger")
+#         return redirect(url_for("index"))
+#
+#     if request.method == "POST":
+#         email = request.form.get("email", "").strip()
+#         password = request.form.get("password", "").strip()
+#
+#         if not email or not password:
+#             flash("Email and password are required.", "danger")
+#             return redirect(url_for("register"))
+#
+#         db = PostgresDB()
+#         db.connect()
+#         result = db.create_user(email, password)
+#         db.close()
+#
+#         if result["success"]:
+#             session["user_id"] = result["user_id"]
+#             session["user_email"] = email
+#             flash("Account created successfully.", "success")
+#             return redirect(url_for("index"))
+#         else:
+#             flash(f"Registration failed: {result['error']}", "danger")
+#             return redirect(url_for("register"))
+#
+#     return render_template("register.html")
 
 
-# ================= LOGOUT =================
-@app.route("/logout")
-def logout():
-    session.clear()
-    flash("Logged out successfully.", "info")
-    return redirect(url_for("index"))
+# @app.route("/login", methods=["GET", "POST"])
+# def login():
+#     if PostgresDB is None:
+#         flash(f"Login unavailable: {_db_import_error}", "danger")
+#         return redirect(url_for("index"))
+#
+#     if request.method == "POST":
+#         email = request.form.get("email", "").strip()
+#         password = request.form.get("password", "").strip()
+#
+#         if not email or not password:
+#             flash("Email and password are required.", "danger")
+#             return redirect(url_for("login"))
+#
+#         db = PostgresDB()
+#         db.connect()
+#         user = db.get_user_by_email(email)
+#         db.close()
+#
+#         if not user:
+#             flash("No account found with that email.", "danger")
+#             return redirect(url_for("login"))
+#
+#         user_id, user_email, password_hash = user
+#
+#         if bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8")):
+#             session["user_id"] = user_id
+#             session["user_email"] = user_email
+#             flash("Login successful!", "success")
+#             return redirect(url_for("index"))
+#         else:
+#             flash("Incorrect password.", "danger")
+#             return redirect(url_for("login"))
+#
+#     return render_template("login.html")
 
 
-# ================= START APP =================
+# @app.route("/logout")
+# def logout():
+#     session.clear()
+#     flash("Logged out successfully.", "info")
+#     return redirect(url_for("index"))
+
+
 if __name__ == "__main__":
-    run_sql_schema("db/schema.sql")
+    # TEMPORARILY DISABLED DB SCHEMA INIT
+    # if run_sql_schema is not None:
+    #     try:
+    #         run_sql_schema("db/schema.sql")
+    #     except Exception as e:
+    #         print(f"Database setup skipped: {e}")
+
     app.run(port=8000, debug=True)
