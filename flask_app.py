@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from db.run_sql_schema import run_sql_schema
+from db.PostgresDB import PostgresDB
+import bcrypt
+
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 
 app = Flask(__name__)
 app.secret_key = "trust_secret_key"
@@ -75,7 +79,6 @@ def detail(auction_id):
     if not auction:
         return "Auction not found", 404
 
-    # Mock bid history for the table
     history = [
         {"user": "0x71C...a2E", "amount": "4.1 ETH", "time": "2 hours ago", "status": "Verified"},
         {"user": "0x32B...f11", "amount": "3.8 ETH", "time": "5 hours ago", "status": "Verified"},
@@ -85,7 +88,6 @@ def detail(auction_id):
     if request.method == "POST":
         new_bid = float(request.form.get("bid_amount", 0))
 
-        # Validation: Is the bid high enough?
         if new_bid > auction["current_bid"]:
             auction["current_bid"] = new_bid
             flash(f"Success! Your bid of {new_bid} ETH has been placed.", "success")
@@ -145,5 +147,77 @@ def api_state(auction_id):
         )
 
 
+# ================= REGISTER =================
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if not email or not password:
+            flash("Email and password are required.", "danger")
+            return redirect(url_for("register"))
+
+        db = PostgresDB()
+        db.connect()
+        result = db.create_user(email, password)
+        db.close()
+
+        if result["success"]:
+            session["user_id"] = result["user_id"]
+            session["user_email"] = email
+            flash("Account created successfully.", "success")
+            return redirect(url_for("index"))
+        else:
+            flash(f"Registration failed: {result['error']}", "danger")
+            return redirect(url_for("register"))
+
+    return render_template("register.html")
+
+
+# ================= LOGIN =================
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip()
+        password = request.form.get("password", "").strip()
+
+        if not email or not password:
+            flash("Email and password are required.", "danger")
+            return redirect(url_for("login"))
+
+        db = PostgresDB()
+        db.connect()
+        user = db.get_user_by_email(email)
+        db.close()
+
+        if not user:
+            flash("No account found with that email.", "danger")
+            return redirect(url_for("login"))
+
+        user_id, user_email, password_hash = user
+
+        if bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8")):
+            session["user_id"] = user_id
+            session["user_email"] = user_email
+            flash("Login successful!", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Incorrect password.", "danger")
+            return redirect(url_for("login"))
+
+    return render_template("login.html")
+
+
+# ================= LOGOUT =================
+@app.route("/logout")
+def logout():
+    session.clear()
+    flash("Logged out successfully.", "info")
+    return redirect(url_for("index"))
+
+
+# ================= START APP =================
 if __name__ == "__main__":
+    run_sql_schema("db/schema.sql")
     app.run(port=8000, debug=True)
