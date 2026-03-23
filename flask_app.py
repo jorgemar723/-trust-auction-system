@@ -117,8 +117,13 @@ def toggle_watchlist(auction_id):
     return redirect(request.referrer or url_for("index"))
 
 
-@app.route("/api/state")
-def api_state():
+# PROJ-38/39: Real Auction state endpoint
+@app.route("/api/state/<int:auction_id>")
+def api_state(auction_id):
+    """
+    Returns live auction state from the backend wiring:
+    Flask -> backend.mainauction -> backend.state -> Hardhat
+    """
     if get_state is None:
         return error_json(
             "BACKEND_IMPORT_FAILED",
@@ -128,7 +133,7 @@ def api_state():
         )
 
     try:
-        state = get_state()
+        state = get_state(auction_id)
         return jsonify({"ok": True, "data": state}), 200
     except Exception as e:
         if _BackendAPIError is not None and isinstance(e, _BackendAPIError):

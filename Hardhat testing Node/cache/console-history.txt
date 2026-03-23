@@ -1,3 +1,0 @@
-await provider.send("eth_accounts", [])
-const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545")
-const { ethers } = await import("ethers")
