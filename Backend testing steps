@@ -16,6 +16,14 @@ cd .. up on folder to "trust"
 python -m backend.test_mainauction- tests bidding/ state/ factory.py outputs results to the terminal
 
 
+http://127.0.0.1:8000/api/state/1
+http://127.0.0.1:8000/api/state/2
+http://127.0.0.1:8000/api/state/3
+
+
+
+
+
 
 
 

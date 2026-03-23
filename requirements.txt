@@ -1,7 +1,19 @@
-.env file with the following contents:
-    DATABASE_URL='database_url'
+flask
+web3
 
-libraries (install using pip):
-    - psycopg2-binary
-    - python-dotenv
-    
+bcrypt==5.0.0
+certifi
+charset-normalizer==3.4.4
+idna==3.11
+iniconfig==2.1.0
+load-dotenv==0.1.0
+packaging
+pluggy
+psycopg2-binary==2.9.11
+Pygments
+pytest==8.4.2
+python-dotenv==1.2.1
+requests==2.32.5
+SQLAlchemy==2.0.48
+typing_extensions
+urllib3
