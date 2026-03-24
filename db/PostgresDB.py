@@ -143,10 +143,17 @@ class PostgresDB:
             expires_at, 
             seller_id,
             contract_address,
+            tx_hash,
             ):
         try:
             cur = self.conn.cursor()
+            #create auction record in database
             cur.execute("INSERT INTO auctions (title, description, starting_bid, images, created_at, expires_at, seller_id, contract_address) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (title, description, starting_bid, image_urls, created_at, expires_at, seller_id, contract_address))
+            #get the auction_id of the newly created auction
+            cur.execute("SELECT auction_id FROM auctions WHERE contract_address = %s", (contract_address,))
+            auction_id = cur.fetchone()[0]
+            #insert the auction_id and tx_hash into the registry table
+            cur.execute("INSERT INTO registry (auction_id, registry_id) VALUES (%s, %s)", (auction_id, tx_hash))
             self.conn.commit()
             cur.close()
         except (psycopg2.DatabaseError, Exception) as error:
@@ -154,6 +161,19 @@ class PostgresDB:
             self.conn.rollback()
             return False
         return True
+    
+    def get_auction_registry(self):
+        registry = {}
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT auction_id, contract_address FROM auctions")
+            rows = cur.fetchall()
+            for row in rows:
+                registry[row[0]] = row[1]
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching auction registry: {error}")
+        return registry
     
     def update_contract_address(self, auction_id, contract_address):
         try:

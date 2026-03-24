@@ -56,10 +56,10 @@ from .auction_loader import load_auction_contract
 # Legacy fallback for local testing.
 # PROJ-89 moves state retrieval toward DB-backed contract lookup.
 
-_AUCTION_REGISTRY = {
-    1: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    2: "0xCafac3dD18aC6c6e92c921884f9E4176737C052c",
-}
+db = PostgresDB()
+db.connect()
+_AUCTION_REGISTRY = db.get_auction_registry()  # {auction_id: contract_address}
+db.close()
 
 _NEXT_AUCTION_ID = max(_AUCTION_REGISTRY.keys(), default=0) + 1
 

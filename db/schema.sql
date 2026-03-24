@@ -16,7 +16,7 @@ Features:
 */
 
 -- Drop existing tables to ensure schema updates apply correctly
-DROP TABLE IF EXISTS users, watchlist, bidding_history, auctions CASCADE;
+DROP TABLE IF EXISTS users, watchlist, bidding_history, auctions, registry CASCADE;
 
 CREATE TABLE IF NOT EXISTS users (
 
@@ -106,6 +106,11 @@ CREATE TABLE IF NOT EXISTS watchlist (
     auction_id INTEGER NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, auction_id)
+);
+
+CREATE TABLE IF NOT EXISTS registry (
+    registry_id TEXT NOT NULL PRIMARY KEY,
+    auction_id INTEGER NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE
 );
 
 -- Indexes

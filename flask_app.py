@@ -6,6 +6,7 @@ from db.run_sql_schema import run_sql_schema
 from db.PostgresDB import PostgresDB
 import bcrypt
 from werkzeug.utils import secure_filename
+from backend.factory import create_auction as deploy_auction
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 
@@ -36,6 +37,10 @@ try:
 except Exception as e:
     _backend_import_error = str(e)
 
+
+def to_seconds(date_string: str) -> int:
+    dt = datetime.strptime(date_string, "%Y-%m-%dT%H:%M")
+    return int(dt.timestamp())
 
 def error_json(code: str, message: str, details: str | None = None, http_status: int = 500):
     payload = {
@@ -237,6 +242,13 @@ def create_auction():
             
         created_at = datetime.utcnow()
         seller_id = session["user_id"]
+
+        #TODO fix time zone issue
+        result_seconds = to_seconds(expires_at) - int(created_at.timestamp())
+        print(f"Creating auction with duration {result_seconds} seconds")
+        result = deploy_auction(result_seconds)
+        contract_address = result["auction_address"]
+        tx_hash = result["tx_hash"]
         
         db = PostgresDB()
         db.connect()
@@ -247,8 +259,11 @@ def create_auction():
             image_urls=image_urls,
             created_at=created_at,
             expires_at=expires_at,
-            seller_id=seller_id
+            seller_id=seller_id,
+            contract_address=contract_address,
+            tx_hash=tx_hash
         )
+
         db.close()
         
         if success:
