@@ -15,7 +15,7 @@
             <div class="card auction-card border-0 shadow-sm">
                 
                 <div class="card-img-container">
-                    <img src="{{ url_for('static', filename='images/' + auction.image) }}" 
+                    <img src="{{ url_for('static', filename=auction.image) }}" 
                          class="card-img-top" 
                          alt="{{ auction.title }}">
                 </div>

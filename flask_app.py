@@ -1,13 +1,21 @@
 from __future__ import annotations
 
+import os
+from datetime import datetime
 from db.run_sql_schema import run_sql_schema
 from db.PostgresDB import PostgresDB
 import bcrypt
+from werkzeug.utils import secure_filename
+from backend.factory import create_auction as deploy_auction
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 
 app = Flask(__name__)
 app.secret_key = "trust_secret_key"
+
+UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # Backend wiring (PROJ-38/39): Flask -> backend.mainauction -> state.py -> Hardhat
@@ -30,6 +38,10 @@ except Exception as e:
     _backend_import_error = str(e)
 
 
+def to_seconds(date_string: str) -> int:
+    dt = datetime.strptime(date_string, "%Y-%m-%dT%H:%M")
+    return int(dt.timestamp())
+
 def error_json(code: str, message: str, details: str | None = None, http_status: int = 500):
     payload = {
         "ok": False,
@@ -39,81 +51,139 @@ def error_json(code: str, message: str, details: str | None = None, http_status:
         payload["details"] = details
     return jsonify(payload), http_status
 
-
-# Mock Data: Simulating a database of active auctions
-AUCTIONS = [
-    {
-        "id": 1,
-        "title": "Vintage Rolex Submariner",
-        "current_bid": 4.0,
-        "image": "Rolex.jpg",
-        "description": "Certified authentic 1970s diving watch.",
-    },
-    {
-        "id": 2,
-        "title": "Unopened 1st Ed. Charizard",
-        "current_bid": 12.5,
-        "image": "Charizard.jpg",
-        "description": "Mint condition, PSA 10 candidate.",
-    },
-    {
-        "id": 3,
-        "title": "Bored Ape Yacht Club #772",
-        "current_bid": 65.0,
-        "image": "NFT.jpg",
-        "description": "Rare gold fur trait. Smart contract verified.",
-    },
-]
-
-WATCHLIST = []
-
-
 @app.route("/")
 def index():
-    return render_template("index.html", auctions=AUCTIONS)
+    db = PostgresDB()
+    db.connect()
+    raw_auctions = db.get_auctions()
+    db.close()
+    
+    formatted_auctions = []
+    for row in raw_auctions:
+        images = row[4]
+        # Grab the first image to use as the thumbnail, if one exists
+        image_url = images[0] if images and len(images) > 0 else ""
+        
+        # Use the highest_bid if it exists, otherwise fall back to starting_bid
+        current_bid = row[9] if row[9] is not None else row[8]
+        
+        formatted_auctions.append({
+            "id": row[0],
+            "title": row[2],
+            "description": row[3],
+            "image": image_url,
+            "current_bid": float(current_bid)
+        })
+        
+    return render_template("index.html", auctions=formatted_auctions)
 
 
 @app.route("/auction/<int:auction_id>", methods=["GET", "POST"])
 def detail(auction_id):
-    auction = next((a for a in AUCTIONS if a["id"] == auction_id), None)
-    if not auction:
+    db = PostgresDB()
+    db.connect()
+    raw_auction = db.get_auction_by_id(auction_id)
+    
+    if not raw_auction:
+        db.close()
         return "Auction not found", 404
 
-    history = [
-        {"user": "0x71C...a2E", "amount": "4.1 ETH", "time": "2 hours ago", "status": "Verified"},
-        {"user": "0x32B...f11", "amount": "3.8 ETH", "time": "5 hours ago", "status": "Verified"},
-        {"user": "0x99A...c43", "amount": "3.5 ETH", "time": "1 day ago", "status": "Verified"},
-    ]
+    images = raw_auction[4]
+    current_bid = raw_auction[9] if raw_auction[9] is not None else raw_auction[8]
+    
+    auction = {
+        "id": raw_auction[0],
+        "title": raw_auction[2],
+        "description": raw_auction[3],
+        "images": images if images else [],
+        "image": images[0] if images and len(images) > 0 else "",
+        "current_bid": float(current_bid)
+    }
+
+    raw_bids = db.get_bids_for_auction(auction_id)
+    history = []
+    for bid in raw_bids:
+        history.append({
+            "user": (bid[6][:10] + "...") if bid[6] else f"User {bid[2]}",
+            "amount": f"{float(bid[3])} ETH",
+            "time": bid[5].strftime("%Y-%m-%d %H:%M") if bid[5] else "Unknown",
+            "status": "Verified" if bid[4] else "Pending"
+        })
 
     if request.method == "POST":
+        if "user_id" not in session:
+            flash("You must be logged in to place a bid.", "warning")
+            db.close()
+            return redirect(url_for("login"))
+            
         new_bid = float(request.form.get("bid_amount", 0))
 
-        if new_bid > auction["current_bid"]:
-            auction["current_bid"] = new_bid
+        success = db.submit_bid(auction_id, session["user_id"], new_bid)
+        if success:
             flash(f"Success! Your bid of {new_bid} ETH has been placed.", "success")
         else:
             flash(f"Bid failed. You must bid higher than {auction['current_bid']} ETH.", "danger")
 
+        db.close()
         return redirect(url_for("detail", auction_id=auction_id))
 
-    is_watched = auction_id in WATCHLIST
+    is_watched = False
+    if "user_id" in session:
+        watchlist = db.get_user_watchlist(session["user_id"])
+        is_watched = auction_id in watchlist
+        
+    db.close()
     return render_template("detail.html", auction=auction, is_watched=is_watched, history=history)
 
 
 @app.route("/watchlist")
 def view_watchlist():
-    watched_items = [a for a in AUCTIONS if a["id"] in WATCHLIST]
+    if "user_id" not in session:
+        flash("You must be logged in to view your watchlist.", "warning")
+        return redirect(url_for("login"))
+        
+    db = PostgresDB()
+    db.connect()
+    watchlist_ids = db.get_user_watchlist(session["user_id"])
+    
+    watched_items = []
+    for w_id in watchlist_ids:
+        row = db.get_auction_by_id(w_id)
+        if row:
+            images = row[4]
+            image_url = images[0] if images and len(images) > 0 else ""
+            current_bid = row[9] if row[9] is not None else row[8]
+            
+            watched_items.append({
+                "id": row[0],
+                "title": row[2],
+                "description": row[3],
+                "image": image_url,
+                "current_bid": float(current_bid)
+            })
+            
+    db.close()
     return render_template("watchlist.html", auctions=watched_items)
 
 
 @app.route("/toggle-watchlist/<int:auction_id>")
 def toggle_watchlist(auction_id):
-    if auction_id in WATCHLIST:
-        WATCHLIST.remove(auction_id)
+    if "user_id" not in session:
+        flash("You must be logged in to manage your watchlist.", "warning")
+        return redirect(url_for("login"))
+        
+    db = PostgresDB()
+    db.connect()
+    watchlist = db.get_user_watchlist(session["user_id"])
+    
+    if auction_id in watchlist:
+        db.remove_from_watchlist(session["user_id"], auction_id)
         flash("Removed from watchlist.", "info")
     else:
-        WATCHLIST.append(auction_id)
+        db.add_to_watchlist(session["user_id"], auction_id)
         flash("Added to watchlist.", "success")
+        
+    db.close()
     return redirect(request.referrer or url_for("index"))
 
 
@@ -145,6 +215,64 @@ def api_state(auction_id):
             str(e),
             500,
         )
+
+
+# ================= CREATE AUCTION =================
+@app.route("/auction/create", methods=["GET", "POST"])
+def create_auction():
+    if "user_id" not in session:
+        flash("You must be logged in to create an auction.", "warning")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        description = request.form.get("description")
+        starting_bid = request.form.get("starting_bid")
+        expires_at = request.form.get("expires_at")
+        
+        images = request.files.getlist("images")
+        image_urls = []
+        
+        for image in images:
+            if image and image.filename:
+                filename = secure_filename(image.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(image_path)
+                image_urls.append(f"uploads/{filename}")
+            
+        created_at = datetime.utcnow()
+        seller_id = session["user_id"]
+
+        #TODO fix time zone issue
+        result_seconds = to_seconds(expires_at) - int(created_at.timestamp())
+        print(f"Creating auction with duration {result_seconds} seconds")
+        result = deploy_auction(result_seconds)
+        contract_address = result["auction_address"]
+        tx_hash = result["tx_hash"]
+        
+        db = PostgresDB()
+        db.connect()
+        success = db.create_auction(
+            title=title,
+            description=description,
+            starting_bid=starting_bid,
+            image_urls=image_urls,
+            created_at=created_at,
+            expires_at=expires_at,
+            seller_id=seller_id,
+            contract_address=contract_address,
+            tx_hash=tx_hash
+        )
+
+        db.close()
+        
+        if success:
+            flash("Auction created successfully!", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("Failed to create auction. Please try again.", "danger")
+            
+    return render_template("create_auction.html")
 
 
 # ================= REGISTER =================
@@ -219,5 +347,4 @@ def logout():
 
 # ================= START APP =================
 if __name__ == "__main__":
-    run_sql_schema("db/schema.sql")
     app.run(port=8000, debug=True)

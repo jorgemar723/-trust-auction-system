@@ -22,9 +22,27 @@
 <div class="row g-5">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-            <img src="{{ url_for('static', filename='images/' + auction.image) }}" 
-                 class="img-fluid w-100" alt="{{ auction.title }}" 
-                 style="max-height: 500px; object-fit: cover;">
+            <div id="auctionImageCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for img in auction.images %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <img src="{{ url_for('static', filename=img) }}" 
+                             class="d-block w-100" alt="{{ auction.title }}" 
+                             style="max-height: 500px; object-fit: cover;">
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if auction.images|length > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#auctionImageCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#auctionImageCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                {% endif %}
+            </div>
             <div class="card-body p-4">
                 <h1 class="fw-bold">{{ auction.title }}</h1>
                 <p class="text-muted lead">{{ auction.description }}</p>
