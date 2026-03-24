@@ -87,7 +87,8 @@ CREATE TABLE IF NOT EXISTS auctions (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     starting_bid DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-    highest_bid DECIMAL(12, 2) DEFAULT NULL
+    highest_bid DECIMAL(12, 2) DEFAULT NULL,
+    contract_address TEXT UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS bidding_history (

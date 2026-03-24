@@ -45,6 +45,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from db.PostgresDB import PostgresDB
 from .bidding import connect_web3, load_contract, place_bid
 from .state import get_auction_state
 from .errors import BackendAPIError
@@ -52,8 +53,9 @@ from .factory import create_auction
 from .auction_loader import load_auction_contract
 
 # Temporary mapping for PROJ-97
-# Maps auction_id → contract_address
-# TODO: Replace with database lookup when auctions are stored in SQL
+# Legacy fallback for local testing.
+# PROJ-89 moves state retrieval toward DB-backed contract lookup.
+
 _AUCTION_REGISTRY = {
     1: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     2: "0xCafac3dD18aC6c6e92c921884f9E4176737C052c",
@@ -196,7 +198,13 @@ def submit_bid(user_bid: float) -> dict:
         ) from e
     
 def get_state(auction_id: int) -> dict:
-    address = _AUCTION_REGISTRY.get(auction_id)
+    
+    db = PostgresDB()
+    db.connect()
+    
+    address = db.get_contract_address_by_auction_id(auction_id)
+    db.close()
+    
     if not address:
         raise BackendAPIError(
             code="AUCTION_NOT_FOUND",
@@ -212,7 +220,6 @@ def get_state(auction_id: int) -> dict:
         abi_path=str(abi_path),
     )
 
-    
     try:
         return get_auction_state(w3, contract, address)
     except Exception as e:
