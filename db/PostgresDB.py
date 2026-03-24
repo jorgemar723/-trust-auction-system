@@ -155,6 +155,21 @@ class PostgresDB:
             return False
         return True
     
+    def update_contract_address(self, auction_id, contract_address):
+        try:
+            cur = self.conn.cursor()
+            cur.execute(
+                "UPDATE auctions SET contract_address = %s WHERE auction_id = %s",
+                (contract_address, auction_id)
+            )
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error updating contract address: {error}")
+            self.conn.rollback()
+            return False
+        return True
+    
     def get_contract_address_by_auction_id(self, auction_id):
         contract_address = None
         try:
@@ -241,6 +256,7 @@ class PostgresDB:
             self.conn.rollback()
             return False
         return True
+    
     def create_user(self, email, password):
         try:
             if not self.conn:
@@ -301,6 +317,7 @@ class PostgresDB:
 
         except Exception:
             return None
+        
     def remove_from_watchlist(self, user_id, auction_id):
         try:
             cur = self.conn.cursor()
