@@ -142,10 +142,11 @@ class PostgresDB:
             created_at, 
             expires_at, 
             seller_id,
+            contract_address,
             ):
         try:
             cur = self.conn.cursor()
-            cur.execute("INSERT INTO auctions (title, description, starting_bid, images, created_at, expires_at, seller_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", (title, description, starting_bid, image_urls, created_at, expires_at, seller_id))
+            cur.execute("INSERT INTO auctions (title, description, starting_bid, images, created_at, expires_at, seller_id, contract_address) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (title, description, starting_bid, image_urls, created_at, expires_at, seller_id, contract_address))
             self.conn.commit()
             cur.close()
         except (psycopg2.DatabaseError, Exception) as error:
@@ -153,6 +154,19 @@ class PostgresDB:
             self.conn.rollback()
             return False
         return True
+    
+    def get_contract_address_by_auction_id(self, auction_id):
+        contract_address = None
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT contract_address FROM auctions WHERE auction_id = %s", (auction_id,))
+            row = cur.fetchone()
+            if row:
+                contract_address = row[0]
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching contract address for auction: {error}")
+        return contract_address
     
     
     def delete_auction(self, auction_id):
