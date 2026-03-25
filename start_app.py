@@ -57,6 +57,18 @@ def main():
         print("=> Error: Deployment failed. Exiting.")
         sys.exit(1)
 
+    print("=> Re-initializing database to prevent stale contract address conflicts...")
+    # This will wipe the DB and apply the schema, fixing the duplicate key issue on restart
+    init_db_process = subprocess.Popen(
+        [venv_python, os.path.join("db", "run_sql_schema.py")],
+        cwd=base_dir
+    )
+    init_db_process.wait()
+
+    if init_db_process.returncode != 0:
+        print("=> Error: Database initialization failed. Exiting.")
+        sys.exit(1)
+
     print("=> Starting Flask app...")
     # Start the Flask app using the virtual environment's Python
     flask_process = subprocess.Popen(
