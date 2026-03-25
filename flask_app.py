@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from db.run_sql_schema import run_sql_schema
 from db.PostgresDB import PostgresDB
 import bcrypt
@@ -39,8 +39,18 @@ except Exception as e:
 
 
 def to_seconds(date_string: str) -> int:
-    dt = datetime.strptime(date_string, "%Y-%m-%dT%H:%M")
-    return int(dt.timestamp())
+    # Parse as naive local time (what browser sends)
+    local_dt = datetime.strptime(date_string, "%Y-%m-%dT%H:%M")
+    
+    # Attach local timezone automatically
+    local_dt = local_dt.replace(tzinfo=datetime.now().astimezone().tzinfo)
+    
+    # Now convert to UTC explicitly
+    utc_dt = local_dt.astimezone(timezone.utc)
+    
+    return int(utc_dt.timestamp())
+
+
 
 def error_json(code: str, message: str, details: str | None = None, http_status: int = 500):
     payload = {
@@ -240,13 +250,19 @@ def create_auction():
                 image.save(image_path)
                 image_urls.append(f"uploads/{filename}")
             
-        created_at = datetime.utcnow()
+        created_at = datetime.now(timezone.utc)
         seller_id = session["user_id"]
 
         #TODO fix time zone issue
         result_seconds = to_seconds(expires_at) - int(created_at.timestamp())
         print(f"Creating auction with duration {result_seconds} seconds")
+        
+        if result_seconds <= 0:
+            flash("Invalid auction time. Please select a future time.", "danger")
+            return redirect(url_for("create_auction"))
+        
         result = deploy_auction(result_seconds)
+        
         contract_address = result["auction_address"]
         tx_hash = result["tx_hash"]
         

@@ -109,12 +109,15 @@ class PostgresDB:
         # check if bid is higher than current highest bid and higher than starting bid
         current_highest_bid = self.get_highest_bid_for_auction(auction_id)
         starting_bid = self.get_starting_bid_for_auction(auction_id)
-        if current_highest_bid is None or bid_amount <= current_highest_bid:
-            print(f"Bid of {bid_amount} is not higher than current highest bid of {current_highest_bid}.")
-            return False
-        if bid_amount <= starting_bid:
-            print(f"Bid of {bid_amount} is not higher than the starting bid of {starting_bid}.")
-            return False
+        
+        if current_highest_bid is not None:
+            if bid_amount <= current_highest_bid:
+                print(f"Bid of {bid_amount} is not higher than current highest bid of {current_highest_bid}.")
+                return False
+        else:  
+            if bid_amount <= starting_bid:
+                print(f"Bid of {bid_amount} is not higher than the starting bid of {starting_bid}.")
+                return False
 
         try:
             cur = self.conn.cursor()
