@@ -18,6 +18,18 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
+@app.before_request
+def validate_session():
+    # Ensure the user_id in the session is valid
+    if 'user_id' in session:
+        db = PostgresDB()
+        db.connect()
+        user = db.get_user_by_id(session['user_id'])
+        db.close()
+        if user is None:
+            session.clear()
+
+
 # Backend wiring (PROJ-38/39): Flask -> backend.mainauction -> state.py -> Hardhat
 get_state = None
 submit_bid = None
