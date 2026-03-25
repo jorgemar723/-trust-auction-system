@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h4 class="mb-0">Edit Auction</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" action="{{ url_for('edit_auction', auction_id=auction.id) }}">
+                    
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" value="{{ auction.title }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" required>{{ auction.description }}</textarea>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Current Images</label>
+                        {% if auction.images %}
+                            <p class="text-muted small">Select images to delete.</p>
+                            <div class="row">
+                                {% for image_url in auction.images %}
+                                <div class="col-md-4 col-sm-6 mb-3">
+                                    <div class="card">
+                                        <img src="{{ url_for('static', filename=image_url) }}" class="card-img-top" style="height: 150px; object-fit: cover;">
+                                        <div class="card-body text-center">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="delete_images" value="{{ image_url }}" id="delete_{{ loop.index }}">
+                                                <label class="form-check-label" for="delete_{{ loop.index }}">
+                                                    Delete
+                                                </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                            <p>No images have been uploaded for this auction.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="images" class="form-label">Add More Images</label>
+                        <input type="file" class="form-control" id="images" name="images" multiple>
+                    </div>
+
+                    <hr>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary w-100">Save Changes</button>
+                        <a href="{{ url_for('detail', auction_id=auction.id) }}" class="btn btn-secondary w-100">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
