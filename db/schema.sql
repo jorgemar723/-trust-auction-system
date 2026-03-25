@@ -15,6 +15,9 @@ Features:
 ===========================================================
 */
 
+-- Drop existing tables to ensure schema updates apply correctly
+DROP TABLE IF EXISTS users, watchlist, bidding_history, auctions, registry CASCADE;
+
 CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS users (
@@ -64,7 +67,7 @@ CREATE TABLE IF NOT EXISTS users (
     - TRUE = active
     - FALSE = disabled
     */
-    is_active BOOLEAN NOT NULL DEFAULT TRUE
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
 
     /*
     wallet_address:
@@ -73,26 +76,27 @@ CREATE TABLE IF NOT EXISTS users (
     - MUST be unique to prevent multiple accounts sharing the same wallet
     - NOT NULL means user must provide a wallet address
     */
-    wallet_address TEXT NOT NULL UNIQUE
+    wallet_address TEXT UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS auctions (
-    auction_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    seller_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    auction_id SERIAL PRIMARY KEY,
+    seller_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    images JSONB DEFAULT '[]'::jsonb,
+    images TEXT[],
     is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
     starting_bid DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-    highest_bid DECIMAL(12, 2) DEFAULT NULL
+    highest_bid DECIMAL(12, 2) DEFAULT NULL,
+    contract_address TEXT UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS bidding_history (
-    bid_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    auction_id UUID NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    bid_id SERIAL PRIMARY KEY,
+    auction_id INTEGER NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     bid_amount DECIMAL(12, 2) NOT NULL,
     is_verified BOOLEAN DEFAULT FALSE,
     bid_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -100,10 +104,15 @@ CREATE TABLE IF NOT EXISTS bidding_history (
 );
 
 CREATE TABLE IF NOT EXISTS watchlist (
-    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    auction_id UUID NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    auction_id INTEGER NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id, auction_id)
+);
+
+CREATE TABLE IF NOT EXISTS registry (
+    registry_id TEXT NOT NULL PRIMARY KEY,
+    auction_id INTEGER NOT NULL REFERENCES auctions(auction_id) ON DELETE CASCADE
 );
 
 -- Indexes

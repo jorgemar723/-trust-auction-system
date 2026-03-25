@@ -109,12 +109,15 @@ class PostgresDB:
         # check if bid is higher than current highest bid and higher than starting bid
         current_highest_bid = self.get_highest_bid_for_auction(auction_id)
         starting_bid = self.get_starting_bid_for_auction(auction_id)
-        if current_highest_bid is None or bid_amount <= current_highest_bid:
-            print(f"Bid of {bid_amount} is not higher than current highest bid of {current_highest_bid}.")
-            return False
-        if bid_amount <= starting_bid:
-            print(f"Bid of {bid_amount} is not higher than the starting bid of {starting_bid}.")
-            return False
+        
+        if current_highest_bid is not None:
+            if bid_amount <= current_highest_bid:
+                print(f"Bid of {bid_amount} is not higher than current highest bid of {current_highest_bid}.")
+                return False
+        else:  
+            if bid_amount <= starting_bid:
+                print(f"Bid of {bid_amount} is not higher than the starting bid of {starting_bid}.")
+                return False
 
         try:
             cur = self.conn.cursor()
@@ -142,10 +145,18 @@ class PostgresDB:
             created_at, 
             expires_at, 
             seller_id,
+            contract_address,
+            tx_hash,
             ):
         try:
             cur = self.conn.cursor()
-            cur.execute("INSERT INTO auctions (title, description, starting_bid, images, created_at, expires_at, seller_id) VALUES (%s, %s, %s, %s, %s, %s, %s)", (title, description, starting_bid, image_urls, created_at, expires_at, seller_id))
+            #create auction record in database
+            cur.execute("INSERT INTO auctions (title, description, starting_bid, images, created_at, expires_at, seller_id, contract_address) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (title, description, starting_bid, image_urls, created_at, expires_at, seller_id, contract_address))
+            #get the auction_id of the newly created auction
+            cur.execute("SELECT auction_id FROM auctions WHERE contract_address = %s", (contract_address,))
+            auction_id = cur.fetchone()[0]
+            #insert the auction_id and tx_hash into the registry table
+            cur.execute("INSERT INTO registry (auction_id, registry_id) VALUES (%s, %s)", (auction_id, tx_hash))
             self.conn.commit()
             cur.close()
         except (psycopg2.DatabaseError, Exception) as error:
@@ -154,13 +165,73 @@ class PostgresDB:
             return False
         return True
     
+    def get_auction_registry(self):
+        registry = {}
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT auction_id, contract_address FROM auctions")
+            rows = cur.fetchall()
+            for row in rows:
+                registry[row[0]] = row[1]
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching auction registry: {error}")
+        return registry
+    
+    def update_contract_address(self, auction_id, contract_address):
+        try:
+            cur = self.conn.cursor()
+            cur.execute(
+                "UPDATE auctions SET contract_address = %s WHERE auction_id = %s",
+                (contract_address, auction_id)
+            )
+            self.conn.commit()
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error updating contract address: {error}")
+            self.conn.rollback()
+            return False
+        return True
+    
+    def get_contract_address_by_auction_id(self, auction_id):
+        contract_address = None
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT contract_address FROM auctions WHERE auction_id = %s", (auction_id,))
+            row = cur.fetchone()
+            if row:
+                contract_address = row[0]
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching contract address for auction: {error}")
+        return contract_address
+    
     
     def delete_auction(self, auction_id):
         try:
             cur = self.conn.cursor()
+            
+            # 1. Fetch the associated image URLs before deleting the record
+            cur.execute("SELECT images FROM auctions WHERE auction_id = %s", (auction_id,))
+            row = cur.fetchone()
+            image_urls = row[0] if row and row[0] else []
+
+            # 2. Delete the record from the database
             cur.execute("DELETE FROM auctions WHERE auction_id = %s", (auction_id,))
             self.conn.commit()
             cur.close()
+
+            # 3. Delete the physical image files from the static/uploads folder
+            app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            for url in image_urls:
+                if url.startswith("uploads/"):
+                    file_path = os.path.join(app_root, "static", url)
+                    try:
+                        if os.path.exists(file_path):
+                            os.remove(file_path)
+                    except Exception as e:
+                        print(f"Warning: Failed to delete image file {file_path}: {e}")
+                        
         except (psycopg2.DatabaseError, Exception) as error:
             print(f"Error deleting auction: {error}")
             self.conn.rollback()
@@ -227,6 +298,7 @@ class PostgresDB:
             self.conn.rollback()
             return False
         return True
+    
     def create_user(self, email, password):
         try:
             if not self.conn:
@@ -287,6 +359,7 @@ class PostgresDB:
 
         except Exception:
             return None
+        
     def remove_from_watchlist(self, user_id, auction_id):
         try:
             cur = self.conn.cursor()

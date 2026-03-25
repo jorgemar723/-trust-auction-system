@@ -70,4 +70,6 @@ package-lock.json
 # DB FILE
 .db
 
-.env
+# Other
+.nvmrc
+static/uploads/

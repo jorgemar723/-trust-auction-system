@@ -9,20 +9,23 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from .remote_controls import (
-    place_bid,
-    get_auction_state,
-    create_auction,
-    load_auction_contract,
-    BackendAPIError,
-)
+from db.PostgresDB import PostgresDB
+from .bidding import connect_web3, load_contract, place_bid
+from .state import get_auction_state
+from .errors import BackendAPIError
+from .factory import create_auction
+from .auction_loader import load_auction_contract
 
-# Repo root: trust/ (backend is inside it)
-REPO_ROOT = Path(__file__).resolve().parents[1]
+# Temporary mapping for PROJ-97
+# Legacy fallback for local testing.
+# PROJ-89 moves state retrieval toward DB-backed contract lookup.
 
-# ----------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------
+db = PostgresDB()
+db.connect()
+_AUCTION_REGISTRY = db.get_auction_registry()  # {auction_id: contract_address}
+db.close()
+
+_NEXT_AUCTION_ID = max(_AUCTION_REGISTRY.keys(), default=0) + 1
 
 _RPC_URL = "http://127.0.0.1:8545"
 _DEFAULT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
@@ -156,13 +159,13 @@ def submit_bid(auction_id: int, user_bid: float) -> dict:
 
 
 def get_state(auction_id: int) -> dict:
-    """
-    Retrieve current on-chain state for a registered auction.
-
-    Parameters:
-        auction_id (int): Local backend auction ID
-    """
-    address = _AUCTION_REGISTRY.get(auction_id)
+    
+    db = PostgresDB()
+    db.connect()
+    
+    address = db.get_contract_address_by_auction_id(auction_id)
+    db.close()
+    
     if not address:
         raise BackendAPIError(
             code="AUCTION_NOT_FOUND",
