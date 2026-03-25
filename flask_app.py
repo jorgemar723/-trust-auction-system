@@ -73,6 +73,8 @@ def error_json(code: str, message: str, details: str | None = None, http_status:
         payload["details"] = details
     return jsonify(payload), http_status
 
+
+# ================= INDEX =================
 @app.route("/")
 def index():
     db = PostgresDB()
@@ -100,6 +102,7 @@ def index():
     return render_template("index.html", auctions=formatted_auctions)
 
 
+# ================= AUCTION DETAILS =================
 @app.route("/auction/<int:auction_id>", methods=["GET", "POST"])
 def detail(auction_id):
     db = PostgresDB()
@@ -109,6 +112,9 @@ def detail(auction_id):
     if not raw_auction:
         db.close()
         return "Auction not found", 404
+
+    seller_id = raw_auction[1]
+    is_seller = "user_id" in session and session["user_id"] == seller_id
 
     images = raw_auction[4]
     current_bid = raw_auction[9] if raw_auction[9] is not None else raw_auction[8]
@@ -155,9 +161,10 @@ def detail(auction_id):
         is_watched = auction_id in watchlist
         
     db.close()
-    return render_template("detail.html", auction=auction, is_watched=is_watched, history=history)
+    return render_template("detail.html", auction=auction, is_watched=is_watched, history=history, is_seller=is_seller)
 
 
+# ================= WATCHLIST =================
 @app.route("/watchlist")
 def view_watchlist():
     if "user_id" not in session:
@@ -188,6 +195,7 @@ def view_watchlist():
     return render_template("watchlist.html", auctions=watched_items)
 
 
+# ================= TOGGLE WATCHLIST =================
 @app.route("/toggle-watchlist/<int:auction_id>")
 def toggle_watchlist(auction_id):
     if "user_id" not in session:
@@ -209,7 +217,7 @@ def toggle_watchlist(auction_id):
     return redirect(request.referrer or url_for("index"))
 
 
-# PROJ-38/39: Real Auction state endpoint
+# ================= AUCTION STATE =================
 @app.route("/api/state/<int:auction_id>")
 def api_state(auction_id):
     """
@@ -274,7 +282,6 @@ def create_auction():
             return redirect(url_for("create_auction"))
         
         result = deploy_auction(result_seconds)
-        
         contract_address = result["auction_address"]
         tx_hash = result["tx_hash"]
         
@@ -302,6 +309,77 @@ def create_auction():
             
     return render_template("create_auction.html")
 
+
+# ================= EDIT AUCTION =================
+@app.route("/auction/<int:auction_id>/edit", methods=["GET", "POST"])
+def edit_auction(auction_id):
+    if "user_id" not in session:
+        flash("You must be logged in to edit an auction.", "warning")
+        return redirect(url_for("login"))
+
+    db = PostgresDB()
+    db.connect()
+    raw_auction = db.get_auction_by_id(auction_id)
+
+    if not raw_auction:
+        db.close()
+        flash("Auction not found.", "danger")
+        return redirect(url_for("index"))
+
+    seller_id = raw_auction[1]
+    if session["user_id"] != seller_id:
+        db.close()
+        flash("You are not authorized to edit this auction.", "danger")
+        return redirect(url_for("detail", auction_id=auction_id))
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        description = request.form.get("description")
+        
+        existing_images = raw_auction[4] if raw_auction[4] else []
+        images_to_delete = request.form.getlist("delete_images")
+        
+        updated_images = [img for img in existing_images if img not in images_to_delete]
+
+        for image_path_to_delete in images_to_delete:
+            try:
+                full_path = os.path.join(app.root_path, 'static', image_path_to_delete)
+                if os.path.exists(full_path):
+                    os.remove(full_path)
+            except Exception as e:
+                print(f"Error deleting file {full_path}: {e}")
+
+        new_images = request.files.getlist("images")
+        for image in new_images:
+            if image and image.filename:
+                filename = secure_filename(image.filename)
+                image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                image.save(image_path)
+                updated_images.append(f"uploads/{filename}")
+
+        success = db.update_auction(
+            auction_id=auction_id,
+            title=title,
+            description=description,
+            image_urls=updated_images
+        )
+        db.close()
+
+        if success:
+            flash("Auction updated successfully!", "success")
+            return redirect(url_for("detail", auction_id=auction_id))
+        else:
+            flash("Failed to update auction. Please try again.", "danger")
+            return redirect(url_for("edit_auction", auction_id=auction_id))
+
+    auction = {
+        "id": raw_auction[0],
+        "title": raw_auction[2],
+        "description": raw_auction[3],
+        "images": raw_auction[4] if raw_auction[4] else []
+    }
+    db.close()
+    return render_template("edit_auction.html", auction=auction)
 
 # ================= REGISTER =================
 @app.route("/register", methods=["GET", "POST"])
