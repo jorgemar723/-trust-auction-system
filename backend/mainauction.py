@@ -6,15 +6,18 @@ and blockchain interaction modules located in remote_controls.
 """
 
 from __future__ import annotations
-
 from pathlib import Path
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 from db.PostgresDB import PostgresDB
-from .bidding import connect_web3, load_contract, place_bid
-from .state import get_auction_state
-from .errors import BackendAPIError
-from .factory import create_auction
-from .auction_loader import load_auction_contract
+from .remote_controls import (
+    place_bid,
+    get_auction_state,
+    create_auction,
+    load_auction_contract,
+    BackendAPIError,
+)
 
 # Temporary mapping for PROJ-97
 # Legacy fallback for local testing.
