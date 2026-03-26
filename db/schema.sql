@@ -20,7 +20,6 @@ DROP TABLE IF EXISTS users, watchlist, bidding_history, auctions, registry CASCA
 
 CREATE TABLE IF NOT EXISTS users (
 
-CREATE TABLE IF NOT EXISTS users (
 
     /*
     user_id:
