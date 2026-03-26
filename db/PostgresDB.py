@@ -89,6 +89,9 @@ class PostgresDB:
             cur = self.conn.cursor()
             cur.execute("SELECT highest_bid FROM auctions WHERE auction_id = %s", (auction_id,))
             highest_bid = cur.fetchone()[0]
+            if highest_bid is None:
+                cur.execute("SELECT starting_bid FROM auctions WHERE auction_id = %s", (auction_id,))
+                highest_bid = cur.fetchone()[0]
             cur.close()
         except (psycopg2.DatabaseError, Exception) as error:
             print(f"Error fetching highest bid for auction: {error}")
@@ -250,10 +253,10 @@ class PostgresDB:
             return False
         return True
     
-    def update_auction(self, auction_id, title, description, starting_bid, image_urls):
+    def update_auction(self, auction_id, title, description, image_urls):
         try:
             cur = self.conn.cursor()
-            cur.execute("UPDATE auctions SET title = %s, description = %s, starting_bid = %s, images = %s WHERE auction_id = %s", (title, description, starting_bid, image_urls, auction_id))
+            cur.execute("UPDATE auctions SET title = %s, description = %s, images = %s WHERE auction_id = %s", (title, description, image_urls, auction_id))
             self.conn.commit()
             cur.close()
         except (psycopg2.DatabaseError, Exception) as error:
