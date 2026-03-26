@@ -49,6 +49,11 @@ footer {
     border-top: 1px solid var(--trust-border);
 }
 
+/* Main content alignment */
+main.container {
+    max-width: 1320px;
+}
+
 /* Auction Card */
 .auction-card {
     aspect-ratio: 1 / 1.5;
@@ -110,18 +115,22 @@ footer {
 }
 
 /* TRUST Button */
-.btn-trust {
-    background-color: var(--trust-dark);
-    color: white;
+.btn-trust,
+.btn-primary {
+    background-color: var(--trust-cyan) !important;
+    border-color: var(--trust-cyan) !important;
+    color: #111 !important;
     font-weight: 600;
     border-radius: 8px;
     transition: all 0.2s ease;
     border: none;
 }
 
-.btn-trust:hover {
-    background-color: var(--trust-cyan);
-    color: var(--trust-dark);
+.btn-trust:hover,
+.btn-primary:hover {
+    background-color: #00b8de !important;
+    border-color: #00b8de !important;
+    color: #000 !important;
 }
 
 /* Auth Pages */
@@ -153,19 +162,15 @@ footer {
 }
 
 .auth-card .btn.btn-info {
-    background-color: #20c5e8;
+    background-color: var(--trust-cyan);
     border: none;
     color: #111;
     transition: all 0.2s ease;
 }
 
 .auth-card .btn.btn-info:hover {
-    background-color: var(--trust-cyan);
+    background-color: #00b8de;
     color: #000;
-}
-
-main.container {
-    width: 100%;
 }
 
 @media (max-width: 991px) {
