@@ -301,7 +301,6 @@ def create_auction():
 
         #TODO fix time zone issue
         result_seconds = to_seconds(expires_at) - int(created_at.timestamp())
-        print(f"Creating auction with duration {result_seconds} seconds")
         
         if result_seconds <= 0:
             flash("Invalid auction time. Please select a future time.", "danger")
@@ -310,7 +309,6 @@ def create_auction():
         db = PostgresDB()
         db.connect()
         wallet_address = db.get_wallet_address_by_user_id(seller_id)
-        
         
         if not wallet_address:
             db.close()
