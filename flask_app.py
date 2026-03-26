@@ -261,13 +261,23 @@ def create_auction():
             flash("Invalid auction time. Please select a future time.", "danger")
             return redirect(url_for("create_auction"))
         
-        result = deploy_auction(result_seconds)
+        db = PostgresDB()
+        db.connect()
+        
+        wallet_address = db.get_wallet_address_by_user_id(seller_id)
+        
+        if not wallet_address:
+            db.close()
+            flash("You must have a test wallet assigned before creating an auction.", "danger")
+            return redirect(url_for("create_auction"))
+
+        # validate wallet exists
+        
+        result = deploy_auction(result_seconds, wallet_address)
         
         contract_address = result["auction_address"]
         tx_hash = result["tx_hash"]
         
-        db = PostgresDB()
-        db.connect()
         success = db.create_auction(
             title=title,
             description=description,
