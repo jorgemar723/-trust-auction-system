@@ -1,4 +1,3 @@
-from __future__ import annotations
 class BackendAPIError(Exception):
     """
     API-safe error that Flask can return without leaking stack traces.

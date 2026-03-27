@@ -2,10 +2,10 @@ import json
 from web3 import Web3
 from pathlib import Path
 
-from .bidding import connect_web3
+from .auction_loader import connect_web3
 from .errors import BackendAPIError
 
-_REPO_ROOT = Path(__file__).resolve().parents[1]
+_REPO_ROOT = Path(__file__).resolve().parents[2]
 
 _FACTORY_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
 
