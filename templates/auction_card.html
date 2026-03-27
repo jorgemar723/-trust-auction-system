@@ -1,0 +1,29 @@
+<div class="col">
+        <div class="card auction-card border-0 shadow-sm">
+            
+            <div class="card-img-container">
+                <img src="{{ url_for('static', filename=auction.image) }}" 
+                     class="card-img-top" 
+                     alt="{{ auction.title }}">
+            </div>
+
+            <div class="card-body">
+                <div>
+                    <small class="text-primary fw-bold text-uppercase" style="font-size: 0.7rem;">Lot ID: #{{ auction.id }}</small>
+                    <h5 class="card-title mt-1" title="{{ auction.title }}">{{ auction.title }}</h5>
+                    <p class="card-text small">
+                        {{ auction.description }}
+                    </p>
+                </div>
+
+                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                    <div>
+                        <small class="d-block text-muted" style="font-size: 0.7rem;">Current Bid</small>
+                        <span class="h5 fw-bold mb-0 text-dark">{{ auction.current_bid }}</span>
+                    </div>
+                    <a href="/auction/{{ auction.id }}" class="btn btn-trust px-3">View Auction</a>
+                </div>
+            </div>
+
+        </div>
+    </div>

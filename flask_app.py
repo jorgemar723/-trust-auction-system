@@ -243,6 +243,37 @@ def toggle_watchlist(auction_id):
     return redirect(request.referrer or url_for("index"))
 
 
+# ================= MY AUCTIONS =================
+@app.route("/my-auctions")
+def my_auctions():
+    if "user_id" not in session:
+        flash("You must be logged in to view your auctions.", "warning")
+        return redirect(url_for("login"))
+        
+    db = PostgresDB()
+    db.connect()
+    raw_auctions = db.get_auctions_by_seller_id(session["user_id"])
+    db.close()
+    
+    formatted_auctions = []
+    for row in raw_auctions:
+        images = row[4]
+        # Grab the first image to use as the thumbnail, if one exists
+        image_url = images[0] if images and len(images) > 0 else ""
+        
+        # Use the highest_bid if it exists, otherwise fall back to starting_bid
+        current_bid = row[9] if row[9] is not None else row[8]
+        
+        formatted_auctions.append({
+            "id": row[0],
+            "title": row[2],
+            "description": row[3],
+            "image": image_url,
+            "current_bid": float(current_bid)
+        })
+        
+    return render_template("my_auctions.html", auctions=formatted_auctions)
+
 # ================= AUCTION STATE =================
 @app.route("/api/state/<int:auction_id>")
 def api_state(auction_id):
