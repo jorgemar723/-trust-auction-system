@@ -2,6 +2,7 @@ import psycopg2
 import os
 import bcrypt
 from dotenv import load_dotenv
+from backend.wallet_assignment import get_next_available_wallet_address
 
 class PostgresDB:
     def __init__(self):
@@ -82,7 +83,19 @@ class PostgresDB:
         except (psycopg2.DatabaseError, Exception) as error:
             print(f"Error fetching wallet address for user: {error}")
         return wallet_address
-
+    
+    def get_assigned_wallet_addresses(self):
+        wallet_addresses = []
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT wallet_address FROM users WHERE wallet_address IS NOT NULL")
+            rows = cur.fetchall()
+            wallet_addresses = [row[0] for row in rows]
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching assigned wallet addresses: {error}")
+        return wallet_addresses
+    
     def get_bids_for_auction(self, auction_id):
         bids = []
         try:
@@ -335,11 +348,28 @@ class PostgresDB:
 
             cur.execute(query, (email, password_hash))
             user_id = cur.fetchone()[0]
+          
+            assigned_wallets = self.get_assigned_wallet_addresses()
+            wallet_address = get_next_available_wallet_address(assigned_wallets)
+            if not wallet_address:
+                self.conn.rollback()
+                cur.close()
+                return {"success": False, "error": "No test wallets are currently available."}
+            
+            cur.execute(
+                "UPDATE users SET wallet_address = %s WHERE user_id = %s",
+                (wallet_address, user_id)
+            )
+            
             self.conn.commit()
             cur.close()
-
-            return {"success": True, "user_id": user_id}
-
+            
+            return {
+                "success": True,
+                "user_id": user_id,
+                "wallet_address": wallet_address
+            }
+                
         except psycopg2.errors.UniqueViolation:
             if self.conn:
                 self.conn.rollback()

@@ -7,8 +7,8 @@ import atexit
 def get_venv_python():
     """Returns the correct path to the venv Python executable based on the OS."""
     if sys.platform == "win32":
-        return os.path.join("venv", "Scripts", "python.exe")
-    return os.path.join("venv", "bin", "python")
+        return os.path.join(".venv", "Scripts", "python.exe")
+    return os.path.join(".venv", "bin", "python")
 
 def get_npx_cmd():
     """Returns the correct npx command based on the OS."""
