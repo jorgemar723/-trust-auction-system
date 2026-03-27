@@ -101,6 +101,15 @@ def index():
         
     return render_template("index.html", auctions=formatted_auctions)
 
+        formatted_auctions.append(
+            {
+                "id": row[0],
+                "title": row[2],
+                "description": row[3],
+                "image": image_url,
+                "current_bid": float(current_bid),
+            }
+        )
 
 # ================= AUCTION DETAILS =================
 @app.route("/auction/<int:auction_id>", methods=["GET", "POST"])
