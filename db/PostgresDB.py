@@ -34,6 +34,19 @@ class PostgresDB:
             print(f"Error fetching auctions: {error}")
         return auctions
     
+    def get_auctions_by_seller_id(self, seller_id):
+        auctions = []
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT * FROM auctions WHERE seller_id = %s", (seller_id,))
+            rows = cur.fetchall()
+            for row in rows:
+                auctions.append(row)
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching auctions by seller ID: {error}")
+        return auctions
+    
 
     def get_auction_by_id(self, auction_id):
         auction = None
