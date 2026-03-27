@@ -69,6 +69,19 @@ class PostgresDB:
         except (psycopg2.DatabaseError, Exception) as error:
             print(f"Error fetching user by ID: {error}")
         return user
+    
+    def get_wallet_address_by_user_id(self, user_id):
+        wallet_address = None
+        try:
+            cur = self.conn.cursor()
+            cur.execute("SELECT wallet_address FROM users WHERE user_id = %s", (user_id,))
+            row = cur.fetchone()
+            if row:
+                wallet_address = row[0]
+            cur.close()
+        except (psycopg2.DatabaseError, Exception) as error:
+            print(f"Error fetching wallet address for user: {error}")
+        return wallet_address
 
     def get_bids_for_auction(self, auction_id):
         bids = []

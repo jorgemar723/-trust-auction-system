@@ -113,10 +113,12 @@ def submit_bid(auction_id: int, user_bid: float) -> dict:
     """
     Submit a bid for a registered auction.
 
-    Parameters:
-        auction_id (int): Local backend auction ID
-        user_bid (float): Bid amount in ETH
-    """
+def _init_chain():
+    _rpc_url, _abi_path, address = _get_config()
+    return _init_chain_for_address(address)
+
+
+def submit_bid(auction_id: int, user_bid: float, wallet_address: str) -> dict:
     if user_bid <= 0:
         raise BackendAPIError(
             code="INVALID_BID",
@@ -124,34 +126,38 @@ def submit_bid(auction_id: int, user_bid: float) -> dict:
             http_status=400,
             details=f"Received bid: {user_bid}",
         )
+        
+    if not wallet_address:
+        raise BackendAPIError(
+            code="MISSING_WALLET",
+            message="User does not have a wallet address configured.",
+            http_status=400,
+            details="wallet_address is None or empty",
+    )
+    
+    db = PostgresDB()
+    db.connect()
 
-    address = _AUCTION_REGISTRY.get(auction_id)
+    address = db.get_contract_address_by_auction_id(auction_id)
+    db.close()
+    
     if not address:
         raise BackendAPIError(
             code="AUCTION_NOT_FOUND",
             message="Auction not found.",
             http_status=404,
             details=f"No contract address found for auction_id={auction_id}",
-        )
-
+    )
+        
     _rpc_url, abi_path, _default_address = _get_config()
 
-    try:
-        w3, contract, account = load_auction_contract(
-            auction_address=address,
-            abi_path=str(abi_path),
-        )
-    except Exception as e:
-        raise BackendAPIError(
-            code="CONTRACT_LOAD_FAILED",
-            message="Failed to load auction contract.",
-            http_status=500,
-            details=str(e),
-        ) from e
+    w3, contract, _account = load_auction_contract(
+        auction_address=address,
+        abi_path=str(abi_path),
+    )
 
     try:
-        return place_bid(w3, contract, account, user_bid)
-
+        return place_bid(w3, contract, wallet_address, user_bid)
     except Exception as e:
         raise BackendAPIError(
             code="BID_FAILED",

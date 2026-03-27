@@ -32,17 +32,24 @@ def load_factory(w3):
     )
 
 
-def create_auction(duration_seconds: int):
+def create_auction(duration_seconds: int, sender_address: str):
 
     w3 = connect_web3()
     factory = load_factory(w3)
-    account = w3.eth.accounts[0]
+    
+    # Makes sure wallet exists
+    if not sender_address or not Web3.is_address(sender_address):
+        raise BackendAPIError(
+            code="MISSING_WALLET",
+            message="User does not have a wallet address configured",
+            details="sender_address is None or empty"
+        )
 
     try:
         tx_hash = factory.functions.createAuction(
             duration_seconds
         ).transact({
-            "from": account
+            "from": sender_address
         })
 
         receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
