@@ -112,7 +112,7 @@ def create_and_register_auction(duration_seconds: int) -> dict:
 def submit_bid(auction_id: int, user_bid: float) -> dict:
     """
     Submit a bid for a registered auction.
-
+    """
 def _init_chain():
     _rpc_url, _abi_path, address = _get_config()
     return _init_chain_for_address(address)
