@@ -1,9 +1,67 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<header class="mb-5">
-    <h1 class="fw-bold">Marketplace</h1>
-    <p class="text-muted">Browse secure auctions</p>
+
+{% if auctions|length == 0 %}
+<section class="marketplace-hero marketplace-hero-large mb-5">
+    <div class="marketplace-hero-content">
+        <p class="hero-label">TRUST MARKETPLACE</p>
+
+        {% if session.get('user_id') %}
+            <h1>Ready to sell something?</h1>
+            <p class="hero-subtext">
+                Create a listing, start an auction, and connect with buyers through TRUST.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="{{ url_for('create_auction') }}" class="btn btn-trust hero-btn">Create Listing</a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light hero-btn">Browse Auctions</a>
+            </div>
+        {% else %}
+            <h1>Register now to list and buy</h1>
+            <p class="hero-subtext">
+                Create an account to start listing items, placing bids, and exploring secure auctions on TRUST.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="{{ url_for('register') }}" class="btn btn-trust hero-btn">Register Now</a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light hero-btn">Browse Auctions</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% else %}
+<section class="marketplace-hero marketplace-hero-small mb-4">
+    <div class="marketplace-hero-content">
+        <p class="hero-label">TRUST MARKETPLACE</p>
+
+        {% if session.get('user_id') %}
+            <h1>Keep the marketplace moving</h1>
+            <p class="hero-subtext">
+                Create a new listing or browse active auctions now.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="{{ url_for('create_auction') }}" class="btn btn-trust hero-btn">Create Listing</a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light hero-btn">Browse Auctions</a>
+            </div>
+        {% else %}
+            <h1>Register now to list and buy</h1>
+            <p class="hero-subtext">
+                Join TRUST to place bids, buy securely, and start selling your own items.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="{{ url_for('register') }}" class="btn btn-trust hero-btn">Register Now</a>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-light hero-btn">Browse Auctions</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<header class="mb-4 marketplace-header">
+    <h2 class="fw-bold">Featured Auctions</h2>
+    <p class="text-muted">Browse secure auctions available now</p>
 </header>
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -11,4 +69,6 @@
         {% include 'auction_card.html' %}
     {% endfor %}
 </div>
+{% endif %}
+
 {% endblock %}
