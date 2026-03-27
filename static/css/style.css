@@ -54,6 +54,98 @@ main.container {
     max-width: 1320px;
 }
 
+/* Marketplace Hero */
+.marketplace-hero {
+    background: linear-gradient(135deg, #111827, #1f2937, #0f172a);
+    color: white;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+}
+
+.marketplace-hero-large {
+    padding: 90px 70px;
+    min-height: 400px;
+}
+
+.marketplace-hero-small {
+    padding: 42px 50px;
+    min-height: 220px;
+}
+
+.marketplace-hero-content {
+    max-width: 620px;
+}
+
+.hero-label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    color: var(--trust-cyan);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.marketplace-hero h1 {
+    font-size: 3.4rem;
+    font-weight: 800;
+    line-height: 1.08;
+    margin-bottom: 18px;
+    color: white;
+}
+
+.marketplace-hero-small h1 {
+    font-size: 2.2rem;
+    margin-bottom: 12px;
+}
+
+.hero-subtext {
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.86);
+    margin-bottom: 28px;
+    max-width: 560px;
+}
+
+.marketplace-hero-small .hero-subtext {
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.hero-btn {
+    padding: 12px 24px;
+    font-weight: 600;
+    border-radius: 999px;
+}
+
+.btn-outline-light.hero-btn {
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    color: white;
+    background: transparent;
+}
+
+.btn-outline-light.hero-btn:hover {
+    background: white;
+    color: #111 !important;
+}
+
+/* Marketplace section spacing */
+.marketplace-header h2 {
+    font-weight: 800;
+    color: var(--trust-dark);
+}
+
+.marketplace-header p {
+    color: var(--trust-muted);
+}
+
 /* Auction Card */
 .auction-card {
     aspect-ratio: 1 / 1.5;
@@ -173,6 +265,7 @@ main.container {
     color: #000;
 }
 
+/* Responsive */
 @media (max-width: 991px) {
     .navbar .nav-link {
         padding-left: 0;
@@ -186,5 +279,53 @@ main.container {
     .card-img-container,
     .card-body {
         flex: unset;
+    }
+
+    .marketplace-hero-large {
+        padding: 60px 35px;
+        min-height: 320px;
+    }
+
+    .marketplace-hero-small {
+        padding: 32px 28px;
+        min-height: 180px;
+    }
+
+    .marketplace-hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .marketplace-hero-small h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-subtext {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .marketplace-hero-large,
+    .marketplace-hero-small {
+        padding: 30px 22px;
+        border-radius: 18px;
+    }
+
+    .marketplace-hero h1 {
+        font-size: 2rem;
+    }
+
+    .marketplace-hero-small h1 {
+        font-size: 1.5rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-btn {
+        width: 100%;
+        text-align: center;
     }
 }
