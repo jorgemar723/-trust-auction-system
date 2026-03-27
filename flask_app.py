@@ -6,7 +6,7 @@ from db.run_sql_schema import run_sql_schema
 from db.PostgresDB import PostgresDB
 import bcrypt
 from werkzeug.utils import secure_filename
-from backend.factory import create_auction as deploy_auction
+from backend.mainauction import create_new_auction as deploy_auction
 
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 
@@ -101,15 +101,6 @@ def index():
         
     return render_template("index.html", auctions=formatted_auctions)
 
-        formatted_auctions.append(
-            {
-                "id": row[0],
-                "title": row[2],
-                "description": row[3],
-                "image": image_url,
-                "current_bid": float(current_bid),
-            }
-        )
 
 # ================= AUCTION DETAILS =================
 @app.route("/auction/<int:auction_id>", methods=["GET", "POST"])
