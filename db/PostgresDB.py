@@ -2,7 +2,7 @@ import psycopg2
 import os
 import bcrypt
 from dotenv import load_dotenv
-from web3 import Web3
+from backend.wallet_assignment import get_next_available_wallet_address
 
 class PostgresDB:
     def __init__(self):
@@ -96,34 +96,6 @@ class PostgresDB:
             print(f"Error fetching assigned wallet addresses: {error}")
         return wallet_addresses
     
-    def get_next_available_wallet_address(self):
-        try:
-            # Connect to local Hardhat node
-            w3 = Web3(Web3.HTTPProvider("http://127.0.0.1:8545"))
-
-            if not w3.is_connected():
-                print("Error: Could not connect to Hardhat node.")
-                return None
-
-            # Get all Hardhat test accounts
-            hardhat_accounts = w3.eth.accounts
-
-            # Get already assigned wallets from DB
-            assigned_wallets = self.get_assigned_wallet_addresses()
-
-            # Find first unused wallet
-            for account in hardhat_accounts:
-                if account not in assigned_wallets:
-                    return account
-
-            # No wallets available
-            print("No available Hardhat wallets.")
-            return None
-
-        except Exception as error:
-            print(f"Error getting next available wallet: {error}")
-            return None
-
     def get_bids_for_auction(self, auction_id):
         bids = []
         try:
@@ -377,7 +349,8 @@ class PostgresDB:
             cur.execute(query, (email, password_hash))
             user_id = cur.fetchone()[0]
           
-            wallet_address = self.get_next_available_wallet_address()
+            assigned_wallets = self.get_assigned_wallet_addresses()
+            wallet_address = get_next_available_wallet_address(assigned_wallets)
             if not wallet_address:
                 self.conn.rollback()
                 cur.close()
