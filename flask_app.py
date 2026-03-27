@@ -145,12 +145,38 @@ def detail(auction_id):
             return redirect(url_for("login"))
             
         new_bid = float(request.form.get("bid_amount", 0))
-
-        success = db.submit_bid(auction_id, session["user_id"], new_bid)
-        if success:
-            flash(f"Success! Your bid of {new_bid} ETH has been placed.", "success")
-        else:
-            flash(f"Bid failed. You must bid higher than {auction['current_bid']} ETH.", "danger")
+        bidder_id = session["user_id"]
+        
+        wallet_address = db.get_wallet_address_by_user_id(bidder_id)
+        if not wallet_address:
+            db.close()
+            flash("You must have a test wallet assigned before placing a bid.", "danger")
+            return redirect(url_for("detail", auction_id=auction_id))
+        
+        try:
+            submit_bid(auction_id, new_bid, wallet_address)
+            success = db.submit_bid(auction_id, bidder_id, new_bid)
+            
+            if success:
+                flash(f"Success! Your bid of {new_bid} ETH has been placed.", "success")
+            else:
+                flash("Bid reached blockchain but failed to save in the database.", "warning")
+                
+        except Exception as e:
+            if _BackendAPIError is not None and isinstance(e, _BackendAPIError):
+                error_text = f"{e.message} {e.details}" if e.details else e.message
+                
+                if (
+                    "higher" in error_text.lower()
+                    or "low" in error_text.lower()
+                    or "bid too low" in error_text.lower()
+                    or "not high enough" in error_text.lower()
+                ):
+                    flash(f"Bid failed. You must bid higher than {auction['current_bid']} ETH.", "danger")
+                else:
+                    flash(f"Bid failed: {e.message}", "danger")
+            else:
+                flash("Bid transaction failed. Please try again.", "danger")
 
         db.close()
         return redirect(url_for("detail", auction_id=auction_id))
@@ -275,18 +301,24 @@ def create_auction():
 
         #TODO fix time zone issue
         result_seconds = to_seconds(expires_at) - int(created_at.timestamp())
-        print(f"Creating auction with duration {result_seconds} seconds")
         
         if result_seconds <= 0:
             flash("Invalid auction time. Please select a future time.", "danger")
             return redirect(url_for("create_auction"))
         
-        result = deploy_auction(result_seconds)
+        db = PostgresDB()
+        db.connect()
+        wallet_address = db.get_wallet_address_by_user_id(seller_id)
+        
+        if not wallet_address:
+            db.close()
+            flash("You must have a test wallet assigned before creating an auction.", "danger")
+            return redirect(url_for("create_auction"))
+        
+        result = deploy_auction(result_seconds, wallet_address)
         contract_address = result["auction_address"]
         tx_hash = result["tx_hash"]
         
-        db = PostgresDB()
-        db.connect()
         success = db.create_auction(
             title=title,
             description=description,
