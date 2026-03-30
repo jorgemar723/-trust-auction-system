@@ -8,8 +8,6 @@ and blockchain interaction modules located in remote_controls.
 from __future__ import annotations
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-
 from db.PostgresDB import PostgresDB
 from .remote_controls import (
     place_bid,
@@ -19,16 +17,7 @@ from .remote_controls import (
     BackendAPIError,
 )
 
-# Temporary mapping for PROJ-97
-# Legacy fallback for local testing.
-# PROJ-89 moves state retrieval toward DB-backed contract lookup.
-
-db = PostgresDB()
-db.connect()
-_AUCTION_REGISTRY = db.get_auction_registry()  # {auction_id: contract_address}
-db.close()
-
-_NEXT_AUCTION_ID = max(_AUCTION_REGISTRY.keys(), default=0) + 1
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 _RPC_URL = "http://127.0.0.1:8545"
 _DEFAULT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
@@ -41,14 +30,10 @@ _DEFAULT_ABI_PATH = (
     / "SimpleAuction.json"
 )
 
-# Temporary mapping for PROJ-97
-# Maps auction_id → contract_address
-# TODO: Replace with database lookup when auctions are stored in SQL
-_AUCTION_REGISTRY = {
-    1: "0xa16E02E87b7454126E5E10d957A927A7F5B5d2be",
-    2: "0xB7A5bd0345EF1Cc5E66bf61BdeC17D2461fBd968",
-    3: "0xeEBe00Ac0756308ac4AaBfD76c05c4F3088B8883",
-}
+db = PostgresDB()
+db.connect()
+_AUCTION_REGISTRY = db.get_auction_registry()  # {auction_id: contract_address}
+db.close()
 
 _NEXT_AUCTION_ID = max(_AUCTION_REGISTRY.keys(), default=0) + 1
 
@@ -64,7 +49,7 @@ def _get_config():
     return _RPC_URL, _DEFAULT_ABI_PATH, _DEFAULT_ADDRESS
 
 
-def create_and_register_auction(duration_seconds: int) -> dict:
+def create_and_register_auction(duration_seconds: int, wallet_address: str) -> dict:
     """
     Create a new auction on-chain and register it locally.
 
@@ -73,7 +58,7 @@ def create_and_register_auction(duration_seconds: int) -> dict:
             {
                 "auction_id": int,
                 "auction_address": str,
-                "tx_hash": str
+                "tx_hash": str,
             }
     """
     global _NEXT_AUCTION_ID
@@ -86,8 +71,16 @@ def create_and_register_auction(duration_seconds: int) -> dict:
             details=f"Received duration: {duration_seconds}",
         )
 
+    if not wallet_address:
+        raise BackendAPIError(
+            code="MISSING_WALLET",
+            message="User does not have a wallet address configured.",
+            http_status=400,
+            details="wallet_address is None or empty",
+        )
+
     try:
-        result = create_auction(duration_seconds)
+        result = create_auction(duration_seconds, wallet_address)
         auction_address = result["auction_address"]
 
         auction_id = _NEXT_AUCTION_ID
@@ -109,15 +102,6 @@ def create_and_register_auction(duration_seconds: int) -> dict:
         ) from e
 
 
-def submit_bid(auction_id: int, user_bid: float) -> dict:
-    """
-    Submit a bid for a registered auction.
-    """
-def _init_chain():
-    _rpc_url, _abi_path, address = _get_config()
-    return _init_chain_for_address(address)
-
-
 def submit_bid(auction_id: int, user_bid: float, wallet_address: str) -> dict:
     if user_bid <= 0:
         raise BackendAPIError(
@@ -126,29 +110,28 @@ def submit_bid(auction_id: int, user_bid: float, wallet_address: str) -> dict:
             http_status=400,
             details=f"Received bid: {user_bid}",
         )
-        
+
     if not wallet_address:
         raise BackendAPIError(
             code="MISSING_WALLET",
             message="User does not have a wallet address configured.",
             http_status=400,
             details="wallet_address is None or empty",
-    )
-    
+        )
+
     db = PostgresDB()
     db.connect()
-
     address = db.get_contract_address_by_auction_id(auction_id)
     db.close()
-    
+
     if not address:
         raise BackendAPIError(
             code="AUCTION_NOT_FOUND",
             message="Auction not found.",
             http_status=404,
             details=f"No contract address found for auction_id={auction_id}",
-    )
-        
+        )
+
     _rpc_url, abi_path, _default_address = _get_config()
 
     w3, contract, _account = load_auction_contract(
@@ -168,13 +151,11 @@ def submit_bid(auction_id: int, user_bid: float, wallet_address: str) -> dict:
 
 
 def get_state(auction_id: int) -> dict:
-    
     db = PostgresDB()
     db.connect()
-    
     address = db.get_contract_address_by_auction_id(auction_id)
     db.close()
-    
+
     if not address:
         raise BackendAPIError(
             code="AUCTION_NOT_FOUND",
@@ -209,10 +190,10 @@ def get_state(auction_id: int) -> dict:
         ) from e
 
 
-def create_new_auction(duration_seconds: int) -> dict:
+def create_new_auction(duration_seconds: int, wallet_address: str) -> dict:
     """
     Backward-compatible wrapper.
 
     Prefer create_and_register_auction() for the current controller flow.
     """
-    return create_and_register_auction(duration_seconds)
+    return create_and_register_auction(duration_seconds, wallet_address)
