@@ -41,7 +41,7 @@
 
 ### Contributions
 
-Jorge: “Designed initial auction contract structure and implemented blockchain integration layer with structured backend error handling”
+Jorge Martinez-Lopez: “Designed initial auction contract structure and implemented blockchain integration layer with structured backend error handling”
 
 - Jira Task: Auction State Design (initial multi-auction architecture groundwork, architectural groundwork for next sprint)
 	- PROJ-36 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/a44a2c7c1cfb36409e09086acf594c58e20fddc5/?at=Tasks%2FPROJ-36-auction-state-design)
@@ -110,7 +110,7 @@ Nathan: “Created local flask-powered web app that allows users to interact wit
 
 # Sprint 1 - Next Steps
 
-#### Jorge
+#### Jorge Martinez-Lopez
 
 - Refactor smart contract to support multiple simultaneous auctions
 - Implement bid submission endpoint connecting Flask to on-chain placeBid
@@ -131,7 +131,7 @@ Nathan: “Created local flask-powered web app that allows users to interact wit
 
 ### Contributions
 
-Jorge: “Jorge: “Implemented wallet-based user mapping and strengthened backend-blockchain integration for reliable local testing and demo execution.”
+Jorge Martinez-Lopez: “Implemented wallet-based user mapping and strengthened backend-blockchain integration for reliable local testing and demo execution.”
 
 - Jira Task: Verify Local Contract Deployment and Wallet Configuration
 	- PROJ-64 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/f6f05000759b3e3641b30baacd391b377c45ae07/?at=feature%2FPROJ-64-verify-wallet-and-contract-setupn)
@@ -153,7 +153,7 @@ Jorge: “Jorge: “Implemented wallet-based user mapping and strengthened backe
 
 # Sprint 2 - Next Steps
 
-### Jorge
+### Jorge Martinez-Lopez
 
 - Improve visibility of blockchain-backed actions in the UI  
 - Strengthen validation and error handling for auction and bidding flows  
