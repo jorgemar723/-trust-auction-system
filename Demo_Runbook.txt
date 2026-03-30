@@ -1,0 +1,53 @@
+
+1. Start Hardhat Node
+cd "Hardhat testing Node"
+
+rm -rf artifacts cache        # Clear old builds
+npx hardhat compile           # Compile contracts
+npx hardhat node              # Start local blockchain
+
+2. Deploy Smart Contracts (New Terminal)
+cd "Hardhat testing Node"
+
+npx hardhat run scripts/deploy_factory.js --network localhost
+Backup (if Flask create auction fails)
+npx hardhat run scripts/create_auction.js --network localhost
+
+3. Start Flask App (New Terminal)
+
+cd "Hardhat testing Node"
+
+source venv/bin/activate
+python flask_app.py
+Optional:
+python start_app.py
+
+app runs @:
+http://127.0.0.1:8000
+
+4. Database Commands (Neon)
+psql "your_connection_string"
+
+Reset Database (Clean Slate)
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+recreate tables:
+python db/run_sql_schema.py
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
