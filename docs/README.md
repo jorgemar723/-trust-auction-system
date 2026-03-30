@@ -1,5 +1,5 @@
 # TRUST — Transparent Register for Unbiased Sales & Trades
-> Online auction house that uses blockchain to regulate rules and payment, AI analytics, built using Python, C++, SQL, and Solidity. We are developing this for security-minded individuals, as an alternative to auction houses that don't offer comprehensive fraud protection and security. This project will impact users by offering a safe place to shop and auction their personal items. Built by Nathan Carlson, Jorge Martinez-Lopez, Joseph Krabe, Kristian Parra, and Robert Krause.
+> Online auction platform that uses blockchain (smart contracts) to manage auction logic and ensure transparent bidding. Built with Python (Flask), Solidity, and PostgreSQL. Designed for security-minded users as an alternative to traditional auction platforms with stronger guarantees around transaction integrity and fraud prevention. We are developing this for security-minded individuals, as an alternative to auction houses that don't offer comprehensive fraud protection and security. This project will impact users by offering a safe place to shop and auction their personal items. Built by Nathan Carlson, Jorge Martinez-Lopez, Joseph Krabe, Kristian Parra, and Robert Krause.
 > Live demo [_here_](https://www.example.com). <!-- If you have the project hosted somewhere, include the link here. -->
 
 ## Table of Contents
@@ -26,11 +26,13 @@
 
 
 ## Technologies Used
-- Python → main app logic, API/server, UI/CLI
-- Solidity → smart contract for auction rules (remix IDE)
-- C++ → analytics, bid processing, hashing
-- SQL → Database
-- JSON/JSON RPC → data format for communication
+- Python (Flask) → backend server and API
+- Solidity → smart contracts for auction logic
+- Web3.py → blockchain interaction from backend
+- PostgreSQL (Neon) → database for users, auctions, bids
+- Hardhat → local Ethereum blockchain for development/testing
+- HTML/CSS → frontend UI
+- JSON-RPC → communication with blockchain
 
 
 # Features
@@ -39,7 +41,7 @@
 
 ### Contributions
 
-Jorge: “designed initial auction contract structure and implemented blockchain integration layer with structured backend error handling”
+Jorge: “Designed initial auction contract structure and implemented blockchain integration layer with structured backend error handling”
 
 - Jira Task: Auction State Design (initial multi-auction architecture groundwork, architectural groundwork for next sprint)
 	- PROJ-36 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/a44a2c7c1cfb36409e09086acf594c58e20fddc5/?at=Tasks%2FPROJ-36-auction-state-design)
@@ -71,18 +73,24 @@ Jira Task: PROJ-53 – Write unit tests for registration
 - [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/branch/feature%2FPROJ-53-write-unit-tests-for-registration)
 
 Robert Krause : "Created Hard local blockhain node, Created in chain auction logic, created remotes to interact with contract live on the blockchain from python layer"
-Jira task: PROJ-5 Set up local Hardhat node
-Bitbucket: https://bitbucket.org/cs3398-bith-s26/trust/commits/843606e2b5b2703a6e505369f4c67feb97162de6 
+
+Jira task: PROJ-5 - Set up local Hardhat node
+- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/843606e2b5b2703a6e505369f4c67feb97162de6)
+
 Jira task: PROJ-6 Create base Solidity contract
-Bitbucket: https://bitbucket.org/cs3398-bith-s26/trust/commits/9a3b941f96afc07ffc9fa440e0674346301fb8cc
+- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/9a3b941f96afc07ffc9fa440e0674346301fb8cc)
+
 Jira task: PROJ-7 Design Auction data structure
-Bitbucket- https://bitbucket.org/cs3398-bith-s26/trust/commits/9a3b941f96afc07ffc9fa440e0674346301fb8cc
+- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/9a3b941f96afc07ffc9fa440e0674346301fb8cc)
+
 Jira task: PROJ-63 Export ABI for Pythonh
-Bitbucket: https://bitbucket.org/cs3398-bith-s26/trust/commits/5c78482f52bd5d161ec3e4988968ec94924f70a0
+- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/5c78482f52bd5d161ec3e4988968ec94924f70a0)
+
 Jira task: PROJ-61 Create bidding.py
-Bitbucket-https://bitbucket.org/cs3398-bith-s26/trust/commits/5c78482f52bd5d161ec3e4988968ec94924f70a0
+- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/5c78482f52bd5d161ec3e4988968ec94924f70a0)
+
 Jira task: PROJ-69 Create state.py
-Bitbucket- https://bitbucket.org/cs3398-bith-s26/trust/commits/3460b36afa493b661a9caf395a47da5ec76ea0e6
+- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/3460b36afa493b661a9caf395a47da5ec76ea0e6)
 Report
 
 Nathan: “Created local flask-powered web app that allows users to interact with active auctions”
@@ -100,26 +108,7 @@ Nathan: “Created local flask-powered web app that allows users to interact wit
 	- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/feature/PROJ-73-auction-detail-page-bidding-inte)
 
 
-
-- [User interface] Python application provides a command-line or simple web interface for users to interact with the system. 
-	- User Story: As a **Bidder**, I want a **clear and responsive interface** so that I can easily view the current highest bid and submit my own without writing raw code.
-- [Etherium VM] Blockchain-based auction system running on a local Hardhat network
-	- As a **Developer**, I want to run the auction on a **local Hardhat network** so that I can test transactions instantly and for free before deploying to a testnet
--• [Testnet Integration] Deploy and run auctions on a public Ethereum testnet (e.g., Sepolia) using real wallets and testnet ETH
-◦ 	User Story: As a Bidder, I want to interact with auctions on a public Ethereum testnet using a realcrypto wallet so that I can 			experience a realistic decentralized auction without risking real money.
-- [Smart Contract] A Solidity smart contract that enforces the auction rules, such as requiring higher bids and respecting time limits
-	- As an **Auction Participant**, I want the **Solidity contract to automatically enforce rules** so that the process is fair and I don't have to trust a third party.
-- [AI Fraud Detection] An AI analytics engine that flags suspicious bidding patterns
-	- As a **Seller**, I want the AI analytics engine to **flag suspicious bidding patterns** so that I can avoid "shill bidding" or bot manipulation on my items.
-- [Flask web app] Web app that allows users to browse auctions
-	- **As a buyer**, I want to **browse a clean, professional web gallery** of active auctions.
-- [User Registration] System allows new users to create an account to participate in auctions.  
-	- User Story: As a **new user**, I would like to **create an account** so that I can securely participate in auctions on the TRUST platform.
-- [View Auction Details] System displays detailed information about a selected auction.  
-	- User Story: As a **user**, I would like to **view the details of an auction** so that I can understand what item is being sold before placing a bid.
-
-
-# Next Steps
+# Sprint 1 - Next Steps
 
 #### Jorge
 
@@ -138,16 +127,97 @@ Nathan: “Created local flask-powered web app that allows users to interact wit
 - Connect auction db to flask app
 - Test database connections
 
+## Sprint 2
+
+### Contributions
+
+Jorge: “Jorge: “Implemented wallet-based user mapping and strengthened backend-blockchain integration for reliable local testing and demo execution.”
+
+- Jira Task: Verify Local Contract Deployment and Wallet Configuration
+	- PROJ-64 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/f6f05000759b3e3641b30baacd391b377c45ae07/?at=feature%2FPROJ-64-verify-wallet-and-contract-setupn)
+
+- Jira Task: Integrate Local Test Wallets into User Flow
+	- PROJ-65, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/20d9931de6aa4dbf4f4ca9ee115ac19f99b674a8/?at=feature%2FPROJ-65-local-test-wallet-flow)
+
+- Jira Task: Modify state.py for Multiple Auctions Functionality 
+	- PROJ-88, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/457288fa78b6266d74461a929476b7eef1560f12/?at=feature%2FPROJ-88-multi-auction-state)
+
+- Jira Task: Auction State Integration & Cleanup
+	- PROJ-89, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/a5666b75894014d022a9b43e2ae37e0d6fa340a5/?at=feature%2FPROJ-89-auction-state-integration)
+
+- Jira Task: Add Readable Timestamps to Auction State
+	- PROJ-92, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/f5690c3a9e4da9b946acfe27b7ed2ae243403008/?at=feature%2FPROJ-92-readable-auction-timestamps)
+
+- Jira Task: Integrate Blockchain Auction State Using Auction IDs
+	- PROJ-97, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/2ee7909f795a036de28616ab320a1c234c34db29/?at=feature%2FPROJ-97-auction-address-registry)
+
+# Sprint 2 - Next Steps
+
+### Jorge
+
+- Improve visibility of blockchain-backed actions in the UI  
+- Strengthen validation and error handling for auction and bidding flows  
+- Add integration testing for full seller → bidder workflow  
+- Improve reliability of local demo environment and startup process  
+- Continue refining backend and blockchain coordination  
+
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
 <!-- If you have screenshots you'd like to share, include them here. -->
 
 
 ## Setup
-What are the project requirements/dependencies? Where are they listed? A requirements.txt or a Pipfile.lock file perhaps? Where is it located?
 
-Proceed to describe how to install / setup one's local environment / get started with the project.
+### Prerequisites
+- Python 3.9+
+- Node.js **v22+** (required for Hardhat compatibility)
+- PostgreSQL (or Neon database)
+- Git
 
+### Installation
+
+1. Clone the repository
+```
+git clone https://bitbucket.org/cs3398-bith-s26/trust.git
+cd trust
+```
+2.	Set up Python virtual environment
+
+```
+python -m venv .venv
+```
+
+3. Activate Python virtual environment
+
+```
+# Mac/Linux
+source .venv/bin/activate
+
+# Windows (Command Prompt)
+.venv\Scripts\activate
+
+# Windows (PowerShell)
+.venv\Scripts\Activate.ps1
+```
+4. Install dependencies
+
+```
+pip install -r requirements.txt
+```
+
+5. Set up environment variables
+
+Create a `.env` file in the root directory of the project and add the following:
+
+```
+DATABASE_URL=your_database_connection_string
+```
+
+6. Run the application
+
+```
+python start_app.py
+```
 
 ## Usage
 How does one go about using it?
