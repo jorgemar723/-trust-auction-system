@@ -6,7 +6,6 @@ and blockchain interaction modules located in remote_controls.
 """
 
 from __future__ import annotations
-from pathlib import Path
 
 from db.PostgresDB import PostgresDB
 from .remote_controls import (
@@ -17,36 +16,12 @@ from .remote_controls import (
     BackendAPIError,
 )
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-
-_RPC_URL = "http://127.0.0.1:8545"
-_DEFAULT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-_DEFAULT_ABI_PATH = (
-    REPO_ROOT
-    / "Hardhat testing Node"
-    / "artifacts"
-    / "contracts"
-    / "SimpleAuction.sol"
-    / "SimpleAuction.json"
-)
-
 db = PostgresDB()
 db.connect()
 _AUCTION_REGISTRY = db.get_auction_registry()  # {auction_id: contract_address}
 db.close()
 
 _NEXT_AUCTION_ID = max(_AUCTION_REGISTRY.keys(), default=0) + 1
-
-
-def _get_config():
-    """
-    Return backend chain configuration.
-
-    Returns:
-        tuple[str, Path, str]:
-            rpc_url, abi_path, default_address
-    """
-    return _RPC_URL, _DEFAULT_ABI_PATH, _DEFAULT_ADDRESS
 
 
 def create_and_register_auction(duration_seconds: int, wallet_address: str) -> dict:
@@ -132,12 +107,7 @@ def submit_bid(auction_id: int, user_bid: float, wallet_address: str) -> dict:
             details=f"No contract address found for auction_id={auction_id}",
         )
 
-    _rpc_url, abi_path, _default_address = _get_config()
-
-    w3, contract, _account = load_auction_contract(
-        auction_address=address,
-        abi_path=str(abi_path),
-    )
+    w3, contract, _account = load_auction_contract(address)
 
     try:
         return place_bid(w3, contract, wallet_address, user_bid)
@@ -164,13 +134,8 @@ def get_state(auction_id: int) -> dict:
             details=f"No contract address found for auction_id={auction_id}",
         )
 
-    _rpc_url, abi_path, _default_address = _get_config()
-
     try:
-        w3, contract, _account = load_auction_contract(
-            auction_address=address,
-            abi_path=str(abi_path),
-        )
+        w3, contract, _account = load_auction_contract(address)
     except Exception as e:
         raise BackendAPIError(
             code="CONTRACT_LOAD_FAILED",

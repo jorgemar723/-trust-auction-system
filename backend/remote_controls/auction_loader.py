@@ -1,6 +1,19 @@
 import json
+from pathlib import Path
 from web3 import Web3
 from .errors import BackendAPIError
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+ 
+_ABI_PATH = (
+    _REPO_ROOT
+    / "Hardhat testing Node"
+    / "artifacts"
+    / "contracts"
+    / "SimpleAuction.sol"
+    / "SimpleAuction.json"
+)
+print("ABI PATH:", _ABI_PATH)
 
 
 def connect_web3(provider_url: str = "http://127.0.0.1:8545"):
@@ -24,7 +37,7 @@ def connect_web3(provider_url: str = "http://127.0.0.1:8545"):
     return w3
 
 
-def load_contract(w3, abi_path: str, contract_address: str):
+def load_contract(w3,contract_address: str):
     """
     Load a deployed smart contract instance.
 
@@ -36,7 +49,7 @@ def load_contract(w3, abi_path: str, contract_address: str):
     Returns:
         Contract: Web3 contract instance
     """
-    with open(abi_path) as f:
+    with open(_ABI_PATH) as f:
         contract_json = json.load(f)
         abi = contract_json["abi"]
 
@@ -46,7 +59,7 @@ def load_contract(w3, abi_path: str, contract_address: str):
     )
 
 
-def load_auction_contract(auction_address: str, abi_path: str):
+def load_auction_contract(auction_address: str):
     try:
         w3 = connect_web3()
     except Exception as e:
@@ -56,11 +69,7 @@ def load_auction_contract(auction_address: str, abi_path: str):
         ) from e
 
     try:
-        contract = load_contract(
-            w3,
-            abi_path=abi_path,
-            contract_address=auction_address
-        )
+        contract = load_contract(w3, contract_address=auction_address)
     except Exception as e:
         raise BackendAPIError(
             code="CONTRACT_LOAD_FAILED",
