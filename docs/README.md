@@ -151,6 +151,24 @@ Jorge Martinez-Lopez: “Implemented wallet-based user mapping and strengthened 
 - Jira Task: Integrate Blockchain Auction State Using Auction IDs
 	- PROJ-97, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/2ee7909f795a036de28616ab320a1c234c34db29/?at=feature%2FPROJ-97-auction-address-registry)
 
+Nathan Carlson: "Set up database structure and logic for auctions/bids and implemented create/edit auction pages."
+
+- Jira Task: Design and Implement SQL Schema for Auctions and Bids
+	- PROJ-99, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-99-design-and-implement-sql-schema-for-auctions-and-bids)
+	- Pull request approved but not merged because I rebased it on main
+
+- Jira Task: Develop Python CRUD Functions for Auction Management
+	- PROJ-100, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-100-develop-python-crud-functions-for-auction-management)
+
+- Jira Task: Create Auction Submission Form and Image Upload Logic
+	- PROJ-101, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-101-create-auction-submission-form)
+
+- Jira Task: Implement Auction Details and Edit View
+	- PROJ-102, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-102-implement-auction-details-and-edit-view)
+
+- Jira Task: Create my auctions page
+	- PROJ-103, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-103-create-my-auctions-page)
+
 # Sprint 2 - Next Steps
 
 ### Jorge Martinez-Lopez
@@ -160,6 +178,13 @@ Jorge Martinez-Lopez: “Implemented wallet-based user mapping and strengthened 
 - Add integration testing for full seller → bidder workflow  
 - Improve reliability of local demo environment and startup process  
 - Continue refining backend and blockchain coordination  
+
+### Nathan Carlson
+
+- Host flask app and mock blockchain on AWS
+- Refactor project to follow SOLID Principles better
+- Continue refining UI styling and web app features
+- Unit test database code
 
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
