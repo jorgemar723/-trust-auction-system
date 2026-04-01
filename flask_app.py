@@ -293,6 +293,8 @@ def api_state(auction_id):
         state = get_state(auction_id)
         return jsonify({"ok": True, "data": state}), 200
     except Exception as e:
+        print("STATE ERROR:", e)
+        print("STATE ERROR DETAILS:", getattr(e, 'details', None))
         if _BackendAPIError is not None and isinstance(e, _BackendAPIError):
             return error_json(e.code, e.message, e.details, e.http_status)
 
