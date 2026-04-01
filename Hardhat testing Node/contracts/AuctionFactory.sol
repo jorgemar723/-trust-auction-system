@@ -17,7 +17,7 @@ contract AuctionFactory {
     function createAuction(uint256 biddingTimeSeconds) external returns (address) {
 
         // Deploy a new SimpleAuction contract
-        SimpleAuction auction = new SimpleAuction(biddingTimeSeconds);
+        SimpleAuction auction = new SimpleAuction(biddingTimeSeconds,msg.sender);
 
         address auctionAddress = address(auction);
 

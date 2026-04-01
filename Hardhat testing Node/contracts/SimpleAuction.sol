@@ -15,8 +15,8 @@ contract SimpleAuction {
     event HighestBidIncreased(address bidder, uint256 amount);
     event AuctionEnded(address winner, uint256 amount);
 
-    constructor(uint256 _biddingTimeSeconds) {
-        seller = msg.sender;
+    constructor(uint256 _biddingTimeSeconds, address _seller) {
+        seller = _seller;
         endTime = block.timestamp + _biddingTimeSeconds;
     }
 
