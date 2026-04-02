@@ -34,7 +34,12 @@
                 {% endif %}
             </div>
             <div class="card-body p-4">
-                <h1 class="fw-bold">{{ auction.title }}</h1>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h1 class="fw-bold mb-0">{{ auction.title }}</h1>
+                    {% if is_seller %}
+                        <a href="{{ url_for('edit_auction', auction_id=auction.id) }}" class="btn btn-outline-secondary flex-shrink-0 ms-3">Edit Auction</a>
+                    {% endif %}
+                </div>
                 <p class="text-muted lead">{{ auction.description }}</p>
                 <div class="d-flex gap-3 mt-4">
                     <span class="badge bg-light text-dark border p-2">Condition: Mint</span>
