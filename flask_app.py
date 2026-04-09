@@ -171,6 +171,7 @@ def detail(auction_id):
                     or "low" in error_text.lower()
                     or "bid too low" in error_text.lower()
                     or "not high enough" in error_text.lower()
+                    or "below starting bid" in error_text.lower()
                 ):
                     flash(f"Bid failed. You must bid higher than {auction['current_bid']} ETH.", "danger")
                 else:
@@ -316,7 +317,7 @@ def create_auction():
     if request.method == "POST":
         title = request.form.get("title")
         description = request.form.get("description")
-        starting_bid = request.form.get("starting_bid")
+        starting_bid = float(request.form.get("starting_bid", 0))
         expires_at = request.form.get("expires_at")
         
         images = request.files.getlist("images")
@@ -334,10 +335,14 @@ def create_auction():
 
         #TODO fix time zone issue
         result_seconds = to_seconds(expires_at) - int(created_at.timestamp())
-        
         if result_seconds <= 0:
             flash("Invalid auction time. Please select a future time.", "danger")
             return redirect(url_for("create_auction"))
+
+        if starting_bid <= 0:
+            flash("Starting bid must be a positive value.", "danger")
+            return redirect(url_for("create_auction"))
+
         
         db = PostgresDB()
         db.connect()
@@ -348,7 +353,7 @@ def create_auction():
             flash("You must have a test wallet assigned before creating an auction.", "danger")
             return redirect(url_for("create_auction"))
         
-        result = deploy_auction(result_seconds, wallet_address)
+        result = deploy_auction(result_seconds, wallet_address, starting_bid)
         contract_address = result["auction_address"]
         tx_hash = result["tx_hash"]
         

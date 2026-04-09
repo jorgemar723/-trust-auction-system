@@ -24,10 +24,15 @@ db.close()
 _NEXT_AUCTION_ID = max(_AUCTION_REGISTRY.keys(), default=0) + 1
 
 
-def create_and_register_auction(duration_seconds: int, wallet_address: str) -> dict:
+def create_and_register_auction(duration_seconds: int, wallet_address: str, starting_bid: float) -> dict:
     """
     Create a new auction on-chain and register it locally.
-
+ 
+    Args:
+        duration_seconds: How long the auction runs.
+        wallet_address:   Seller's wallet address.
+        starting_bid:     Minimum opening bid in ETH.
+ 
     Returns:
         dict:
             {
@@ -37,7 +42,7 @@ def create_and_register_auction(duration_seconds: int, wallet_address: str) -> d
             }
     """
     global _NEXT_AUCTION_ID
-
+ 
     if duration_seconds <= 0:
         raise BackendAPIError(
             code="INVALID_DURATION",
@@ -45,7 +50,15 @@ def create_and_register_auction(duration_seconds: int, wallet_address: str) -> d
             http_status=400,
             details=f"Received duration: {duration_seconds}",
         )
-
+ 
+    if starting_bid <= 0:
+        raise BackendAPIError(
+            code="INVALID_STARTING_BID",
+            message="Starting bid must be positive.",
+            http_status=400,
+            details=f"Received starting_bid: {starting_bid}",
+        )
+ 
     if not wallet_address:
         raise BackendAPIError(
             code="MISSING_WALLET",
@@ -53,21 +66,24 @@ def create_and_register_auction(duration_seconds: int, wallet_address: str) -> d
             http_status=400,
             details="wallet_address is None or empty",
         )
-
+ 
+    # Convert ETH -> Wei for the smart contract
+    
+ 
     try:
-        result = create_auction(duration_seconds, wallet_address)
+        result = create_auction(duration_seconds, wallet_address, starting_bid)
         auction_address = result["auction_address"]
-
+ 
         auction_id = _NEXT_AUCTION_ID
         _AUCTION_REGISTRY[auction_id] = auction_address
         _NEXT_AUCTION_ID += 1
-
+ 
         return {
             "auction_id": auction_id,
             "auction_address": auction_address,
             "tx_hash": result["tx_hash"],
         }
-
+ 
     except Exception as e:
         raise BackendAPIError(
             code="AUCTION_CREATION_FAILED",
@@ -76,7 +92,7 @@ def create_and_register_auction(duration_seconds: int, wallet_address: str) -> d
             details=str(e),
         ) from e
 
-
+ 
 def submit_bid(auction_id: int, user_bid: float, wallet_address: str) -> dict:
     if user_bid <= 0:
         raise BackendAPIError(
@@ -155,10 +171,10 @@ def get_state(auction_id: int) -> dict:
         ) from e
 
 
-def create_new_auction(duration_seconds: int, wallet_address: str) -> dict:
+def create_new_auction(duration_seconds: int, wallet_address: str, starting_bid: float) -> dict:
     """
     Backward-compatible wrapper.
-
+ 
     Prefer create_and_register_auction() for the current controller flow.
     """
-    return create_and_register_auction(duration_seconds, wallet_address)
+    return create_and_register_auction(duration_seconds, wallet_address, starting_bid)

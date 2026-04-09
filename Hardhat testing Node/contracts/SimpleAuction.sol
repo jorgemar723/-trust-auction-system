@@ -7,6 +7,7 @@ contract SimpleAuction {
 
     address public highestBidder;
     uint256 public highestBid;
+    uint256 public startingBid;
 
     bool public ended;
 
@@ -15,13 +16,15 @@ contract SimpleAuction {
     event HighestBidIncreased(address bidder, uint256 amount);
     event AuctionEnded(address winner, uint256 amount);
 
-    constructor(uint256 _biddingTimeSeconds, address _seller) {
+    constructor(uint256 _biddingTimeSeconds, address _seller, uint256 _startingBid) {
         seller = _seller;
         endTime = block.timestamp + _biddingTimeSeconds;
+        startingBid = _startingBid;
     }
 
     function bid() external payable {
         require(block.timestamp < endTime, "Auction already ended");
+        require(msg.value >= startingBid, "Bid is below starting bid");
         require(msg.value > highestBid, "Bid not high enough");
 
         if (highestBid != 0) {

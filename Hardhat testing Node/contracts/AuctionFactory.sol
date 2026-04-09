@@ -11,13 +11,14 @@ contract AuctionFactory {
         address auctionAddress,
         address seller,
         uint256 biddingTimeSeconds,
-        uint256 endTime
+        uint256 endTime,
+        uint256 startingBid
     );
-
-    function createAuction(uint256 biddingTimeSeconds) external returns (address) {
+    
+    function createAuction(uint256 biddingTimeSeconds, uint256 startingBid) external returns (address) {
 
         // Deploy a new SimpleAuction contract
-        SimpleAuction auction = new SimpleAuction(biddingTimeSeconds,msg.sender);
+        SimpleAuction auction = new SimpleAuction(biddingTimeSeconds, msg.sender, startingBid);
 
         address auctionAddress = address(auction);
 
@@ -28,7 +29,8 @@ contract AuctionFactory {
             auctionAddress,
             msg.sender,
             biddingTimeSeconds,
-            auction.endTime()
+            auction.endTime(),
+            startingBid
         );
 
         return auctionAddress;
