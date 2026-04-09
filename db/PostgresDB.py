@@ -26,7 +26,20 @@ class PostgresDB:
         auctions = []
         try:
             cur = self.conn.cursor()
-            cur.execute("SELECT * FROM auctions")
+            cur.execute("""
+                SELECT
+                    auction_id,
+                    seller_id,
+                    title,
+                    description,
+                    images,
+                    created_at,
+                    expires_at,
+                    contract_address,
+                    starting_bid,
+                    highest_bid
+                FROM auctions
+            """)
             rows = cur.fetchall()
             for row in rows:
                 auctions.append(row)
@@ -39,7 +52,21 @@ class PostgresDB:
         auctions = []
         try:
             cur = self.conn.cursor()
-            cur.execute("SELECT * FROM auctions WHERE seller_id = %s", (seller_id,))
+            cur.execute("""
+                SELECT
+                    auction_id,
+                    seller_id,
+                    title,
+                    description,
+                    images,
+                    created_at,
+                    expires_at,
+                    contract_address,
+                    starting_bid,
+                    highest_bid
+                FROM auctions
+                WHERE seller_id = %s
+            """, (seller_id,))
             rows = cur.fetchall()
             for row in rows:
                 auctions.append(row)
@@ -53,7 +80,21 @@ class PostgresDB:
         auction = None
         try:
             cur = self.conn.cursor()
-            cur.execute("SELECT * FROM auctions WHERE auction_id = %s", (auction_id,))
+            cur.execute("""
+                SELECT
+                    auction_id,
+                    seller_id,
+                    title,
+                    description,
+                    images,
+                    created_at,
+                    expires_at,
+                    contract_address,
+                    starting_bid,
+                    highest_bid
+                FROM auctions
+                WHERE auction_id = %s
+            """, (auction_id,))
             auction = cur.fetchone()
             cur.close()
         except (psycopg2.DatabaseError, Exception) as error:
@@ -164,7 +205,10 @@ class PostgresDB:
             cur.execute("SELECT wallet_address FROM users WHERE user_id = %s", (user_id,))
             wallet_address = cur.fetchone()[0]
             # insert bid into history
-            cur.execute("INSERT INTO bidding_history (auction_id, user_id, bid_amount, wallet_address) VALUES (%s, %s, %s, %s)", (auction_id, user_id, bid_amount, wallet_address))
+            cur.execute(
+                "INSERT INTO bidding_history (auction_id, user_id, bid_amount, wallet_address) VALUES (%s, %s, %s, %s)",
+                (auction_id, user_id, bid_amount, wallet_address)
+            )
             # update highest bid
             cur.execute("UPDATE auctions SET highest_bid = %s WHERE auction_id = %s", (bid_amount, auction_id))
             self.conn.commit()
@@ -189,12 +233,15 @@ class PostgresDB:
             ):
         try:
             cur = self.conn.cursor()
-            #create auction record in database
-            cur.execute("INSERT INTO auctions (title, description, starting_bid, images, created_at, expires_at, seller_id, contract_address) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", (title, description, starting_bid, image_urls, created_at, expires_at, seller_id, contract_address))
-            #get the auction_id of the newly created auction
+            # create auction record in database
+            cur.execute(
+                "INSERT INTO auctions (title, description, starting_bid, images, created_at, expires_at, seller_id, contract_address) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                (title, description, starting_bid, image_urls, created_at, expires_at, seller_id, contract_address)
+            )
+            # get the auction_id of the newly created auction
             cur.execute("SELECT auction_id FROM auctions WHERE contract_address = %s", (contract_address,))
             auction_id = cur.fetchone()[0]
-            #insert the auction_id and tx_hash into the registry table
+            # insert the auction_id and tx_hash into the registry table
             cur.execute("INSERT INTO registry (auction_id, registry_id) VALUES (%s, %s)", (auction_id, tx_hash))
             self.conn.commit()
             cur.close()
@@ -292,7 +339,10 @@ class PostgresDB:
     def update_auction(self, auction_id, title, description, image_urls):
         try:
             cur = self.conn.cursor()
-            cur.execute("UPDATE auctions SET title = %s, description = %s, images = %s WHERE auction_id = %s", (title, description, image_urls, auction_id))
+            cur.execute(
+                "UPDATE auctions SET title = %s, description = %s, images = %s WHERE auction_id = %s",
+                (title, description, image_urls, auction_id)
+            )
             self.conn.commit()
             cur.close()
         except (psycopg2.DatabaseError, Exception) as error:
@@ -304,7 +354,10 @@ class PostgresDB:
     def update_user(self, user_id, email, wallet_address):
         try:
             cur = self.conn.cursor()
-            cur.execute("UPDATE users SET email = %s, wallet_address = %s WHERE user_id = %s", (email, wallet_address, user_id))
+            cur.execute(
+                "UPDATE users SET email = %s, wallet_address = %s WHERE user_id = %s",
+                (email, wallet_address, user_id)
+            )
             self.conn.commit()
             cur.close()
         except (psycopg2.DatabaseError, Exception) as error:
@@ -427,5 +480,3 @@ class PostgresDB:
             self.conn.rollback()
             return False
         return True
-    
-    

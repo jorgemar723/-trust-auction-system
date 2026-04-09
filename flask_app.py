@@ -50,18 +50,51 @@ except Exception as e:
     _backend_import_error = str(e)
 
 
-def to_seconds(date_string: str) -> int:
-    # Parse as naive local time (what browser sends)
+def parse_local_datetime_to_utc(date_string: str) -> datetime:
+    # Browser sends a naive local datetime string like "2026-04-08T19:30"
     local_dt = datetime.strptime(date_string, "%Y-%m-%dT%H:%M")
-    
-    # Attach local timezone automatically
-    local_dt = local_dt.replace(tzinfo=datetime.now().astimezone().tzinfo)
-    
-    # Now convert to UTC explicitly
-    utc_dt = local_dt.astimezone(timezone.utc)
-    
+
+    # Attach the current local timezone
+    local_tz = datetime.now().astimezone().tzinfo
+    local_dt = local_dt.replace(tzinfo=local_tz)
+
+    # Convert to UTC for consistent storage and blockchain timing
+    return local_dt.astimezone(timezone.utc)
+
+
+def to_seconds(date_string: str) -> int:
+    utc_dt = parse_local_datetime_to_utc(date_string)
     return int(utc_dt.timestamp())
 
+
+def format_time_remaining(expires_at):
+    if not expires_at:
+        return "Ended"
+
+    now = datetime.now().astimezone()
+
+    # Handle string timestamps safely
+    if isinstance(expires_at, str):
+        try:
+            expires_at = datetime.fromisoformat(expires_at)
+        except ValueError:
+            return "Ended"
+
+    # If DB time is naive, assume local timezone
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=now.tzinfo)
+
+    diff = expires_at - now
+    total_seconds = int(diff.total_seconds())
+
+    if total_seconds <= 0:
+        return "Ended"
+
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    seconds = total_seconds % 60
+
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 
 def error_json(code: str, message: str, details: str | None = None, http_status: int = 500):
@@ -81,24 +114,23 @@ def index():
     db.connect()
     raw_auctions = db.get_auctions()
     db.close()
-    
+
     formatted_auctions = []
     for row in raw_auctions:
         images = row[4]
-        # Grab the first image to use as the thumbnail, if one exists
         image_url = images[0] if images and len(images) > 0 else ""
-        
-        # Use the highest_bid if it exists, otherwise fall back to starting_bid
+
         current_bid = row[9] if row[9] is not None else row[8]
-        
+
         formatted_auctions.append({
             "id": row[0],
             "title": row[2],
             "description": row[3],
             "image": image_url,
-            "current_bid": float(current_bid)
+            "current_bid": float(current_bid),
+            "time_remaining": format_time_remaining(row[6])
         })
-        
+
     return render_template("index.html", auctions=formatted_auctions)
 
 
@@ -108,7 +140,7 @@ def detail(auction_id):
     db = PostgresDB()
     db.connect()
     raw_auction = db.get_auction_by_id(auction_id)
-    
+
     if not raw_auction:
         db.close()
         return "Auction not found", 404
@@ -118,7 +150,7 @@ def detail(auction_id):
 
     images = raw_auction[4]
     current_bid = raw_auction[9] if raw_auction[9] is not None else raw_auction[8]
-    
+
     auction = {
         "id": raw_auction[0],
         "title": raw_auction[2],
@@ -143,29 +175,29 @@ def detail(auction_id):
             flash("You must be logged in to place a bid.", "warning")
             db.close()
             return redirect(url_for("login"))
-            
+
         new_bid = float(request.form.get("bid_amount", 0))
         bidder_id = session["user_id"]
-        
+
         wallet_address = db.get_wallet_address_by_user_id(bidder_id)
         if not wallet_address:
             db.close()
             flash("You must have a test wallet assigned before placing a bid.", "danger")
             return redirect(url_for("detail", auction_id=auction_id))
-        
+
         try:
             submit_bid(auction_id, new_bid, wallet_address)
             success = db.submit_bid(auction_id, bidder_id, new_bid)
-            
+
             if success:
                 flash(f"Success! Your bid of {new_bid} ETH has been placed.", "success")
             else:
                 flash("Bid reached blockchain but failed to save in the database.", "warning")
-                
+
         except Exception as e:
             if _BackendAPIError is not None and isinstance(e, _BackendAPIError):
                 error_text = f"{e.message} {e.details}" if e.details else e.message
-                
+
                 if (
                     "higher" in error_text.lower()
                     or "low" in error_text.lower()
@@ -186,7 +218,7 @@ def detail(auction_id):
     if "user_id" in session:
         watchlist = db.get_user_watchlist(session["user_id"])
         is_watched = auction_id in watchlist
-        
+
     db.close()
     return render_template("detail.html", auction=auction, is_watched=is_watched, history=history, is_seller=is_seller)
 
@@ -197,11 +229,11 @@ def view_watchlist():
     if "user_id" not in session:
         flash("You must be logged in to view your watchlist.", "warning")
         return redirect(url_for("login"))
-        
+
     db = PostgresDB()
     db.connect()
     watchlist_ids = db.get_user_watchlist(session["user_id"])
-    
+
     watched_items = []
     for w_id in watchlist_ids:
         row = db.get_auction_by_id(w_id)
@@ -209,15 +241,16 @@ def view_watchlist():
             images = row[4]
             image_url = images[0] if images and len(images) > 0 else ""
             current_bid = row[9] if row[9] is not None else row[8]
-            
+
             watched_items.append({
                 "id": row[0],
                 "title": row[2],
                 "description": row[3],
                 "image": image_url,
-                "current_bid": float(current_bid)
+                "current_bid": float(current_bid),
+                "time_remaining": format_time_remaining(row[6])
             })
-            
+
     db.close()
     return render_template("watchlist.html", auctions=watched_items)
 
@@ -228,18 +261,18 @@ def toggle_watchlist(auction_id):
     if "user_id" not in session:
         flash("You must be logged in to manage your watchlist.", "warning")
         return redirect(url_for("login"))
-        
+
     db = PostgresDB()
     db.connect()
     watchlist = db.get_user_watchlist(session["user_id"])
-    
+
     if auction_id in watchlist:
         db.remove_from_watchlist(session["user_id"], auction_id)
         flash("Removed from watchlist.", "info")
     else:
         db.add_to_watchlist(session["user_id"], auction_id)
         flash("Added to watchlist.", "success")
-        
+
     db.close()
     return redirect(request.referrer or url_for("index"))
 
@@ -250,30 +283,29 @@ def my_auctions():
     if "user_id" not in session:
         flash("You must be logged in to view your auctions.", "warning")
         return redirect(url_for("login"))
-        
+
     db = PostgresDB()
     db.connect()
     raw_auctions = db.get_auctions_by_seller_id(session["user_id"])
     db.close()
-    
+
     formatted_auctions = []
     for row in raw_auctions:
         images = row[4]
-        # Grab the first image to use as the thumbnail, if one exists
         image_url = images[0] if images and len(images) > 0 else ""
-        
-        # Use the highest_bid if it exists, otherwise fall back to starting_bid
         current_bid = row[9] if row[9] is not None else row[8]
-        
+
         formatted_auctions.append({
             "id": row[0],
             "title": row[2],
             "description": row[3],
             "image": image_url,
-            "current_bid": float(current_bid)
+            "current_bid": float(current_bid),
+            "time_remaining": format_time_remaining(row[6])
         })
-        
+
     return render_template("my_auctions.html", auctions=formatted_auctions)
+
 
 # ================= AUCTION STATE =================
 @app.route("/api/state/<int:auction_id>")
@@ -319,22 +351,23 @@ def create_auction():
         description = request.form.get("description")
         starting_bid = float(request.form.get("starting_bid", 0))
         expires_at = request.form.get("expires_at")
-        
+
         images = request.files.getlist("images")
         image_urls = []
-        
+
         for image in images:
             if image and image.filename:
                 filename = secure_filename(image.filename)
                 image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 image.save(image_path)
                 image_urls.append(f"uploads/{filename}")
-            
+
         created_at = datetime.now(timezone.utc)
         seller_id = session["user_id"]
 
-        #TODO fix time zone issue
-        result_seconds = to_seconds(expires_at) - int(created_at.timestamp())
+        expires_at_utc = parse_local_datetime_to_utc(expires_at)
+        result_seconds = int(expires_at_utc.timestamp()) - int(created_at.timestamp())
+
         if result_seconds <= 0:
             flash("Invalid auction time. Please select a future time.", "danger")
             return redirect(url_for("create_auction"))
@@ -343,40 +376,40 @@ def create_auction():
             flash("Starting bid must be a positive value.", "danger")
             return redirect(url_for("create_auction"))
 
-        
+
         db = PostgresDB()
         db.connect()
         wallet_address = db.get_wallet_address_by_user_id(seller_id)
-        
+
         if not wallet_address:
             db.close()
             flash("You must have a test wallet assigned before creating an auction.", "danger")
             return redirect(url_for("create_auction"))
-        
+
         result = deploy_auction(result_seconds, wallet_address, starting_bid)
         contract_address = result["auction_address"]
         tx_hash = result["tx_hash"]
-        
+
         success = db.create_auction(
             title=title,
             description=description,
             starting_bid=starting_bid,
             image_urls=image_urls,
             created_at=created_at,
-            expires_at=expires_at,
+            expires_at=expires_at_utc,
             seller_id=seller_id,
             contract_address=contract_address,
             tx_hash=tx_hash
         )
 
         db.close()
-        
+
         if success:
             flash("Auction created successfully!", "success")
             return redirect(url_for("index"))
         else:
             flash("Failed to create auction. Please try again.", "danger")
-            
+
     return render_template("create_auction.html")
 
 
@@ -405,10 +438,10 @@ def edit_auction(auction_id):
     if request.method == "POST":
         title = request.form.get("title")
         description = request.form.get("description")
-        
+
         existing_images = raw_auction[4] if raw_auction[4] else []
         images_to_delete = request.form.getlist("delete_images")
-        
+
         updated_images = [img for img in existing_images if img not in images_to_delete]
 
         for image_path_to_delete in images_to_delete:
@@ -450,6 +483,7 @@ def edit_auction(auction_id):
     }
     db.close()
     return render_template("edit_auction.html", auction=auction)
+
 
 # ================= REGISTER =================
 @app.route("/register", methods=["GET", "POST"])
