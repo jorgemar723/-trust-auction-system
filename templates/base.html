@@ -12,55 +12,55 @@
 <body class="d-flex flex-column min-vh-100">
 
 <!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" href="/" style="letter-spacing: 1.5px; color: #00d4ff;">
             TRUST
         </a>
 
-        <!-- Mobile Toggle (important) -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Marketplace</a>
+                    <a class="nav-link px-lg-3" href="/">Marketplace</a>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="/watchlist">Watchlist</a>
+                    <a class="nav-link px-lg-3" href="/watchlist">Watchlist</a>
                 </li>
 
                 {% if session.get("user_email") %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('my_auctions') }}">My Auctions</a>
+                        <a class="nav-link px-lg-3" href="{{ url_for('my_auctions') }}">My Auctions</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('create_auction') }}">Create Auction</a>
+                        <a class="nav-link px-lg-3" href="{{ url_for('create_auction') }}">Create Auction</a>
                     </li>
-                    <li class="nav-item ms-lg-3">
-                        <span class="navbar-text text-light me-2">
+                    <li class="nav-item ms-lg-2">
+                        <span class="navbar-text text-light small text-break">
                             {{ session.get("user_email") }}
                         </span>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="{{ url_for('logout') }}" class="nav-link">
+                    <li class="nav-item ms-lg-2">
+                        <a href="{{ url_for('logout') }}" class="nav-link px-lg-3 fw-semibold">
                             Logout
                         </a>
                     </li>
                 {% else %}
-                    <li class="nav-item">
-                        <a href="{{ url_for('login') }}" class="nav-link">
+                    <li class="nav-item ms-lg-2">
+                        <a href="{{ url_for('login') }}" class="nav-link px-lg-3">
                             Log In
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="{{ url_for('register') }}" class="nav-link fw-semibold">
+                        <a href="{{ url_for('register') }}" class="nav-link px-lg-3 fw-semibold">
                             Register
                         </a>
                     </li>

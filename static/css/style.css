@@ -17,6 +17,8 @@ body {
 .navbar {
     background: linear-gradient(90deg, #16181d 0%, #1b1f26 100%) !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
 }
 
 .navbar-brand {
@@ -24,14 +26,21 @@ body {
     font-weight: 800;
 }
 
+.navbar .navbar-nav {
+    gap: 0.35rem;
+}
+
 .navbar .nav-link {
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: rgba(255, 255, 255, 0.82) !important;
     font-weight: 500;
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
+    border-radius: 10px;
+    padding: 0.55rem 0.95rem !important;
 }
 
 .navbar .nav-link:hover {
     color: var(--trust-cyan) !important;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .navbar .nav-link.text-info {
@@ -40,6 +49,24 @@ body {
 
 .navbar .nav-link.text-warning {
     color: #ffc107 !important;
+}
+
+.navbar .navbar-text {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.78) !important;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.18);
+    padding: 0.45rem 0.7rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 0.18rem rgba(0, 212, 255, 0.2);
 }
 
 /* Footer */
@@ -308,6 +335,21 @@ main.container {
     .navbar .nav-link {
         padding-left: 0;
         padding-right: 0;
+        border-radius: 0;
+        background-color: transparent !important;
+    }
+
+    .navbar .navbar-nav {
+        gap: 0.1rem;
+        padding-top: 1rem;
+    }
+
+    .navbar .navbar-text {
+        max-width: 100%;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        padding: 0.5rem 0;
     }
 
     .marketplace-hero-large {
