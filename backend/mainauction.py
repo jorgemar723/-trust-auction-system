@@ -6,8 +6,9 @@ and blockchain interaction modules located in remote_controls.
 """
 
 from __future__ import annotations
-
+from src.services.pricing_service import get_current_eth_usd_price
 from db.PostgresDB import PostgresDB
+
 from .remote_controls import (
     place_bid,
     get_auction_state,
@@ -161,7 +162,24 @@ def get_state(auction_id: int) -> dict:
         ) from e
 
     try:
-        return get_auction_state(w3, contract, address)
+        state = get_auction_state(w3, contract, address)
+    
+        eth_price = get_current_eth_usd_price()
+
+        highest_bid_eth = state.get("highest_bid_eth")
+        
+        if eth_price is not None and highest_bid_eth is not None:
+            try:
+                highest_bid_usd = highest_bid_eth * eth_price
+            except Exception:
+                highest_bid_usd = None
+        else:
+            highest_bid_usd = None
+            
+        state["highest_bid_usd"] = highest_bid_usd
+        
+        return state
+    
     except Exception as e:
         raise BackendAPIError(
             code="CHAIN_CALL_FAILED",
