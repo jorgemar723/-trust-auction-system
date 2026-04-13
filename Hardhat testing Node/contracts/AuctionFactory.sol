@@ -14,15 +14,13 @@ contract AuctionFactory {
         uint256 endTime,
         uint256 startingBid
     );
-    
+
     function createAuction(uint256 biddingTimeSeconds, uint256 startingBid) external returns (address) {
 
-        // Deploy a new SimpleAuction contract
         SimpleAuction auction = new SimpleAuction(biddingTimeSeconds, msg.sender, startingBid);
 
         address auctionAddress = address(auction);
 
-        // Track deployed auction
         auctions.push(auctionAddress);
 
         emit AuctionCreated(
