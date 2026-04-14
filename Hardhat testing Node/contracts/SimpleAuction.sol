@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "./Auction/AuctionBidding.sol";
 import "./Auction/AuctionSettlement.sol";
+import "./Auction/AuctionEscrow.sol";
 
 /**
  * SimpleAuction.sol
@@ -12,12 +13,13 @@ import "./Auction/AuctionSettlement.sol";
  *     all auction modules via inheritance.
  *
  *     This contract does NOT:
- *         - Contain bid or settlement logic directly
+ *         - Contain bid, settlement, or escrow logic directly
  *         - Define state variables directly (via AuctionState)
  *
  *     It inherits from:
  *         AuctionBidding    → bid()
  *         AuctionSettlement → withdraw(), endAuction()
+ *         AuctionEscrow     → confirmReceipt(), claimAfterTimeout(), flagRefund()
  *         AuctionState      → all state variables and events
  *                             (inherited transitively)
  *
@@ -27,7 +29,7 @@ import "./Auction/AuctionSettlement.sol";
  *         ↓
  *     SimpleAuction.sol  ← THIS FILE (orchestrator)
  *         ↓
- *     AuctionBidding.sol / AuctionSettlement.sol
+ *     AuctionBidding.sol / AuctionSettlement.sol / AuctionEscrow.sol
  *         ↓
  *     AuctionState.sol  (shared storage)
  *
@@ -35,11 +37,27 @@ import "./Auction/AuctionSettlement.sol";
  *     mainauction.py on the Python side
  */
 
-contract SimpleAuction is AuctionBidding, AuctionSettlement {
+contract SimpleAuction is AuctionBidding, AuctionSettlement, AuctionEscrow {
 
-    constructor(uint256 _biddingTimeSeconds, address _seller, uint256 _startingBid) {
+    /**
+     * @param _biddingTimeSeconds   How long the auction runs (in seconds)
+     * @param _seller               Address of the seller
+     * @param _startingBid          Minimum bid amount (in wei)
+     * @param _admin                Address of the admin (can trip emergency refund flag)
+     * @param _confirmationWindow   How long (in seconds) the buyer has to confirm receipt
+     *                              after the auction ends before the seller can claim timeout
+     */
+    constructor(
+        uint256 _biddingTimeSeconds,
+        address _seller,
+        uint256 _startingBid,
+        address _admin,
+        uint256 _confirmationWindow
+    ) {
         seller = _seller;
         endTime = block.timestamp + _biddingTimeSeconds;
         startingBid = _startingBid;
+        admin = _admin;
+        confirmationWindow = _confirmationWindow;
     }
 }

@@ -9,9 +9,14 @@ import "./AuctionState.sol";
  * Purpose:
  *     Handles auction finalization and fund withdrawals.
  *
+ *     On endAuction(), the winning bid is NO LONGER sent directly to the seller.
+ *     Instead it is locked into escrow (escrowAmount) and a confirmation deadline
+ *     is set. Release of those funds is handled by AuctionEscrow.sol.
+ *
  *     This contract does NOT:
  *         - Define state variables (inherited from AuctionState)
  *         - Handle bid placement logic
+ *         - Release escrow funds (handled by AuctionEscrow)
  *
  *     It is inherited by:
  *         SimpleAuction.sol
@@ -40,14 +45,24 @@ abstract contract AuctionSettlement is AuctionState {
         return true;
     }
 
+    /**
+     * @notice Ends the auction and locks the winning bid into escrow.
+     *         Does NOT pay the seller — that happens via AuctionEscrow
+     *         once the buyer confirms receipt (or the timeout passes).
+     */
     function endAuction() external {
         require(block.timestamp >= endTime, "Auction not yet ended");
         require(!ended, "Auction already closed");
 
         ended = true;
 
-        emit AuctionEnded(highestBidder, highestBid);
+        // Lock the winning bid into escrow
+        escrowAmount = highestBid;
 
-        payable(seller).transfer(highestBid);
+        // Start the buyer confirmation countdown from now
+        escrowReleaseTimeout = block.timestamp + confirmationWindow;
+
+        emit AuctionEnded(highestBidder, highestBid);
+        emit EscrowFunded(highestBidder, highestBid);
     }
 }

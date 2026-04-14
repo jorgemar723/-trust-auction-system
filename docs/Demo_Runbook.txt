@@ -10,6 +10,11 @@ npx hardhat node              # Start local blockchain
 cd "Hardhat testing Node"
 
 npx hardhat run scripts/deploy_factory.js --network localhost
+
+*testing*
+source venv/bin/activate
+python -m backend.test_mainauction
+
 Backup (if Flask create auction fails)
 npx hardhat run scripts/create_auction.js --network localhost
 

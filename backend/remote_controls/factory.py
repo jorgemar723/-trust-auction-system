@@ -1,4 +1,3 @@
-
 import json
 from web3 import Web3
 from pathlib import Path
@@ -33,16 +32,19 @@ def load_factory(w3):
     )
  
  
-def create_auction(duration_seconds: int, sender_address: str, starting_bid_eth: int):
- 
+def create_auction(
+    duration_seconds: int,
+    sender_address: str,
+    starting_bid_eth: float,
+    confirmation_window: int = 259200,  # default: 3 days in seconds
+):
     w3 = connect_web3()
     factory = load_factory(w3)
     starting_bid_wei = w3.to_wei(starting_bid_eth, "ether")
-
+ 
     if sender_address:
         sender_address = Web3.to_checksum_address(sender_address)
-
-    # Makes sure wallet exists
+ 
     if not sender_address or not Web3.is_address(sender_address):
         raise BackendAPIError(
             code="MISSING_WALLET",
@@ -53,7 +55,8 @@ def create_auction(duration_seconds: int, sender_address: str, starting_bid_eth:
     try:
         tx_hash = factory.functions.createAuction(
             duration_seconds,
-            starting_bid_wei
+            starting_bid_wei,
+            confirmation_window,        # ← new third argument
         ).transact({
             "from": sender_address
         })
@@ -72,7 +75,6 @@ def create_auction(duration_seconds: int, sender_address: str, starting_bid_eth:
             )
  
         event = events[0]
- 
         auction_address = event["args"]["auctionAddress"]
  
         return {
@@ -86,4 +88,3 @@ def create_auction(duration_seconds: int, sender_address: str, starting_bid_eth:
             message="Failed to create auction",
             details=str(e)
         ) from e
- 
