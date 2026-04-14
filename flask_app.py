@@ -7,7 +7,7 @@ from db.PostgresDB import PostgresDB
 import bcrypt
 from werkzeug.utils import secure_filename
 from backend.mainauction import create_new_auction as deploy_auction
-
+from src.services.pricing_service import get_current_eth_usd_price
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 
 app = Flask(__name__)
@@ -150,6 +150,16 @@ def detail(auction_id):
 
     images = raw_auction[4]
     current_bid = raw_auction[9] if raw_auction[9] is not None else raw_auction[8]
+    
+    try:
+        eth_price = get_current_eth_usd_price()
+    except Exception:
+        eth_price = None
+
+    if eth_price is not None:
+        current_bid_usd = round(float(current_bid) * float(eth_price), 2)
+    else:
+        current_bid_usd = None
 
     auction = {
         "id": raw_auction[0],
@@ -157,7 +167,8 @@ def detail(auction_id):
         "description": raw_auction[3],
         "images": images if images else [],
         "image": images[0] if images and len(images) > 0 else "",
-        "current_bid": float(current_bid)
+        "current_bid": float(current_bid),
+        "current_bid_usd":(current_bid_usd)
     }
 
     raw_bids = db.get_bids_for_auction(auction_id)
@@ -324,7 +335,26 @@ def api_state(auction_id):
 
     try:
         state = get_state(auction_id)
+        
+        try:
+            eth_price = get_current_eth_usd_price()
+        except Exception:
+            eth_price = None
+        
+        highest_bid_eth = state.get("highest_bid_eth")
+        
+        if eth_price is not None and highest_bid_eth is not None:
+            try:
+                highest_bid_usd = highest_bid_eth * eth_price
+            except Exception:
+                highest_bid_usd = None
+        else:
+            highest_bid_usd = None
+        
+        state["highest_bid_usd"] = highest_bid_usd
+        
         return jsonify({"ok": True, "data": state}), 200
+    
     except Exception as e:
         print("STATE ERROR:", e)
         print("STATE ERROR DETAILS:", getattr(e, 'details', None))
