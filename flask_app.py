@@ -112,27 +112,42 @@ def error_json(code: str, message: str, details: str | None = None, http_status:
 def index():
     db = PostgresDB()
     db.connect()
-    raw_auctions = db.get_auctions()
-    db.close()
 
+    loading = False
+    error_message = None
     formatted_auctions = []
-    for row in raw_auctions:
-        images = row[4]
-        image_url = images[0] if images and len(images) > 0 else ""
 
-        current_bid = row[9] if row[9] is not None else row[8]
+    try:
+        raw_auctions = db.get_auctions()
 
-        formatted_auctions.append({
-            "id": row[0],
-            "title": row[2],
-            "description": row[3],
-            "image": image_url,
-            "current_bid": float(current_bid),
-            "time_remaining": format_time_remaining(row[6])
-        })
+        for row in raw_auctions:
+            images = row[4]
+            image_url = images[0] if images and len(images) > 0 else ""
 
-    return render_template("index.html", auctions=formatted_auctions)
+            current_bid = row[9] if row[9] is not None else row[8]
 
+            formatted_auctions.append({
+                "id": row[0],
+                "title": row[2],
+                "description": row[3],
+                "image": image_url,
+                "current_bid": float(current_bid),
+                "time_remaining": format_time_remaining(row[6])
+            })
+
+    except Exception as e:
+        print("INDEX ERROR:", e)
+        error_message = "Failed to load auctions."
+
+    finally:
+        db.close()
+
+    return render_template(
+        "index.html",
+        auctions=formatted_auctions,
+        loading=loading,
+        error_message=error_message
+    )
 
 # ================= AUCTION DETAILS =================
 @app.route("/auction/<int:auction_id>", methods=["GET", "POST"])

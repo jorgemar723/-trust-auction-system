@@ -2,8 +2,42 @@
 
 {% block content %}
 
-{% if auctions|length == 0 %}
-<section class="marketplace-hero marketplace-hero-large mb-5">
+{% if loading %}
+<section class="marketplace-hero marketplace-hero-small mb-4">
+    <div class="marketplace-hero-content">
+        <p class="hero-label">TRUST MARKETPLACE</p>
+        <h1>Loading marketplace</h1>
+        <p class="hero-subtext">
+            Fetching the latest auctions...
+        </p>
+    </div>
+</section>
+
+<div class="ui-state loading-state">
+    <div class="spinner"></div>
+    <h3>Loading auctions...</h3>
+    <p>Retrieving active listings for the marketplace.</p>
+</div>
+
+{% elif error_message %}
+<section class="marketplace-hero marketplace-hero-small mb-4">
+    <div class="marketplace-hero-content">
+        <p class="hero-label">TRUST MARKETPLACE</p>
+        <h1>Marketplace unavailable</h1>
+        <p class="hero-subtext">
+            Something went wrong while loading auctions.
+        </p>
+    </div>
+</section>
+
+<div class="ui-state error-state">
+    <h3>Unable to load auctions</h3>
+    <p>{{ error_message }}</p>
+    <a href="{{ url_for('index') }}" class="btn btn-trust mt-3">Try Again</a>
+</div>
+
+{% elif auctions|length == 0 %}
+<section class="marketplace-hero marketplace-hero-large mb-4">
     <div class="marketplace-hero-content">
         <p class="hero-label">TRUST MARKETPLACE</p>
 
@@ -30,6 +64,18 @@
         {% endif %}
     </div>
 </section>
+
+<div class="ui-state empty-state">
+    <h3>No auctions available yet</h3>
+    <p>There are currently no listings in the marketplace.</p>
+
+    {% if session.get('user_id') %}
+        <a href="{{ url_for('create_auction') }}" class="btn btn-trust mt-3">
+            Create the First Listing
+        </a>
+    {% endif %}
+</div>
+
 {% else %}
 <section class="marketplace-hero marketplace-hero-small mb-4">
     <div class="marketplace-hero-content">
