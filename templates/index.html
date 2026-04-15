@@ -67,11 +67,15 @@
 
 <div class="ui-state empty-state">
     <h3>No auctions available yet</h3>
-    <p>There are currently no listings in the marketplace.</p>
+    <p>There are currently no active listings in the marketplace.</p>
 
     {% if session.get('user_id') %}
         <a href="{{ url_for('create_auction') }}" class="btn btn-trust mt-3">
             Create the First Listing
+        </a>
+    {% else %}
+        <a href="{{ url_for('register') }}" class="btn btn-trust mt-3">
+            Register to Start Selling
         </a>
     {% endif %}
 </div>
