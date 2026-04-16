@@ -41,6 +41,31 @@
                     <li class="nav-item">
                         <a class="nav-link px-lg-3" href="{{ url_for('create_auction') }}">Create Auction</a>
                     </li>
+
+                    <!-- ETH Price -->
+                    {% if eth_price %}
+                    <li class="nav-item ms-lg-3">
+                        <span class="navbar-text text-light small">
+                            1 ETH ≈ ${{ "{:,.2f}".format(eth_price) }}
+                        </span>
+                    </li>
+                    {% endif %}
+
+                    <!-- Wallet Balance -->
+                    {% if wallet_balance and wallet_balance.eth is not none %}
+                    <li class="nav-item ms-lg-2 text-end">
+                        <span class="navbar-text text-light small">
+                            {{ wallet_balance.eth }} ETH
+                            {% if wallet_balance.usd %}
+                                <br>
+                                <span class="text-light opacity-75" style="font-size: 0.75rem;">
+                                    ≈ ${{ "{:,.2f}".format(wallet_balance.usd) }}
+                                </span>
+                            {% endif %}
+                        </span>
+                    </li>
+                    {% endif %}
+
                     <li class="nav-item ms-lg-2">
                         <span class="navbar-text text-light small text-break">
                             {{ session.get("user_email") }}

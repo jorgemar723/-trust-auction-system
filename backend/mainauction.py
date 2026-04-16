@@ -8,6 +8,7 @@ and blockchain interaction modules located in remote_controls.
 from __future__ import annotations
 from src.services.pricing_service import get_current_eth_usd_price
 from db.PostgresDB import PostgresDB
+from backend.remote_controls.wallet import get_eth_balance
  
 from .remote_controls import (
     place_bid,
@@ -145,6 +146,25 @@ def submit_bid(auction_id: int, user_bid: float, wallet_address: str) -> dict:
         )
  
     w3, contract, _account = load_auction_contract(address)
+    
+    try:
+        balance_eth = float(get_eth_balance(w3, wallet_address))
+    except Exception as e:
+        raise BackendAPIError(
+            code="BALANCE_CHECK_FAILED",
+            message="Failed to retrieve wallet balance.",
+            http_status=500,
+            details=str(e),
+        ) from e
+    
+    if user_bid > balance_eth:
+        raise BackendAPIError(
+            code="INSUFFICIENT_FUNDS",
+            message="Insufficient wallet balance.",
+            http_status=400,
+            details=f"Balance: {round(balance_eth, 2)} ETH, Attempted bid: {round(user_bid, 2)} ETH",
+        )
+    
  
     try:
         return place_bid(w3, contract, wallet_address, user_bid)

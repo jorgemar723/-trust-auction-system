@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from backend.mainauction import create_new_auction as deploy_auction
 from src.services.pricing_service import get_current_eth_usd_price
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
+from backend.remote_controls.wallet import get_wallet_balance
 
 app = Flask(__name__)
 app.secret_key = "trust_secret_key"
@@ -221,6 +222,21 @@ def detail(auction_id):
         if not wallet_address:
             db.close()
             flash("You must have a test wallet assigned before placing a bid.", "danger")
+            return redirect(url_for("detail", auction_id=auction_id))
+        
+        balance = get_wallet_balance(bidder_id)
+        balance_eth = balance.get("eth") if balance else None
+        
+        # Check: bid must be higher than current bid 
+        if new_bid <= float(current_bid):
+            flash(f"Bid must be higher than {auction['current_bid']} ETH.", "danger")
+            db.close()
+            return redirect(url_for("detail", auction_id=auction_id))
+        
+        # Checks if user has enough ETH to make a bid higher than the currrent bid
+        if balance_eth is not None and new_bid > float(balance_eth):
+            db.close()
+            flash(f"You only have {round(float(balance_eth), 4)} ETH available.", "danger")
             return redirect(url_for("detail", auction_id=auction_id))
 
         try:
@@ -602,6 +618,27 @@ def login():
             return redirect(url_for("login"))
 
     return render_template("login.html")
+
+@app.context_processor
+def inject_wallet_balance():
+    wallet_balance = None
+    eth_price = None
+    
+    if "user_id" in session:
+        try:
+            wallet_balance = get_wallet_balance(session["user_id"])
+        except Exception:
+            wallet_balance = None
+
+    try:
+        eth_price = get_current_eth_usd_price()
+    except Exception:
+        eth_price = None
+
+    return {
+        "wallet_balance": wallet_balance,
+        "eth_price": eth_price
+    }
 
 
 # ================= LOGOUT =================
