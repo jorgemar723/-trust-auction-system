@@ -31,10 +31,16 @@
                 </div>
             </div>
 
-            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-end">
-                <div>
-                    <small class="d-block text-muted auction-label">Current Bid</small>
-                    <span class="h5 fw-bold mb-0 text-dark">{{ auction.current_bid }} ETH</span>
+            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-end gap-3">
+                <div class="auction-price-block">
+                    <small class="d-block auction-price-label">Current Bid</small>
+                    <div class="auction-price-value">{{ auction.current_bid }} ETH</div>
+
+                    {% if auction.current_bid_usd is defined and auction.current_bid_usd %}
+                        <small class="d-block auction-price-usd">
+                            ≈ ${{ "{:,.2f}".format(auction.current_bid_usd) }} USD
+                        </small>
+                    {% endif %}
                 </div>
 
                 <a href="/auction/{{ auction.id }}" class="btn btn-trust px-3">

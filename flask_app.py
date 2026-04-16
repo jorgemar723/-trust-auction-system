@@ -120,11 +120,23 @@ def index():
     try:
         raw_auctions = db.get_auctions()
 
+        try:
+            eth_price = get_current_eth_usd_price()
+        except Exception:
+            eth_price = None
+
         for row in raw_auctions:
             images = row[4]
             image_url = images[0] if images and len(images) > 0 else ""
 
             current_bid = row[9] if row[9] is not None else row[8]
+
+            current_bid_usd = None
+            if eth_price is not None:
+                try:
+                    current_bid_usd = round(float(current_bid) * float(eth_price), 2)
+                except Exception:
+                    current_bid_usd = None
 
             formatted_auctions.append({
                 "id": row[0],
@@ -132,6 +144,7 @@ def index():
                 "description": row[3],
                 "image": image_url,
                 "current_bid": float(current_bid),
+                "current_bid_usd": current_bid_usd,
                 "time_remaining": format_time_remaining(row[6])
             })
 
@@ -148,7 +161,6 @@ def index():
         loading=loading,
         error_message=error_message
     )
-
 # ================= AUCTION DETAILS =================
 @app.route("/auction/<int:auction_id>", methods=["GET", "POST"])
 def detail(auction_id):
