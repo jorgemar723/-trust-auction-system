@@ -1,0 +1,14 @@
+[Unit]
+Description=Hardhat Local Blockchain Node
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/trust/Hardhat testing Node
+ExecStart=/usr/bin/npx hardhat node
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

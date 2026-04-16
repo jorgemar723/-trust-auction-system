@@ -1,0 +1,25 @@
+[Unit]
+Description=TRUST Flask Application (Gunicorn)
+Requires=hardhat.service
+After=network.target hardhat.service
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/trust
+Environment="PATH=/home/ubuntu/trust/.venv/bin:/usr/bin"
+EnvironmentFile=/home/ubuntu/trust/.env
+
+# Wait for Hardhat to initialize
+ExecStartPre=/bin/sleep 5
+# Deploy factory contract
+ExecStartPre=/bin/bash -c "cd '/home/ubuntu/trust/Hardhat testing Node' && npx hardhat run scripts/deploy_factory.js --network localhost"
+# Initialize Database
+ExecStartPre=/home/ubuntu/trust/.venv/bin/python db/run_sql_schema.py
+# Start Gunicorn server
+ExecStart=/home/ubuntu/trust/.venv/bin/gunicorn -w 4 -b 0.0.0.0:8000 flask_app:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
