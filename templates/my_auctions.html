@@ -20,7 +20,7 @@
         <div class="ui-state empty-state">
             <h3>No auctions created yet</h3>
             <p>You have not created any auctions yet. Start your first listing to begin selling.</p>
-            <a href="{{ url_for('create_auction') }}" class="btn btn-trust mt-3">Create Auction</a>
+            <a href="{{ url_for('auction_create.create_auction') }}" class="btn btn-trust mt-3">Create Auction</a>
         </div>
     {% endif %}
 </section>

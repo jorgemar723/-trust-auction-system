@@ -57,7 +57,7 @@ def register():
             return redirect(url_for("index"))
         else:
             flash(f"Registration failed: {result['error']}", "danger")
-            return redirect(url_for("register"))
+            return redirect(url_for("auth.register"))
 
     return render_template("register.html")
 
