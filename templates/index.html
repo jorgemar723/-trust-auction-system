@@ -48,7 +48,7 @@
             </p>
 
             <div class="hero-buttons">
-                <a href="{{ url_for('create_auction') }}" class="btn btn-trust hero-btn">Create Listing</a>
+                <a href="{{ url_for('auction_create.create_auction') }}" class="btn btn-trust hero-btn">Create Listing</a>
                 <a href="{{ url_for('index') }}" class="btn btn-outline-light hero-btn">Browse Auctions</a>
             </div>
         {% else %}
@@ -58,7 +58,7 @@
             </p>
 
             <div class="hero-buttons">
-                <a href="{{ url_for('register') }}" class="btn btn-trust hero-btn">Register Now</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-trust hero-btn">Register Now</a>
                 <a href="{{ url_for('index') }}" class="btn btn-outline-light hero-btn">Browse Auctions</a>
             </div>
         {% endif %}
@@ -70,11 +70,11 @@
     <p>There are currently no active listings in the marketplace.</p>
 
     {% if session.get('user_id') %}
-        <a href="{{ url_for('create_auction') }}" class="btn btn-trust mt-3">
+        <a href="{{ url_for('auction_create.create_auction') }}" class="btn btn-trust mt-3">
             Create the First Listing
         </a>
     {% else %}
-        <a href="{{ url_for('register') }}" class="btn btn-trust mt-3">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-trust mt-3">
             Register to Start Selling
         </a>
     {% endif %}
@@ -92,7 +92,7 @@
             </p>
 
             <div class="hero-buttons">
-                <a href="{{ url_for('create_auction') }}" class="btn btn-trust hero-btn">Create Listing</a>
+                <a href="{{ url_for('auction_create.create_auction') }}" class="btn btn-trust hero-btn">Create Listing</a>
                 <a href="{{ url_for('index') }}" class="btn btn-outline-light hero-btn">Browse Auctions</a>
             </div>
         {% else %}
@@ -102,7 +102,7 @@
             </p>
 
             <div class="hero-buttons">
-                <a href="{{ url_for('register') }}" class="btn btn-trust hero-btn">Register Now</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-trust hero-btn">Register Now</a>
                 <a href="{{ url_for('index') }}" class="btn btn-outline-light hero-btn">Browse Auctions</a>
             </div>
         {% endif %}
