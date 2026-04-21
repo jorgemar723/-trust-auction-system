@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from db.PostgresDB import PostgresDB
 from backend.mainauction import create_new_auction as deploy_auction
 from werkzeug.utils import secure_filename
 from datetime import datetime, timezone
 from app.utils.datetime_utils import parse_local_datetime_to_utc
+from app.utils.s3_utils import upload_file_to_s3, delete_file_from_s3
 import os
 
 auction_create_bp = Blueprint("auction_create", __name__)
@@ -13,7 +14,7 @@ auction_create_bp = Blueprint("auction_create", __name__)
 def create_auction():
     if "user_id" not in session:
         flash("You must be logged in to create an auction.", "warning")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     if request.method == "POST":
         title = request.form.get("title")
@@ -21,15 +22,24 @@ def create_auction():
         starting_bid = float(request.form.get("starting_bid", 0))
         expires_at = request.form.get("expires_at")
 
+        bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
+        if not bucket_name:
+            flash('Server configuration error: S3 bucket is not configured.', 'danger')
+            return redirect(url_for("auction_create.create_auction"))
+
         images = request.files.getlist("images")
         image_urls = []
 
         for image in images:
             if image and image.filename:
-                filename = secure_filename(image.filename)
-                image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-                image.save(image_path)
-                image_urls.append(f"uploads/{filename}")
+                image_url = upload_file_to_s3(image, bucket_name)
+                if image_url:
+                    image_urls.append(image_url)
+                else:
+                    flash(f"Failed to upload image: {secure_filename(image.filename)}", "danger")
+                    # Fail fast if an image upload fails
+                    return redirect(url_for("auction_create.create_auction"))
+
 
         created_at = datetime.now(timezone.utc)
         seller_id = session["user_id"]
@@ -86,7 +96,7 @@ def create_auction():
 def edit_auction(auction_id):
     if "user_id" not in session:
         flash("You must be logged in to edit an auction.", "warning")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     db = PostgresDB()
     db.connect()
@@ -108,25 +118,31 @@ def edit_auction(auction_id):
         description = request.form.get("description")
 
         existing_images = raw_auction[4] if raw_auction[4] else []
+        bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
+
+        if not bucket_name:
+            flash('Server configuration error: S3 bucket not configured.', 'danger')
+            db.close()
+            return redirect(url_for("auction_create.edit_auction", auction_id=auction_id))
+
+        # Handle image deletions
         images_to_delete = request.form.getlist("delete_images")
-
         updated_images = [img for img in existing_images if img not in images_to_delete]
+        for url_to_delete in images_to_delete:
+            delete_file_from_s3(url_to_delete, bucket_name)
 
-        for image_path_to_delete in images_to_delete:
-            try:
-                full_path = os.path.join(current_app.root_path, 'static', image_path_to_delete)
-                if os.path.exists(full_path):
-                    os.remove(full_path)
-            except Exception as e:
-                print(f"Error deleting file {full_path}: {e}")
-
+        # Handle new image uploads
         new_images = request.files.getlist("images")
         for image in new_images:
             if image and image.filename:
-                filename = secure_filename(image.filename)
-                image_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-                image.save(image_path)
-                updated_images.append(f"uploads/{filename}")
+                image_url = upload_file_to_s3(image, bucket_name)
+                if image_url:
+                    updated_images.append(image_url)
+                else:
+                    flash(f"Failed to upload new image: {secure_filename(image.filename)}", "danger")
+                    db.close()
+                    return redirect(url_for("auction_create.edit_auction", auction_id=auction_id))
+
 
         success = db.update_auction(
             auction_id=auction_id,

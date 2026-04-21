@@ -33,7 +33,7 @@ user_auction_bp = Blueprint("user_auction", __name__)
 def my_auctions():
     if "user_id" not in session:
         flash("You must be logged in to view your auctions.", "warning")
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     db = PostgresDB()
     db.connect()

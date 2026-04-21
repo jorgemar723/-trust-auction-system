@@ -4,6 +4,7 @@ import bcrypt
 from dotenv import load_dotenv
 from backend.wallet_assignment import get_next_available_wallet_address
 
+from app.utils.s3_utils import delete_file_from_s3
 class PostgresDB:
     def __init__(self):
         load_dotenv()
@@ -306,17 +307,13 @@ class PostgresDB:
             cur.execute("DELETE FROM auctions WHERE auction_id = %s", (auction_id,))
             self.conn.commit()
             cur.close()
-
-            # 3. Delete the physical image files from the static/uploads folder
-            app_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            for url in image_urls:
-                if url.startswith("uploads/"):
-                    file_path = os.path.join(app_root, "static", url)
-                    try:
-                        if os.path.exists(file_path):
-                            os.remove(file_path)
-                    except Exception as e:
-                        print(f"Warning: Failed to delete image file {file_path}: {e}")
+            
+            # 3. Delete the associated objects from S3
+            bucket_name = os.environ.get("AWS_S3_BUCKET_NAME")
+            if bucket_name and image_urls:
+                for url in image_urls:
+                    # The delete utility will handle and print errors internally
+                    delete_file_from_s3(url, bucket_name)
                         
         except (psycopg2.DatabaseError, Exception) as error:
             print(f"Error deleting auction: {error}")

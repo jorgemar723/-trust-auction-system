@@ -43,7 +43,7 @@ def register():
 
         if not email or not password:
             flash("Email and password are required.", "danger")
-            return redirect(url_for("register"))
+            return redirect(url_for("auth.register"))
 
         db = PostgresDB()
         db.connect()
@@ -70,7 +70,7 @@ def login():
 
         if not email or not password:
             flash("Email and password are required.", "danger")
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
 
         db = PostgresDB()
         db.connect()
@@ -79,7 +79,7 @@ def login():
 
         if not user:
             flash("No account found with that email.", "danger")
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
 
         user_id, user_email, password_hash = user
 
@@ -90,7 +90,7 @@ def login():
             return redirect(url_for("index"))
         else:
             flash("Incorrect password.", "danger")
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
 
     return render_template("login.html")
 

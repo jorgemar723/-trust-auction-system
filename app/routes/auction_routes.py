@@ -111,7 +111,7 @@ def detail(auction_id):
         if "user_id" not in session:
             flash("You must be logged in to place a bid.", "warning")
             db.close()
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
 
         new_bid = float(request.form.get("bid_amount", 0))
         bidder_id = session["user_id"]

@@ -23,7 +23,7 @@
                     {% for img in auction.images %}
                     <div class="carousel-item {% if loop.first %}active{% endif %}">
                         <img
-                            src="{{ url_for('static', filename=img) }}"
+                            src="{{ auction.image }}"
                             class="d-block w-100"
                             alt="{{ auction.title }}"
                             style="max-height: 500px; object-fit: cover;"

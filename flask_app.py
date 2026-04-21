@@ -51,11 +51,6 @@ app.register_blueprint(watchlist_bp)
 app.register_blueprint(user_auction_bp)
 app.register_blueprint(auth_bp)
 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-
 @app.before_request
 def validate_session():
     # Ensure the user_id in the session is valid
