@@ -1,10 +1,11 @@
 <div class="col">
     <div class="card auction-card border-0 shadow-sm h-100">
-        
         <div class="card-img-container">
-            <img src="{{ url_for('static', filename=auction.image) }}" 
-                 class="card-img-top" 
-                 alt="{{ auction.title }}">
+            <img
+                src="{{ url_for('static', filename=auction.image) }}"
+                class="card-img-top"
+                alt="{{ auction.title }}"
+            >
         </div>
 
         <div class="card-body d-flex flex-column">
@@ -13,7 +14,7 @@
                     Lot ID: #{{ auction.id }}
                 </small>
 
-                <h5 class="card-title mt-2 mb-1" title="{{ auction.title }}">
+                <h5 class="card-title mt-2 mb-2" title="{{ auction.title }}">
                     {{ auction.title }}
                 </h5>
 
@@ -43,11 +44,10 @@
                     {% endif %}
                 </div>
 
-                <a href="/auction/{{ auction.id }}" class="btn btn-trust px-3">
+                <a href="{{ url_for('detail', auction_id=auction.id) }}" class="btn btn-trust px-3">
                     View Auction
                 </a>
             </div>
         </div>
-
     </div>
 </div>

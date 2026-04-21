@@ -1,19 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>My Auctions</h2>
-    {% if auctions %}
-    <div class="row">
-        {% for auction in auctions %}
-        <div class="col-md-4 mb-4">
-            {% include "auction_card.html" %}
-        </div>
-        {% endfor %}
+<section class="page-shell">
+    <div class="page-header mb-4">
+        <p class="page-eyebrow">SELLER DASHBOARD</p>
+        <h1 class="page-title">My Auctions</h1>
+        <p class="page-subtitle">
+            Manage your listings and track the auctions you have created on TRUST.
+        </p>
     </div>
+
+    {% if auctions %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for auction in auctions %}
+                {% include "auction_card.html" %}
+            {% endfor %}
+        </div>
     {% else %}
-    <p>You haven't created any auctions yet.</p>
-    <a href="{{ url_for('auction_create.create_auction') }}" class="btn btn-success">Create Auction</a>
+        <div class="ui-state empty-state">
+            <h3>No auctions created yet</h3>
+            <p>You have not created any auctions yet. Start your first listing to begin selling.</p>
+            <a href="{{ url_for('create_auction') }}" class="btn btn-trust mt-3">Create Auction</a>
+        </div>
     {% endif %}
-</div>
+</section>
 {% endblock %}

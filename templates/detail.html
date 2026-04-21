@@ -4,58 +4,89 @@
 
 <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Marketplace</a></li>
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('index') }}" class="text-decoration-none text-muted">Marketplace</a>
+        </li>
         <li class="breadcrumb-item active">{{ auction.title }}</li>
     </ol>
 </nav>
 
 <div class="row g-5">
+
+    <!-- LEFT SIDE -->
     <div class="col-lg-8">
+
+        <!-- Images -->
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
             <div id="auctionImageCarousel" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     {% for img in auction.images %}
                     <div class="carousel-item {% if loop.first %}active{% endif %}">
-                        <img src="{{ url_for('static', filename=img) }}" 
-                             class="d-block w-100" alt="{{ auction.title }}" 
-                             style="max-height: 500px; object-fit: cover;">
+                        <img
+                            src="{{ url_for('static', filename=img) }}"
+                            class="d-block w-100"
+                            alt="{{ auction.title }}"
+                            style="max-height: 500px; object-fit: cover;"
+                        >
                     </div>
                     {% endfor %}
                 </div>
+
                 {% if auction.images|length > 1 %}
                 <button class="carousel-control-prev" type="button" data-bs-target="#auctionImageCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
+                    <span class="carousel-control-prev-icon"></span>
                 </button>
                 <button class="carousel-control-next" type="button" data-bs-target="#auctionImageCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
+                    <span class="carousel-control-next-icon"></span>
                 </button>
                 {% endif %}
             </div>
+
             <div class="card-body p-4">
+
+                <!-- Title + Edit -->
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <h1 class="fw-bold mb-0">{{ auction.title }}</h1>
-                    {% if is_seller %}
-                       <a href="{{ url_for('auction_create.edit_auction', auction_id=auction.id) }}" class="btn btn-outline-secondary flex-shrink-0 ms-3">Edit Auction</a>
+
+                    {% if can_edit %}
+                        <a href="{{ url_for('edit_auction', auction_id=auction.id) }}"
+                           class="btn btn-trust-outline ms-3">
+                            Edit Auction
+                        </a>
                     {% endif %}
                 </div>
+
+                <!-- Description -->
                 <p class="text-muted lead">{{ auction.description }}</p>
-                <div class="d-flex gap-3 mt-4">
-                    <span class="badge bg-light text-dark border p-2">Condition: Mint</span>
-                    <span class="badge bg-light text-dark border p-2">ID: #00{{ auction.id }}</span>
+
+                <!-- Locked Notice -->
+                {% if is_seller and not can_edit %}
+                    <div class="alert alert-warning mt-3 mb-0">
+                        This listing is locked because bidding has already started.
+                    </div>
+                {% endif %}
+
+                <!-- Meta -->
+                <div class="d-flex gap-3 mt-4 flex-wrap">
+                    <span class="badge bg-light text-dark border p-2">Lot ID: #{{ auction.id }}</span>
+                    <span class="badge bg-light text-dark border p-2">
+                        Status: {{ auction.time_remaining == "Ended" and "Ended" or "Active" }}
+                    </span>
                 </div>
+
             </div>
         </div>
 
+        <!-- Bid History -->
         <h3 class="fw-bold mt-5 mb-3">Bid History</h3>
+
         <div class="table-responsive rounded-3 border bg-white shadow-sm">
             <table class="table table-hover mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th>Bidder Address</th>
+                        <th>Bidder</th>
                         <th>Amount</th>
-                        <th>Timestamp</th>
+                        <th>Time</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -65,20 +96,29 @@
                         <td class="font-monospace text-primary">{{ bid.user }}</td>
                         <td class="fw-bold">{{ bid.amount }}</td>
                         <td class="text-muted">{{ bid.time }}</td>
-                        <td><span class="badge bg-success-subtle text-success">{{ bid.status }}</span></td>
+                        <td>
+                            <span class="badge bg-success-subtle text-success">
+                                {{ bid.status }}
+                            </span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
     </div>
 
+    <!-- RIGHT SIDE -->
     <div class="col-lg-4">
+
         <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 100px; z-index: 1000;">
+
+            <!-- Price -->
             <div class="text-center mb-4">
                 <p class="text-muted mb-1">Current Highest Bid</p>
 
-                <h2 class="display-5 fw-bold text-dark">
+                <h2 class="display-5 fw-bold">
                     {{ auction.current_bid }} ETH
                 </h2>
 
@@ -89,158 +129,112 @@
                 {% endif %}
             </div>
 
-    <div class="bg-light rounded-3 p-3 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fw-bold text-uppercase small text-muted">Auction Status</span>
-            <span id="auction-status" class="badge bg-secondary">Loading...</span>
-        </div>
-        <div class="mb-2">
-            <div class="small text-muted">Time Remaining</div>
-            <div id="auction-countdown" class="fs-4 fw-bold text-dark font-monospace">--:--:--</div>
-        </div>
-        <div class="small text-muted">Chain Time</div>
-        <div id="chain-time-readable" class="small mb-2">Loading...</div>
-        <div class="small text-muted">Auction Ends</div>
-        <div id="auction-end-time-readable" class="small">Loading...</div>
-    </div>
-
-    <hr>
-
-            <form method="POST" class="mt-4">
-                <label class="form-label fw-bold small text-uppercase text-muted">Place Your Bid (ETH)</label>
-                <div class="input-group mb-3">
-                    <span class="input-group-text bg-white border-end-0">Ξ</span>
-                    <input type="number" name="bid_amount" class="form-control border-start-0 py-3" 
-                           placeholder="{{ auction.current_bid }}" 
-                           min="{{ auction.current_bid }}" 
-                           step="0.01" required>
+            <!-- Status -->
+            <div class="bg-light rounded-3 p-3 mb-4">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="small text-muted">Status</span>
+                    <span id="auction-status" class="badge bg-secondary">Loading...</span>
                 </div>
-                
-                <button type="submit" class="btn btn-dark w-100 py-3 fw-bold rounded-3 shadow-sm mb-2">
+
+                <div class="mb-2">
+                    <div class="small text-muted">Time Remaining</div>
+                    <div id="auction-countdown" class="fw-bold fs-4 font-monospace">--:--:--</div>
+                </div>
+
+                <div class="small text-muted">Ends At</div>
+                <div id="auction-end-time-readable" class="small">Loading...</div>
+            </div>
+
+            <!-- Bid Form -->
+            {% if auction.time_remaining != "Ended" %}
+            <form method="POST">
+                <label class="form-label fw-bold small text-uppercase text-muted">
+                    Place Bid (ETH)
+                </label>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Ξ</span>
+                    <input
+                        type="number"
+                        name="bid_amount"
+                        class="form-control"
+                        placeholder="{{ auction.current_bid }}"
+                        min="{{ auction.current_bid }}"
+                        step="0.01"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn btn-trust w-100 py-3 fw-bold mb-2">
                     Confirm Bid
                 </button>
-                
-                <a href="{{ url_for('watchlist.toggle_watchlist', auction_id=auction.id) }}"
-                    class="btn btn-{{ 'outline-danger' if is_watched else 'outline-secondary' }} w-100 py-2 fw-bold rounded-3 border-0">
+
+                <a href="{{ url_for('toggle_watchlist', auction_id=auction.id) }}"
+                   class="btn btn-trust-outline w-100">
                     {{ 'Remove from Watchlist' if is_watched else 'Add to Watchlist' }}
                 </a>
             </form>
+            {% else %}
+                <div class="text-center">
+                    <h5 class="text-danger">Auction Ended</h5>
+                    <p class="text-muted">Bidding is closed.</p>
+                </div>
+            {% endif %}
 
         </div>
+
     </div>
 </div>
 
+<!-- Countdown Script -->
 <script>
 (() => {
     const countdownEl = document.getElementById("auction-countdown");
     const statusEl = document.getElementById("auction-status");
-    const chainTimeEl = document.getElementById("chain-time-readable");
     const endTimeEl = document.getElementById("auction-end-time-readable");
 
-    if (!countdownEl || !statusEl || !chainTimeEl || !endTimeEl) {
-        return;
-    }
+    if (!countdownEl || !statusEl || !endTimeEl) return;
 
-    const stateUrl = "{{ url_for('auction.api_state', auction_id=auction.id) }}";
+    const stateUrl = "{{ url_for('api_state', auction_id=auction.id) }}";
     let auctionEndTime = null;
     let countdownTimer = null;
     let resyncTimer = null;
 
-    function formatDuration(totalSeconds) {
-        const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
-        const hours = Math.floor(safeSeconds / 3600);
-        const minutes = Math.floor((safeSeconds % 3600) / 60);
-        const seconds = safeSeconds % 60;
-
-        return [hours, minutes, seconds]
-            .map((value) => String(value).padStart(2, "0"))
-            .join(":");
+    function format(seconds) {
+        seconds = Math.max(0, seconds);
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+        return [h,m,s].map(v => String(v).padStart(2,'0')).join(':');
     }
 
-    function setStatus(status) {
-        const normalizedStatus = (status || "UNKNOWN").toUpperCase();
-        statusEl.textContent = normalizedStatus;
-
-        statusEl.classList.remove("bg-success", "bg-secondary", "bg-danger");
-
-        if (normalizedStatus === "OPEN") {
-            statusEl.classList.add("bg-success");
-        } else if (normalizedStatus === "CLOSED") {
-            statusEl.classList.add("bg-secondary");
-        } else {
-            statusEl.classList.add("bg-danger");
-        }
-    }
-
-    function renderCountdown() {
-    if (!auctionEndTime) {
-        countdownEl.textContent = "Unavailable";
-        return;
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    const remainingSeconds = Math.max(0, auctionEndTime - now);
-
-    countdownEl.textContent = formatDuration(remainingSeconds);
-
-    if (remainingSeconds <= 0) {
-        setStatus("CLOSED");
-
-        if (countdownTimer) {
-            window.clearInterval(countdownTimer);
-            countdownTimer = null;
-        }
-    }
-}
-
-    
-
-    async function loadAuctionState() {
+    async function loadState() {
         try {
-            const response = await fetch(stateUrl, {
-                headers: { "Accept": "application/json" }
-            });
+            const res = await fetch(stateUrl);
+            const data = await res.json();
 
-            const payload = await response.json();
+            if (!data.ok) throw new Error();
 
-            if (!response.ok || !payload.ok || !payload.data) {
-                throw new Error("Auction state request failed.");
-            }
+            const state = data.data;
 
-            const state = payload.data;
+            endTime = state.auction_end_time;
+            endTimeEl.textContent = state.auction_end_time_readable || "N/A";
 
-            chainTimeEl.textContent = state.chain_time_readable || "Unavailable";
-            endTimeEl.textContent = state.auction_end_time_readable || "Unavailable";
+            statusEl.textContent = state.status;
 
-            auctionEndTime = state.auction_end_time;
-            setStatus(state.status || "UNKNOWN");
+            setInterval(() => {
+                if (!endTime) return;
+                const now = Math.floor(Date.now()/1000);
+                countdownEl.textContent = format(endTime - now);
+            }, 1000);
 
-            renderCountdown();
-
-            if (!countdownTimer) {
-                countdownTimer = window.setInterval(renderCountdown, 1000);
-            }
-        } catch (error) {
-            console.error("Failed to load auction state:", error);
+        } catch {
             countdownEl.textContent = "Unavailable";
-            chainTimeEl.textContent = "Unavailable";
-            endTimeEl.textContent = "Unavailable";
-            setStatus("UNKNOWN");
         }
     }
 
-    loadAuctionState();
-    resyncTimer = window.setInterval(loadAuctionState, 30000);
-
-    window.addEventListener("beforeunload", () => {
-        if (countdownTimer) {
-            window.clearInterval(countdownTimer);
-        }
-
-        if (resyncTimer) {
-            window.clearInterval(resyncTimer);
-        }
-    });
+    loadState();
 })();
 </script>
+
 {% endblock %}

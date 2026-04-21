@@ -1,38 +1,52 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">Create New Auction</h4>
-            </div>
-            <div class="card-body">
-                <form action="{{ url_for('auction_create.create_auction') }}" method="POST" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="title" name="title" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="starting_bid" class="form-label">Starting Bid (ETH)</label>
-                        <input type="number" step="0.01" class="form-control" id="starting_bid" name="starting_bid" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="expires_at" class="form-label">Expiration Date</label>
-                        <input type="datetime-local" class="form-control" id="expires_at" name="expires_at" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="images" class="form-label">Item Images</label>
-                        <input type="file" class="form-control" id="images" name="images" accept="image/*" multiple required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Create Auction</button>
-                </form>
+<section class="page-shell">
+    <div class="page-header mb-4">
+        <p class="page-eyebrow">SELL ITEM</p>
+        <h1 class="page-title">Create Auction</h1>
+        <p class="page-subtitle">
+            List your item and start receiving bids securely through TRUST.
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 auth-card">
+                <div class="card-body p-4 p-md-5">
+                    <form action="{{ url_for('create_auction') }}" method="POST" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-semibold">Title</label>
+                            <input type="text" class="form-control form-control-lg rounded-3" id="title" name="title" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-semibold">Description</label>
+                            <textarea class="form-control rounded-3" id="description" name="description" rows="5" required></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="starting_bid" class="form-label fw-semibold">Starting Bid (ETH)</label>
+                            <input type="number" step="0.01" class="form-control form-control-lg rounded-3" id="starting_bid" name="starting_bid" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="expires_at" class="form-label fw-semibold">Expiration Date</label>
+                            <input type="datetime-local" class="form-control form-control-lg rounded-3" id="expires_at" name="expires_at" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="images" class="form-label fw-semibold">Item Images</label>
+                            <input type="file" class="form-control form-control-lg rounded-3" id="images" name="images" accept="image/*" multiple required>
+                        </div>
+
+                        <button type="submit" class="btn btn-trust w-100 py-3 fw-semibold">
+                            Create Auction
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 {% endblock %}
