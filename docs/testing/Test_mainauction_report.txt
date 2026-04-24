@@ -1,0 +1,106 @@
+ABI PATH: /home/biggie/TRUST/trust/Hardhat testing Node/artifacts/contracts/SimpleAuction.sol/SimpleAuction.json
+
+============================================================
+  Create auction + place bid
+============================================================
+EVENTS: (AttributeDict({'args': AttributeDict({'auctionAddress': '0xa16E02E87b7454126E5E10d957A927A7F5B5d2be', 'seller': '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'biddingTimeSeconds': 3600, 'endTime': 1777065646, 'startingBid': 500000000000000000, 'admin': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'confirmationWindow': 300}), 'event': 'AuctionCreated', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x7d74ef2ee3c5b33a74893089d35ed64fc58a0d12cd1e3875880504e65259341c'), 'address': '0x5FbDB2315678afecb367f032d93F642f64180aa3', 'blockHash': HexBytes('0x5ddbb78dd1dfeba86ec912a76b477a50a97ff23547a1fb7d8657603ed85cd376'), 'blockNumber': 2}),)
+
+  PASSED
+
+============================================================
+  Escrow: buyer confirms receipt
+============================================================
+EVENTS: (AttributeDict({'args': AttributeDict({'auctionAddress': '0xB7A5bd0345EF1Cc5E66bf61BdeC17D2461fBd968', 'seller': '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'biddingTimeSeconds': 60, 'endTime': 1777062108, 'startingBid': 500000000000000000, 'admin': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'confirmationWindow': 300}), 'event': 'AuctionCreated', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x1000f293f12e4c45b3598b1f605d7bfc20588fa5dccdfabaa0c5983ed10afd30'), 'address': '0x5FbDB2315678afecb367f032d93F642f64180aa3', 'blockHash': HexBytes('0xb8f10e31ff305af413ab56ec7c4e52657e27d6e52ffc986b5c77572ec3fdff94'), 'blockNumber': 4}),)
+
+  --- after endAuction ---
+  ended: True
+  escrow_amount: 1000000000000000000
+  buyer_confirmed: False
+  escrow_settled: False
+  refund_flagged: False
+
+  --- after confirmReceipt ---
+  ended: True
+  escrow_amount: 0
+  buyer_confirmed: True
+  escrow_settled: True
+  refund_flagged: False
+
+  PASSED
+
+============================================================
+  Escrow: seller claims after timeout
+============================================================
+EVENTS: (AttributeDict({'args': AttributeDict({'auctionAddress': '0xeEBe00Ac0756308ac4AaBfD76c05c4F3088B8883', 'seller': '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'biddingTimeSeconds': 60, 'endTime': 1777062173, 'startingBid': 500000000000000000, 'admin': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'confirmationWindow': 300}), 'event': 'AuctionCreated', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x7c14604c2fc32256c8ef6e9a81670874c2c10c1e9a2f751d3b94e1435d80debe'), 'address': '0x5FbDB2315678afecb367f032d93F642f64180aa3', 'blockHash': HexBytes('0xbd701e191746c53a76152c722581cffe62cda2b27ae0386cc8b8cdc01fae2cc5'), 'blockNumber': 9}),)
+
+  --- after window expires ---
+  ended: True
+  escrow_amount: 1000000000000000000
+  buyer_confirmed: False
+  escrow_settled: False
+  refund_flagged: False
+
+  --- after claimAfterTimeout ---
+  ended: True
+  escrow_amount: 0
+  buyer_confirmed: False
+  escrow_settled: True
+  refund_flagged: False
+
+  PASSED
+
+============================================================
+  Escrow: admin flags refund + bidder withdraws
+============================================================
+EVENTS: (AttributeDict({'args': AttributeDict({'auctionAddress': '0x10C6E9530F1C1AF873a391030a1D9E8ed0630D26', 'seller': '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'biddingTimeSeconds': 60, 'endTime': 1777062539, 'startingBid': 500000000000000000, 'admin': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'confirmationWindow': 300}), 'event': 'AuctionCreated', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0xdb9257de5f7abe7874043c5d2d598ac5913862235afd13a8ca24b7bda5b0f6e7'), 'address': '0x5FbDB2315678afecb367f032d93F642f64180aa3', 'blockHash': HexBytes('0x432e1983dea43307cc668d3bdcb10d6d1e3bbed374c9a1381d8cbce260bb0104'), 'blockNumber': 15}),)
+
+  --- after flagRefund ---
+  ended: True
+  escrow_amount: 0
+  buyer_confirmed: False
+  escrow_settled: True
+  refund_flagged: True
+
+  pendingReturns[BIDDER]: 1 ETH
+  Withdrawn: 1.0 ETH
+  Bidder net (approx, minus gas): +0.999969110441800164 ETH
+
+  PASSED
+
+============================================================
+  Escrow: time remaining for confirmation
+============================================================
+EVENTS: (AttributeDict({'args': AttributeDict({'auctionAddress': '0x603E1BD79259EbcbAaeD0c83eeC09cA0B89a5bcC', 'seller': '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'biddingTimeSeconds': 60, 'endTime': 1777062605, 'startingBid': 500000000000000000, 'admin': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'confirmationWindow': 300}), 'event': 'AuctionCreated', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x42d4668ca44c0fe5f6e8e6e00db54fb2f62efc1b7cd2d7a5dcd90b0cd37cfd76'), 'address': '0x5FbDB2315678afecb367f032d93F642f64180aa3', 'blockHash': HexBytes('0x184c35b1280dac73f541c800ffdfcdccf1ba2935c8a18a95efdd2c676a27df78'), 'blockNumber': 21}),)
+
+  seconds_remaining (open): 300s
+  seconds_remaining (settled): 0s
+
+  PASSED
+
+============================================================
+  Guard: confirmReceipt blocked after settled
+============================================================
+EVENTS: (AttributeDict({'args': AttributeDict({'auctionAddress': '0x86337dDaF2661A069D0DcB5D160585acC2d15E9a', 'seller': '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'biddingTimeSeconds': 60, 'endTime': 1777062670, 'startingBid': 500000000000000000, 'admin': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'confirmationWindow': 300}), 'event': 'AuctionCreated', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0x084032a8876e5e362551ce3737e65ced3783d0f0e9270e14ec799d05454d7b49'), 'address': '0x5FbDB2315678afecb367f032d93F642f64180aa3', 'blockHash': HexBytes('0x553d332fe2f758de9434904aff836ad56bf33cc6dc47b92b08fbf91d84159bef'), 'blockNumber': 26}),)
+  Correctly blocked: ContractLogicError
+
+  PASSED
+
+============================================================
+  Guard: flagRefund blocked after settled
+============================================================
+EVENTS: (AttributeDict({'args': AttributeDict({'auctionAddress': '0x9CfA6D15c80Eb753C815079F2b32ddEFd562C3e4', 'seller': '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'biddingTimeSeconds': 60, 'endTime': 1777062735, 'startingBid': 500000000000000000, 'admin': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'confirmationWindow': 300}), 'event': 'AuctionCreated', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0xf976001a4f82dbd350028852aa084cdf3af85b6ee3ae78efee0f018b0b029365'), 'address': '0x5FbDB2315678afecb367f032d93F642f64180aa3', 'blockHash': HexBytes('0x0182d014d3425e917f0a5a01a1ea9d2b7ff759355e188d819d38fee7b3ceec9c'), 'blockNumber': 31}),)
+  Correctly blocked: ContractLogicError
+
+  PASSED
+
+============================================================
+  Guard: claimAfterTimeout blocked before window
+============================================================
+EVENTS: (AttributeDict({'args': AttributeDict({'auctionAddress': '0x427f7c59ED72bCf26DfFc634FEF3034e00922DD8', 'seller': '0x70997970C51812dc3A010C7d01b50e0d17dc79C8', 'biddingTimeSeconds': 60, 'endTime': 1777062800, 'startingBid': 500000000000000000, 'admin': '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266', 'confirmationWindow': 300}), 'event': 'AuctionCreated', 'logIndex': 0, 'transactionIndex': 0, 'transactionHash': HexBytes('0xb1ec4a96290712eae99840615296ab94acdf8ccb0912eb393b6abf611db018f9'), 'address': '0x5FbDB2315678afecb367f032d93F642f64180aa3', 'blockHash': HexBytes('0x409bd960028b305fc715183a4e555ffcc737db9746dd2c2f3fcc25d2bfa0e9bd'), 'blockNumber': 36}),)
+  Correctly blocked: ContractLogicError
+
+  PASSED
+
+============================================================
+  Results: 8 passed, 0 failed
+============================================================
