@@ -3,38 +3,16 @@ auth_routes.py
 
 Purpose:
     Handles user authentication and session management.
-
-    This module processes login, registration, and logout requests.
-    It manages session state for authenticated users.
-
-Responsibilities:
-    - User registration
-    - User login
-    - User logout
-    - Session management
-
-System Position:
-
-    Flask HTTP Layer (modular routes)
-        ├── auction_routes.py
-        ├── auction_create_routes.py
-        ├── watchlist_routes.py
-        ├── user_auction_routes.py
-        └── auth_routes.py  ← THIS FILE
-
-    This module is part of the Flask routing layer and handles
-    authentication-related HTTP requests.
-
-    Delegates data access to the database layer (PostgresDB).
 """
 
 from flask import Blueprint, render_template, redirect, url_for, flash, session, request
-from db.PostgresDB import PostgresDB
+from db.repository_factory import get_user_repository
 import bcrypt
+
 
 auth_bp = Blueprint("auth", __name__)
 
-# ================= REGISTER =================
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -45,23 +23,21 @@ def register():
             flash("Email and password are required.", "danger")
             return redirect(url_for("auth.register"))
 
-        db = PostgresDB()
-        db.connect()
-        result = db.create_user(email, password)
-        db.close()
+        user_repo = get_user_repository()
+        result = user_repo.create_user(email, password)
 
         if result["success"]:
             session["user_id"] = result["user_id"]
             session["user_email"] = email
             flash("Account created successfully.", "success")
             return redirect(url_for("index"))
-        else:
-            flash(f"Registration failed: {result['error']}", "danger")
-            return redirect(url_for("auth.register"))
+
+        flash(f"Registration failed: {result['error']}", "danger")
+        return redirect(url_for("auth.register"))
 
     return render_template("register.html")
 
-# ================= LOGIN =================
+
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -72,10 +48,8 @@ def login():
             flash("Email and password are required.", "danger")
             return redirect(url_for("auth.login"))
 
-        db = PostgresDB()
-        db.connect()
-        user = db.get_user_by_email(email)
-        db.close()
+        user_repo = get_user_repository()
+        user = user_repo.get_user_by_email(email)
 
         if not user:
             flash("No account found with that email.", "danger")
@@ -88,13 +62,13 @@ def login():
             session["user_email"] = user_email
             flash("Login successful!", "success")
             return redirect(url_for("index"))
-        else:
-            flash("Incorrect password.", "danger")
-            return redirect(url_for("auth.login"))
+
+        flash("Incorrect password.", "danger")
+        return redirect(url_for("auth.login"))
 
     return render_template("login.html")
 
-# ================= LOGOUT =================
+
 @auth_bp.route("/logout")
 def logout():
     session.clear()

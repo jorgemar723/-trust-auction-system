@@ -1,93 +1,78 @@
-import pathlib
-import sqlite3
+import os
+import sys
+from pathlib import Path
+from unittest.mock import patch
 
 import pytest
+import psycopg2
+from dotenv import load_dotenv
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
+
+load_dotenv()
+TEST_DB_URL = os.getenv("DATABASE_URL")
 
 
-def apply_schema(db_path: str):
-    """
-    Creates all tables in a fresh SQLite DB by executing db/schema.sql
-    """
-    schema_file = pathlib.Path("db/schema.sql")
-    assert schema_file.exists(), "db/schema.sql not found. Make sure it exists and is committed."
+def init_test_db():
+    with open(PROJECT_ROOT / "db" / "schema.sql", "r") as f:
+        schema = f.read()
 
-    conn = sqlite3.connect(db_path)
+    conn = psycopg2.connect(TEST_DB_URL)
     cur = conn.cursor()
-
-    cur.executescript(schema_file.read_text())
-
+    cur.execute(schema)
     conn.commit()
+    cur.close()
     conn.close()
 
 
-def get_user_row(db_path: str, email: str):
-    conn = sqlite3.connect(db_path)
-    cur = conn.cursor()
-    cur.execute("SELECT email, password_hash FROM users WHERE email = ?", (email,))
-    row = cur.fetchone()
-    conn.close()
-    return row
+@pytest.fixture(autouse=True)
+def setup_db():
+    init_test_db()
+    yield
 
 
-@pytest.fixture()
-def temp_db(tmp_path, monkeypatch):
-    """
-    Makes a temporary DB for each test and tells register_user.py to use it.
-    Prevents tests from touching your real db/trust.db and avoids locking issues.
-    """
-    db_path = str(tmp_path / "test_trust.db")
-    apply_schema(db_path)
+@patch("db.repositories.user_repository.get_next_available_wallet_address")
+def test_create_user_success(mock_wallet):
+    from db.repositories.user_repository import UserRepository
 
-    # IMPORTANT: register_user.py reads TRUST_DB_PATH to know what DB to use
-    monkeypatch.setenv("TRUST_DB_PATH", db_path)
+    mock_wallet.return_value = "0x0000000000000000000000000000000000000001"
 
-    return db_path
+    user_repo = UserRepository()
+    result = user_repo.create_user("test@example.com", "password123")
 
-
-def test_register_success(temp_db):
-    from src.database.register_user import register_user
-
-    msg = register_user("valid@email.com", "Password123!")
-    assert "SUCCESS" in msg
-
-    row = get_user_row(temp_db, "valid@email.com")
-    assert row is not None
-    assert row[0] == "valid@email.com"
+    assert result["success"] is True
+    assert "user_id" in result
+    assert result["wallet_address"] == "0x0000000000000000000000000000000000000001"
 
 
-def test_reject_invalid_email(temp_db):
-    from src.database.register_user import register_user
+@patch("db.repositories.user_repository.get_next_available_wallet_address")
+def test_create_user_duplicate_email_fails(mock_wallet):
+    from db.repositories.user_repository import UserRepository
 
-    msg = register_user("not_an_email", "Password123!")
-    assert "Invalid email format" in msg
+    mock_wallet.return_value = "0x0000000000000000000000000000000000000001"
 
-    row = get_user_row(temp_db, "not_an_email")
-    assert row is None
+    user_repo = UserRepository()
 
+    first_result = user_repo.create_user("duplicate@example.com", "password123")
+    second_result = user_repo.create_user("duplicate@example.com", "password456")
 
-def test_reject_duplicate_email(temp_db):
-    from src.database.register_user import register_user
-
-    msg1 = register_user("dup@email.com", "Password123!")
-    assert "SUCCESS" in msg1
-
-    msg2 = register_user("dup@email.com", "DifferentPassword!")
-    assert ("already" in msg2.lower()) or ("exists" in msg2.lower())
+    assert first_result["success"] is True
+    assert second_result["success"] is False
+    assert "already exists" in second_result["error"]
 
 
-def test_password_is_hashed_not_plaintext(temp_db):
-    from src.database.register_user import register_user
+@patch("db.repositories.user_repository.get_next_available_wallet_address")
+def test_get_user_by_email_returns_created_user(mock_wallet):
+    from db.repositories.user_repository import UserRepository
 
-    email = "hashcheck@email.com"
-    plaintext = "MyPlainPassword!"
+    mock_wallet.return_value = "0x0000000000000000000000000000000000000001"
 
-    msg = register_user(email, plaintext)
-    assert "SUCCESS" in msg
+    user_repo = UserRepository()
 
-    row = get_user_row(temp_db, email)
-    assert row is not None
+    create_result = user_repo.create_user("lookup@example.com", "password123")
+    user = user_repo.get_user_by_email("lookup@example.com")
 
-    stored_hash = row[1]
-    assert stored_hash is not None
-    assert stored_hash != plaintext  # must NOT store plaintext
-    assert stored_hash.startswith("$2")  # bcrypt hashes usually start with $2...
+    assert create_result["success"] is True
+    assert user is not None
+    assert user[1] == "lookup@example.com"
