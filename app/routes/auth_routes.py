@@ -6,8 +6,7 @@ Purpose:
 """
 
 from flask import Blueprint, render_template, redirect, url_for, flash, session, request
-from db.repository_factory import get_user_repository
-import bcrypt
+from src.services.auth_service import AuthService
 
 
 auth_bp = Blueprint("auth", __name__)
@@ -23,9 +22,8 @@ def register():
             flash("Email and password are required.", "danger")
             return redirect(url_for("auth.register"))
 
-        user_repo = get_user_repository()
-        result = user_repo.create_user(email, password)
-
+        result = AuthService.register_user(email, password)
+        
         if result["success"]:
             session["user_id"] = result["user_id"]
             session["user_email"] = email
@@ -48,20 +46,16 @@ def login():
             flash("Email and password are required.", "danger")
             return redirect(url_for("auth.login"))
 
-        user_repo = get_user_repository()
-        user = user_repo.get_user_by_email(email)
-
-        if not user:
-            flash("No account found with that email.", "danger")
-            return redirect(url_for("auth.login"))
-
-        user_id, user_email, password_hash = user
-
-        if bcrypt.checkpw(password.encode("utf-8"), password_hash.encode("utf-8")):
-            session["user_id"] = user_id
-            session["user_email"] = user_email
+        result = AuthService.login_user(email, password)
+        
+        if result["success"]:
+            session["user_id"] = result["user_id"]
+            session["user_email"] = result["user_email"]
             flash("Login successful!", "success")
             return redirect(url_for("index"))
+        else:
+            flash(result["error"], "danger")
+            return redirect(url_for("auth.login"))
 
         flash("Incorrect password.", "danger")
         return redirect(url_for("auth.login"))

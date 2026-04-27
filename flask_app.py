@@ -42,6 +42,8 @@ from db.repositories.user_repository import UserRepository
 from db.repositories.auction_repository import AuctionRepository
 
 from src.services.pricing_service import get_current_eth_usd_price
+from src.services.auction_service import AuctionService
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from backend.remote_controls.wallet import get_wallet_balance
 
 from app.routes.auction_routes import auction_bp
@@ -110,43 +112,12 @@ def error_json(code: str, message: str, details: str | None = None, http_status:
 
 @app.route("/")
 def index():
-    auction_repo = AuctionRepository()
-
     loading = False
     error_message = None
     formatted_auctions = []
 
     try:
-        raw_auctions = auction_repo.get_auctions()
-
-        try:
-            eth_price = get_current_eth_usd_price()
-        except Exception:
-            eth_price = None
-
-        for row in raw_auctions:
-            images = row[4]
-            image_url = images[0] if images and len(images) > 0 else ""
-
-            current_bid = row[9] if row[9] is not None else row[8]
-
-            current_bid_usd = None
-            if eth_price is not None:
-                try:
-                    current_bid_usd = round(float(current_bid) * float(eth_price), 2)
-                except Exception:
-                    current_bid_usd = None
-
-            formatted_auctions.append({
-                "id": row[0],
-                "title": row[2],
-                "description": row[3],
-                "image": image_url,
-                "current_bid": float(current_bid),
-                "current_bid_usd": current_bid_usd,
-                "time_remaining": format_time_remaining(row[6]),
-            })
-
+        formatted_auctions = AuctionService.get_all_auctions_formatted()
     except Exception as e:
         print("INDEX ERROR:", e)
         error_message = "Failed to load auctions."

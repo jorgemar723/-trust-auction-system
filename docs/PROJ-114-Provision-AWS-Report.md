@@ -57,7 +57,7 @@ cd trust
 source .venv/bin/activate
 
 # 3. Start the multi-process application (Hardhat + Flask)
-python start_app.py
+python scripts/start_app.py
 ```
 
 The application will compile the smart contracts, initialize the database, and start the Flask web server. It can then be accessed securely in a web browser using the EC2 instance's Public IPv4 address:

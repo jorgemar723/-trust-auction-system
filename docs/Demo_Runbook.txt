@@ -25,7 +25,7 @@ cd "Hardhat testing Node"
 source venv/bin/activate
 python flask_app.py
 Optional:
-python start_app.py
+python scripts/start_app.py
 
 app runs @:
 http://127.0.0.1:8000
