@@ -186,6 +186,42 @@ Nathan Carlson: "Set up database structure and logic for auctions/bids and imple
 - Continue refining UI styling and web app features
 - Unit test database code
 
+## Sprint 3
+
+### Contributions
+
+Jorge Martinez-Lopez: “Integrated ETH to USD pricing into the backend using an external API, extended auction state handling for display-ready data, implemented backend unit tests using pytest, and contributed to refactoring efforts by aligning backend logic with the new service and routing structure.”
+
+- Jira Task: Integrate ETH to USD API
+	- PROJ-122 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/9b7a450df7fe5522e0a2d26eec927bc87d83c0f4/?at=feature%2FPROJ-122-integrate-eth-usd-api)
+
+- Jira Task: Extend backend response to include USD value
+	- PROJ-124, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/9cb0699411778d413821690f90efa1139b59f3b1/?at=feature%2FPROJ-124-extend-backend-response-usd)
+
+- Jira Task: Add USD pricing display logic at the Flask layer with proper fallback handling
+	- PROJ-125, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/f1236394c6730473ee41d52fea5add0d975c440d/?at=feature%2FPROJ-125-pricing-fallback-validation)
+
+- Jira Task: Display user wallet balance after login
+	- PROJ-133, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/db54e672a45857007d16a04f46cad755d15542a9/?at=feature%2FPROJ-133-display-wallet-balance)
+
+- Jira Task: Change flask_app.py to follow SRP
+	- PROJ-118, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/618e6180af0154e24935ce13b6e20dc1b1b9f5c9/?at=feature%2FPROJ-118-srp-refactor-flask-routes)
+
+- Jira Task: Update backend tests for pricing integration behavior
+	- PROJ-126, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/69b7c40f86caf434b3375e06242ffd7addcfd7a6/?at=feature%2FPROJ-126-backend-tests-pricing)
+
+# Sprint 3 - Next Steps
+
+### Jorge Martinez-Lopez
+
+- Further standardize backend service responses to ensure consistent data contracts across routes and services  
+- Expand backend test coverage to include repository and service layers  
+- Improve error handling and validation across authentication and auction flows  
+- Refine integration between backend services and external APIs (e.g., pricing)  
+- Continue improving modular architecture between routes, services, and blockchain components  
+
+
+
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
 <!-- If you have screenshots you'd like to share, include them here. -->
