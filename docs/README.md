@@ -210,6 +210,26 @@ Jorge Martinez-Lopez: “Integrated ETH to USD pricing into the backend using an
 - Jira Task: Update backend tests for pricing integration behavior
 	- PROJ-126, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/src/69b7c40f86caf434b3375e06242ffd7addcfd7a6/?at=feature%2FPROJ-126-backend-tests-pricing)
 
+Kristian Parra: “Contributed to frontend and backend improvements focused on UI consistency, navigation, and application structure. Improved marketplace visuals, implemented UI states (loading, empty, error), refined navigation and authentication flow, and refactored backend components to better follow software design principles such as SRP.”
+
+- Jira Task: Refactor Database Access Layer (SRP)  
+  - PROJ-120, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/9e7bbce6359b25a8f8741e92fe6fcd558acb51c7)
+
+- Jira Task: Improve Auction Card Layout  
+  - PROJ-128, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/pull-requests/32/overview)
+
+- Jira Task: Refine Navbar and Navigation UI  
+  - PROJ-129, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/217784a865609f7db77af8d7ff5e2733ceff8561)
+
+- Jira Task: Add Loading, Empty, and Error UI States  
+  - PROJ-130, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/6a1b7736e0e538242bc79c7da5a3760f0ac600e7)
+
+- Jira Task: Improve UI Theme Consistency  
+  - PROJ-131, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/429ff7f4273dacc9b8cb453221595f4bc9866260)
+
+- Jira Task: Enhance Marketplace Price Display  
+  - PROJ-132, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/d6a43d57c8dfed00c7a87fe499d2e123af721cea)
+
 # Sprint 3 - Next Steps
 
 ### Jorge Martinez-Lopez
@@ -219,8 +239,12 @@ Jorge Martinez-Lopez: “Integrated ETH to USD pricing into the backend using an
 - Improve error handling and validation across authentication and auction flows  
 - Refine integration between backend services and external APIs (e.g., pricing)  
 - Continue improving modular architecture between routes, services, and blockchain components  
-
-
+### Kristian Parra
+- Continue improving UI responsiveness and consistency across all pages  
+- Expand UI states to handle more edge cases and improve user feedback  
+- Assist in further modularizing backend architecture  
+- Improve integration between frontend templates and backend data  
+- Increase testing coverage for UI and user interaction flows  
 
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
