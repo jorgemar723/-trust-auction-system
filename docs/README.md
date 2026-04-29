@@ -230,6 +230,26 @@ Kristian Parra: “Contributed to frontend and backend improvements focused on U
 - Jira Task: Enhance Marketplace Price Display  
   - PROJ-132, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/commits/d6a43d57c8dfed00c7a87fe499d2e123af721cea)
 
+Nathan Carlson: "Hosted the flask server, etherium testnet, and image storage on AWS, refactored codebase to decouple business logic from unrelated files."
+
+- Jira Task: Research and Select the Best services to run TRUST
+	- PROJ-113 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-113-research-and-select-the-best-se)
+
+- Jira Task: Provision AWS infrastructure and configure environment dependencies
+	- PROJ-114 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-114-provision-aws-infrastructure)
+
+- Jira Task: Deploy Flask App and Hardhat Node with background process management
+	- PROJ-115 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-115-deploy-flask-app)
+
+- Jira Task: Configure persistent storage for user-uploaded auction images
+	- PROJ-116 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-116-configure-persistent-storage)
+
+- Jira Task: Extract Business Logic into a Service Layer
+	- PROJ-119 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-119-extract-business-logic)
+
+- Jira Task: Verify system stability and ensure no regressions post-refactoring
+	- PROJ-121 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-121-verify-system-stability-and-ens)
+
 # Sprint 3 - Next Steps
 
 ### Jorge Martinez-Lopez
@@ -238,13 +258,21 @@ Kristian Parra: “Contributed to frontend and backend improvements focused on U
 - Expand backend test coverage to include repository and service layers  
 - Improve error handling and validation across authentication and auction flows  
 - Refine integration between backend services and external APIs (e.g., pricing)  
-- Continue improving modular architecture between routes, services, and blockchain components  
+- Continue improving modular architecture between routes, services, and blockchain components 
+
 ### Kristian Parra
+
 - Continue improving UI responsiveness and consistency across all pages  
 - Expand UI states to handle more edge cases and improve user feedback  
 - Assist in further modularizing backend architecture  
 - Improve integration between frontend templates and backend data  
 - Increase testing coverage for UI and user interaction flows  
+
+### Nathan Carlson
+
+- Explore better cloud architecture solutions to improve performance under high loads
+- Add more comprehensive testing to minimize breaking the main branch with unexpected bugs
+- Polish UI further
 
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
