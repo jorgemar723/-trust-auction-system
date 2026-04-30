@@ -249,6 +249,17 @@ Nathan Carlson: "Hosted the flask server, etherium testnet, and image storage on
 
 - Jira Task: Verify system stability and ensure no regressions post-refactoring
 	- PROJ-121 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-121-verify-system-stability-and-ens)
+	Robert Krause- Create escrow smart contract logic, Create escrow.py files, refactor mainauction.py /remot_controls and smart contracts to follow SOLID
+	Jira Task:Create Pipeline to blockchain for starting bid input field
+	-PROJ-107 [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-107-create-pipeline-to-blockchain-f
+	Jira Task:Create Escrow logic module for auction smart contracts
+	-PROJ-108: [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-108-create-escrow-logic-module-for-
+	Jira Task:Create Remote control.py for escrow logic
+	-PROJ-110: [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-110-create-remote-control.py-for-es
+	Jira Task:Refactor smart contracts to mirror python back end folder structure
+	-PROJ-109: [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-109-refactor-smart-contracts-to-mir
+	Jira Task:Modify Mainauction.py to use escrow functions
+	-PROJ-111: [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-110-create-remote-control.py-for-es
 
 # Sprint 3 - Next Steps
 
