@@ -1,6 +1,7 @@
 # TRUST — Transparent Register for Unbiased Sales & Trades
-> Online auction platform that uses blockchain (smart contracts) to manage auction logic and ensure transparent bidding. Built with Python (Flask), Solidity, and PostgreSQL. Designed for security-minded users as an alternative to traditional auction platforms with stronger guarantees around transaction integrity and fraud prevention. We are developing this for security-minded individuals, as an alternative to auction houses that don't offer comprehensive fraud protection and security. This project will impact users by offering a safe place to shop and auction their personal items. Built by Nathan Carlson, Jorge Martinez-Lopez, Joseph Krabe, Kristian Parra, and Robert Krause.
-> Live demo [_here_](https://www.example.com). <!-- If you have the project hosted somewhere, include the link here. -->
+> Online auction platform that uses blockchain (smart contracts) to manage auction logic and ensure transparent bidding. Built with Python (Flask), Solidity, and PostgreSQL. Designed for security-minded users as an alternative to traditional auction platforms with stronger guarantees around transaction integrity and fraud prevention. We are developing this for security-minded individuals, as an alternative to auction houses that don't offer comprehensive fraud protection and security. This project will impact users by offering a safe place to shop and auction their personal items. Built by Nathan Carlson, Jorge Martinez-Lopez, Kristian Parra, and Robert Krause.
+
+---
 
 ## Table of Contents
 * [General Info](#general-information)
@@ -15,6 +16,7 @@
 * [Contact](#contact)
 <!-- * [License](#license) -->
 
+---
 
 ## General Information
 
@@ -24,6 +26,7 @@
 	- We wanted to explore blockchain-based system design and demonstrate how smart contracts can increase trust in digital marketplaces
 <!-- You don't have to answer all the questions - just the ones relevant to your project. -->
 
+---
 
 ## Technologies Used
 - Python (Flask) → backend server and API
@@ -34,6 +37,7 @@
 - HTML/CSS → frontend UI
 - JSON-RPC → communication with blockchain
 
+---
 
 # Features
 
@@ -107,6 +111,7 @@ Nathan: “Created local flask-powered web app that allows users to interact wit
 	- [PROJ-73](https://cs3398-bith-s26new.atlassian.net/browse/PROJ-73)
 	- [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/feature/PROJ-73-auction-detail-page-bidding-inte)
 
+---
 
 # Sprint 1 - Next Steps
 
@@ -126,6 +131,8 @@ Nathan: “Created local flask-powered web app that allows users to interact wit
 - Implement auction db
 - Connect auction db to flask app
 - Test database connections
+
+---
 
 ## Sprint 2
 
@@ -169,6 +176,8 @@ Nathan Carlson: "Set up database structure and logic for auctions/bids and imple
 - Jira Task: Create my auctions page
 	- PROJ-103, [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-103-create-my-auctions-page)
 
+---
+
 # Sprint 2 - Next Steps
 
 ### Jorge Martinez-Lopez
@@ -185,6 +194,8 @@ Nathan Carlson: "Set up database structure and logic for auctions/bids and imple
 - Refactor project to follow SOLID Principles better
 - Continue refining UI styling and web app features
 - Unit test database code
+
+---
 
 ## Sprint 3
 
@@ -247,19 +258,22 @@ Nathan Carlson: "Hosted the flask server, etherium testnet, and image storage on
 - Jira Task: Extract Business Logic into a Service Layer
 	- PROJ-119 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-119-extract-business-logic)
 
+Robert Krause- Create escrow smart contract logic, Create escrow.py files, refactor mainauction.py /remot_controls and smart contracts to follow SOLID
+
 - Jira Task: Verify system stability and ensure no regressions post-refactoring
 	- PROJ-121 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/%7Be38c57da-8fd4-47c5-b10e-a639dfbf9bee%7D/branch/feature/PROJ-121-verify-system-stability-and-ens)
-	Robert Krause- Create escrow smart contract logic, Create escrow.py files, refactor mainauction.py /remot_controls and smart contracts to follow SOLID
-	Jira Task:Create Pipeline to blockchain for starting bid input field
-	-PROJ-107 [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-107-create-pipeline-to-blockchain-f
-	Jira Task:Create Escrow logic module for auction smart contracts
-	-PROJ-108: [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-108-create-escrow-logic-module-for-
-	Jira Task:Create Remote control.py for escrow logic
-	-PROJ-110: [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-110-create-remote-control.py-for-es
-	Jira Task:Refactor smart contracts to mirror python back end folder structure
-	-PROJ-109: [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-109-refactor-smart-contracts-to-mir
-	Jira Task:Modify Mainauction.py to use escrow functions
-	-PROJ-111: [Bitbucket] https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-110-create-remote-control.py-for-es
+- Jira Task: Create Pipeline to blockchain for starting bid input field
+	- PROJ-107 [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-107-create-pipeline-to-blockchain-f)
+- Jira Task:Create Escrow logic module for auction smart contracts
+	- PROJ-108: [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-108-create-escrow-logic-module-for-)
+- Jira Task:Create Remote control.py for escrow logic
+	- PROJ-110: [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-110-create-remote-control.py-for-es)
+- Jira Task:Refactor smart contracts to mirror python back end folder structure
+	- PROJ-109: [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-109-refactor-smart-contracts-to-mir)
+- Jira Task:Modify Mainauction.py to use escrow functions
+	- PROJ-111: [Bitbucket](https://bitbucket.org/cs3398-bith-s26/trust/branch/PROJ-110-create-remote-control.py-for-es)
+
+---
 
 # Sprint 3 - Next Steps
 
@@ -287,8 +301,8 @@ Nathan Carlson: "Hosted the flask server, etherium testnet, and image storage on
 
 ## Screenshots
 ![Example screenshot](./img/Trust logo with shield and checkmark.png)
-<!-- If you have screenshots you'd like to share, include them here. -->
 
+---
 
 ## Setup
 
@@ -343,41 +357,111 @@ DATABASE_URL=your_database_connection_string
 python start_app.py
 ```
 
+---
+
 ## Usage
-How does one go about using it?
-Provide various use cases and code examples here.
 
-`write-your-code-here`
+### Accessing the Application (AWS Deployment)
 
+The application is deployed on an AWS EC2 instance and can be accessed using:
+
+```
+http://<EC2-PUBLIC-IP>:8000
+```
+---
+
+### Running Locally (Development Mode)
+
+To run the full system locally:
+
+```
+python start_app.py
+```
+
+This script initializes:
+
+* Flask backend server
+* Hardhat local blockchain node
+* Smart contract deployment
+
+Then open:
+
+```
+http://127.0.0.1:5000
+```
+
+---
+
+## Running on AWS EC2 (Manual Setup)
+
+1. SSH into the EC2 instance:
+
+```
+ssh -i trust-key.pem ubuntu@<EC2-PUBLIC-IP>
+```
+
+2. Navigate to the project:
+
+```
+cd trust
+```
+
+3. Activate virtual environment:
+
+```
+source .venv/bin/activate
+```
+
+4. Start the application:
+
+```
+python scripts/start_app.py
+```
+
+---
+
+## Example Use Cases
+
+* User registration and login
+* Creating blockchain-backed auctions
+* Placing bids with wallet validation
+* Viewing real-time auction state (ETH + USD)
+* Escrow-based transaction handling
+
+---
 
 ## Project Status
-Project is: In Progress
+Project is: Completed (Deployed on AWS)
+
+The application is fully functional with blockchain integration, backend services, and cloud deployment. Future work would focus on scalability, security, and production readiness.
+
+---
 
 ## Room for Improvement
-Include areas you believe need improvement / could be improved. Also add TODOs for future development.
 
 Room for improvement:
-- Improvement to be done 1
-- Improvement to be done 2
+- Improve consistency of backend service response structures
+- Strengthen error handling across authentication and auction flows
+- Enhance UI feedback for blockchain transactions
+- Optimize database performance and query efficiency
 
 To do:
-- Feature to be added 1
-- Feature to be added 2
+- Add more comprehensive unit and integration tests
+- Implement caching for external API calls (e.g., ETH to USD pricing)
+- Improve deployment setup with load balancing and scaling
+- Introduce asynchronous processing for blockchain transactions
 
+---
 
 ## Acknowledgements
-Give credit here.
-- This project was inspired by...
-- This project was based on [this tutorial](https://www.example.com).
-- Many thanks to...
 
+- Developed as part of CS 3398 (Software Engineering) at Texas State University under Dr. Ted Lehr
+- Blockchain functionality inspired by Ethereum smart contract patterns and Hardhat development tools
+- Pricing data provided by the CoinGecko public API
+- AI tools such as ChatGPT and Claude were used to assist with debugging, design decisions, and implementation
+
+---
 
 ## Contact
-Created by [@flynerdpl](https://www.flynerd.pl/) - feel free to contact me!
 
-
-<!-- Optional -->
-<!-- ## License -->
-<!-- This project is open source and available under the [... License](). -->
-
-<!-- You don't have to include all sections - just the one's relevant to your project -->
+Created by Jorge Martinez-Lopez, Nathan Carlson, Robert Krause, and Kristian Parra for academic purposes.
