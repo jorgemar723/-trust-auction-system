@@ -300,8 +300,7 @@ Robert Krause- Create escrow smart contract logic, Create escrow.py files, refac
 - Polish UI further
 
 ## Screenshots
-![Example screenshot](./img/Trust logo with shield and checkmark.png)
-
+![Trust Logo](img/trust-logo.png)
 ---
 
 ## Setup
